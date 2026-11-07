@@ -27,9 +27,13 @@ public final class Hmac {
         if (message == null) {
             throw new IllegalArgumentException("Message cannot be null");
         }
+        // RFC 2104 allows zero-length keys by zero-padding to the block size (64 bytes).
+        // SecretKeySpec rejects zero-length arrays, so substitute a single 0x00 byte
+        // which HmacSHA256 zero-pads to the identical 64-byte block.
+        byte[] keyBytes = (key.length == 0) ? new byte[1] : key;
         try {
             Mac mac = Mac.getInstance(HMAC_SHA256);
-            SecretKeySpec keySpec = new SecretKeySpec(key, HMAC_SHA256);
+            SecretKeySpec keySpec = new SecretKeySpec(keyBytes, HMAC_SHA256);
             mac.init(keySpec);
             return mac.doFinal(message);
         } catch (NoSuchAlgorithmException e) {
