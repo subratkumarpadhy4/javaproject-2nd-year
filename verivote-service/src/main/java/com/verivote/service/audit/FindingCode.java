@@ -1,0 +1,28 @@
+package com.verivote.service.audit;
+
+public enum FindingCode {
+    // RED (blocks tally)
+    LEDGER_UNREADABLE,
+    CHAIN_HASH_MISMATCH,
+    CHAIN_LINK_BROKEN,
+    MALFORMED_LINE,
+    CIPHERTEXT_MISMATCH,
+    MERKLE_ROOT_MISMATCH,
+    CHAIN_TRUNCATED,
+    DUPLICATE_TOKEN_HASH,
+    ISSUANCE_REGRESSED,
+    VOTES_EXCEED_ISSUED,
+
+    // ALERT (also blocks tally)
+    BLOCK_WITHOUT_VOTE_ROW,
+    DB_CIPHERTEXT_MISMATCH,
+
+    // WARN (does not block)
+    RECOVERY_SIGNATURE_INVALID,
+    ORPHAN_BLOCK_PRESENT,
+    ISSUANCE_RESET_PRESENT,
+
+    // INFO
+    LEDGER_LOADED,
+    CHECKPOINTS_VERIFIED
+}

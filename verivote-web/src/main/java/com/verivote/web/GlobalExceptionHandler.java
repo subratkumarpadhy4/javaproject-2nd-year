@@ -1,5 +1,7 @@
 package com.verivote.web;
 
+import com.verivote.service.recovery.RecoveryException;
+import com.verivote.service.tally.TallyPreconditionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -14,6 +16,20 @@ import java.util.Map;
 public class GlobalExceptionHandler {
 
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
+    @ExceptionHandler(TallyPreconditionException.class)
+    public ResponseEntity<Map<String, Object>> handleTallyPrecondition(TallyPreconditionException e) {
+        log.warn("Tally precondition failed: {}", e.getMessage(), e);
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(Map.of("error", e.getMessage(), "findings", e.getTamperReport().findings()));
+    }
+
+    @ExceptionHandler(RecoveryException.class)
+    public ResponseEntity<Map<String, String>> handleRecovery(RecoveryException e) {
+        log.warn("Recovery failed: {}", e.getMessage(), e);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(Map.of("error", e.getMessage(), "code", e.getCode().name()));
+    }
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Map<String, String>> handleIllegalArgument(IllegalArgumentException e) {
