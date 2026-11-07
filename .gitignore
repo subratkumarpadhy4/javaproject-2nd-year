@@ -1,0 +1,17 @@
+# Compiled output
+target/
+*.class
+
+# IDE files
+.idea/
+*.iml
+.vscode/
+
+# Logs
+*.log
+
+# Ledger files
+ledger/
+
+# Torn-write recovery files
+*.torn
