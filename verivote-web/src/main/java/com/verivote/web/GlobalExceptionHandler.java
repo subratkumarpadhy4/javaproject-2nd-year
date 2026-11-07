@@ -27,8 +27,9 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(RecoveryException.class)
     public ResponseEntity<Map<String, String>> handleRecovery(RecoveryException e) {
         log.warn("Recovery failed: {}", e.getMessage(), e);
+        String msg = e.getMessage() != null ? e.getMessage() : "";
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(Map.of("error", e.getMessage(), "code", e.getCode().name()));
+                .body(Map.of("code", e.getCode().name(), "message", msg, "error", msg));
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

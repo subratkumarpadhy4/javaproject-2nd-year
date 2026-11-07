@@ -7,13 +7,17 @@ import com.verivote.client.screen.LoginScreen;
 import com.verivote.client.screen.TokenScreen;
 import com.verivote.client.screen.VerifyScreen;
 import com.verivote.client.state.SessionState;
+import com.verivote.client.admin.AdminApp;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.stage.Stage;
 
 public class ClientApp extends Application {
@@ -44,7 +48,18 @@ public class ClientApp extends Application {
         topBar.setStyle("-fx-background-color: #1e293b;");
         Label appTitle = new Label("VeriVote-J · Verifiable E-Voting Client");
         appTitle.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white;");
-        topBar.getChildren().add(appTitle);
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        Button adminBtn = new Button("Admin Console");
+        adminBtn.setStyle("-fx-background-color: #3b82f6; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 12px; -fx-padding: 4 12; -fx-cursor: hand; -fx-background-radius: 4;");
+        adminBtn.setOnAction(e -> {
+            Stage adminStage = new Stage();
+            new AdminApp().openOnStage(adminStage);
+        });
+
+        topBar.getChildren().addAll(appTitle, spacer, adminBtn);
         root.setTop(topBar);
 
         showLogin();
