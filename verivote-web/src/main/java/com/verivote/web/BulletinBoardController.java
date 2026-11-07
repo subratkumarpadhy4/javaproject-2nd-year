@@ -7,6 +7,7 @@ import com.verivote.data.entity.Checkpoint;
 import com.verivote.data.entity.Vote;
 import com.verivote.data.repo.CheckpointRepo;
 import com.verivote.data.repo.VoteRepo;
+import com.verivote.service.checkpoint.CheckpointService;
 import com.verivote.service.tally.TallyResult;
 import com.verivote.service.tally.TallyService;
 import com.verivote.web.dto.CheckpointResponse;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -29,18 +31,36 @@ public class BulletinBoardController {
     private final CheckpointRepo checkpointRepo;
     private final LedgerService ledgerService;
     private final TallyService tallyService;
+    private final CheckpointService checkpointService;
 
     @Autowired
     public BulletinBoardController(
             VoteRepo voteRepo,
             CheckpointRepo checkpointRepo,
             LedgerService ledgerService,
-            TallyService tallyService
+            TallyService tallyService,
+            @Autowired(required = false) CheckpointService checkpointService
     ) {
         this.voteRepo = voteRepo;
         this.checkpointRepo = checkpointRepo;
         this.ledgerService = ledgerService;
         this.tallyService = tallyService;
+        this.checkpointService = checkpointService;
+    }
+
+    @PostMapping("/checkpoint")
+    public ResponseEntity<?> forceCheckpoint() {
+        if (checkpointService == null) {
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+                    .body(Map.of("error", "CheckpointService not available"));
+        }
+        return checkpointService.forceNow()
+                .map(cp -> ResponseEntity.ok(Map.of(
+                        "status", "created",
+                        "treeSize", cp.treeSize(),
+                        "merkleRoot", cp.merkleRoot()
+                )))
+                .orElseGet(() -> ResponseEntity.ok(Map.of("status", "empty_ledger")));
     }
 
     @GetMapping("/receipts")

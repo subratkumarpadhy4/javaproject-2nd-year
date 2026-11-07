@@ -80,18 +80,6 @@ public class VoterService {
         return voter.getId();
     }
 
-    /**
-     * Verify TOTP code. Returns voter_id if valid, throws otherwise.
-     */
-    @Transactional(readOnly = true)
-    public Long verifyTotp(Long voterId, int code) {
-        Voter voter = findById(voterId);
-        if (voter.getTotpSecret() == null || !TotpService.verify(voter.getTotpSecret(), code, 1)) {
-            throw new IllegalArgumentException("invalid totp code");
-        }
-        return voterId;
-    }
-
     @Transactional(readOnly = true)
     public Voter findById(Long id) {
         return voterRepo.findById(id)

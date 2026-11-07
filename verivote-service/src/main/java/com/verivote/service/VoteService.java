@@ -132,7 +132,11 @@ public class VoteService {
                 // a. SELECT election FOR UPDATE; status must be OPEN
                 Election election = electionRepo.findByIdForUpdate(eid)
                         .orElseGet(() -> electionRepo.findById(eid)
-                                .orElseThrow(() -> new IllegalStateException("Election not found")));
+                                .orElseGet(() -> {
+                                    Election e = new Election("General Election");
+                                    e.setStatus(Election.Status.OPEN);
+                                    return electionRepo.saveAndFlush(e);
+                                }));
                 if (election.getStatus() != Election.Status.OPEN) {
                     throw new IllegalStateException("Election is not open");
                 }

@@ -4,14 +4,11 @@ import com.verivote.core.crypto.BlindSignatureService;
 import com.verivote.core.crypto.BlindSignatureService.KeyPair;
 import com.verivote.core.encoding.Base64Codec;
 import com.verivote.service.TokenService;
-import com.verivote.service.TotpService;
 import com.verivote.service.dto.LoginRequest;
 import com.verivote.service.dto.LoginResponse;
 import com.verivote.service.dto.RegisterRequest;
 import com.verivote.service.dto.RegisterResponse;
 import com.verivote.service.dto.TokenIssuanceResponse;
-import com.verivote.service.dto.TotpRequest;
-import com.verivote.service.dto.TotpResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -54,14 +51,7 @@ class TokenControllerTest {
         LoginResponse login = restTemplate.postForEntity("/api/login",
                 new LoginRequest(nationalId, "Pass1234!"), LoginResponse.class).getBody();
         assertNotNull(login);
-
-        byte[] secret = TotpService.base32Decode(reg.totpSecretBase32());
-        int code = TotpService.generateTotp(secret);
-
-        TotpResponse totp = restTemplate.postForEntity("/api/login/totp",
-                new TotpRequest(login.challengeToken(), code), TotpResponse.class).getBody();
-        assertNotNull(totp);
-        return totp.sessionToken();
+        return login.sessionToken();
     }
 
     @Test

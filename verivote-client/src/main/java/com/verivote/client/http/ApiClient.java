@@ -15,9 +15,8 @@ public class ApiClient {
     private final HttpClient http;
     private final String baseUrl;
 
-    public record RegisterResponse(String totpSecretBase32, String otpauthUri) {}
-    public record LoginResponse(String challengeToken) {}
-    public record TotpResponse(String sessionToken) {}
+    public record RegisterResponse(String status) {}
+    public record LoginResponse(String sessionToken) {}
     public record PubkeyResponse(String publicKeySpki) {}
     public record TokenIssuanceResponse(String signature, long issued) {}
     public record VoteResponse(String receiptHash, long blockHeight, String blockHash) {}
@@ -45,10 +44,7 @@ public class ApiClient {
                 ",\"password\":" + escapeJson(password) + "}";
         HttpResponse<String> resp = sendPost("/api/register", json, null);
         Map<String, Object> map = parseObject(resp.body());
-        return new RegisterResponse(
-                (String) map.get("totpSecretBase32"),
-                (String) map.get("otpauthUri")
-        );
+        return new RegisterResponse((String) map.getOrDefault("status", "registered"));
     }
 
     public LoginResponse login(String nationalId, String password) throws ApiException {
@@ -56,15 +52,7 @@ public class ApiClient {
                 ",\"password\":" + escapeJson(password) + "}";
         HttpResponse<String> resp = sendPost("/api/login", json, null);
         Map<String, Object> map = parseObject(resp.body());
-        return new LoginResponse((String) map.get("challengeToken"));
-    }
-
-    public TotpResponse verifyTotp(String challengeToken, int totpCode) throws ApiException {
-        String json = "{\"challengeToken\":" + escapeJson(challengeToken) +
-                ",\"totpCode\":" + totpCode + "}";
-        HttpResponse<String> resp = sendPost("/api/login/totp", json, null);
-        Map<String, Object> map = parseObject(resp.body());
-        return new TotpResponse((String) map.get("sessionToken"));
+        return new LoginResponse((String) map.get("sessionToken"));
     }
 
     public PubkeyResponse getTallyPubkey() throws ApiException {
@@ -156,6 +144,13 @@ public class ApiClient {
             }
         }
         return result;
+    }
+
+    public void triggerCheckpoint() {
+        try {
+            sendPost("/bb/checkpoint", "{}", null);
+        } catch (Exception ignored) {
+        }
     }
 
     // --- HTTP helpers ---

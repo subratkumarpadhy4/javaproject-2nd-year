@@ -160,10 +160,23 @@ public class VerifyScreen extends VBox {
                 long blockHeight = vResp.index() != null ? vResp.index() : state.getBlockHeight();
 
                 if ("PENDING_INCLUSION".equalsIgnoreCase(status) || vResp.proof() == null || vResp.proof().isEmpty()) {
+                    try {
+                        api.triggerCheckpoint();
+                        vResp = api.verifyReceipt(receipt);
+                        status = vResp.status();
+                        if (vResp.index() != null) {
+                            blockHeight = vResp.index();
+                        }
+                    } catch (Exception ignored) {
+                    }
+                }
+
+                if ("PENDING_INCLUSION".equalsIgnoreCase(status) || vResp.proof() == null || vResp.proof().isEmpty()) {
+                    long finalBlockHeight = blockHeight;
                     // STATE 1 or STATE 2: PENDING / PENDING_INCLUSION
                     Platform.runLater(() -> {
                         showState(1, "Vote Pending Checkpoint Inclusion",
-                                "Your vote is recorded in the ledger (block #" + blockHeight + "), awaiting inclusion in a signed checkpoint.\nAuto-retrying every 10 seconds...",
+                                "Your vote is recorded in the ledger (block #" + finalBlockHeight + "), awaiting inclusion in a signed checkpoint.\nAuto-retrying every 10 seconds...",
                                 null);
                         scheduleAutoRetry();
                         verifyButton.setDisable(false);
@@ -199,7 +212,12 @@ public class VerifyScreen extends VBox {
                 boolean sigValid = true;
                 String sigStatusMsg;
                 if (ckptPub != null) {
-                    byte[] sigBytes = Hex.decode(coveringCp.signature());
+                    byte[] sigBytes;
+                    try {
+                        sigBytes = com.verivote.core.encoding.Base64Codec.decode(coveringCp.signature());
+                    } catch (Exception e) {
+                        sigBytes = Hex.decode(coveringCp.signature());
+                    }
                     byte[] rootBytes = Hex.decode(coveringCp.merkleRoot());
                     byte[] headBytes = Hex.decode(coveringCp.headHash());
                     sigValid = ClientCrypto.verifyCheckpointSignature(coveringCp.treeSize(), rootBytes, headBytes, sigBytes, ckptPub);
@@ -247,12 +265,13 @@ public class VerifyScreen extends VBox {
 
                 // STATE 3: VALID
                 stopRetryTimer();
+                final long validBlockHeight = blockHeight;
                 Platform.runLater(() -> {
                     String rootTrunc = coveringCp.merkleRoot();
                     if (rootTrunc.length() > 24) {
                         rootTrunc = rootTrunc.substring(0, 12) + "..." + rootTrunc.substring(rootTrunc.length() - 12);
                     }
-                    String details = "Block Height: #" + blockHeight + "\n" +
+                    String details = "Block Height: #" + validBlockHeight + "\n" +
                             "Merkle Root: " + rootTrunc + "\n" +
                             "Checkpoint Tree Size: " + coveringCp.treeSize() + "\n" +
                             sigStatusMsg;

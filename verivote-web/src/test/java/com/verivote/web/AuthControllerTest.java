@@ -1,12 +1,9 @@
 package com.verivote.web;
 
-import com.verivote.service.TotpService;
 import com.verivote.service.dto.LoginRequest;
 import com.verivote.service.dto.LoginResponse;
 import com.verivote.service.dto.RegisterRequest;
 import com.verivote.service.dto.RegisterResponse;
-import com.verivote.service.dto.TotpRequest;
-import com.verivote.service.dto.TotpResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -41,8 +38,6 @@ class AuthControllerTest {
 
         assertEquals(HttpStatus.CREATED, resp.getStatusCode());
         assertNotNull(resp.getBody());
-        assertNotNull(resp.getBody().totpSecretBase32());
-        assertTrue(resp.getBody().otpauthUri().contains("AUTH-NAT-1"));
     }
 
     @Test
@@ -58,7 +53,7 @@ class AuthControllerTest {
     }
 
     @Test
-    @DisplayName("3. POST /api/login correct -> 200 with challengeToken")
+    @DisplayName("3. POST /api/login correct -> 200 with sessionToken")
     void loginCorrect() {
         restTemplate.postForEntity("/api/register", new RegisterRequest("AUTH-NAT-3", "Voter Three", "Pass1234!"), RegisterResponse.class);
 
@@ -67,7 +62,9 @@ class AuthControllerTest {
 
         assertEquals(HttpStatus.OK, resp.getStatusCode());
         assertNotNull(resp.getBody());
-        assertNotNull(resp.getBody().challengeToken());
+        assertNotNull(resp.getBody().sessionToken());
+        assertTrue(sessionStore.getVoterId(resp.getBody().sessionToken()).isPresent(),
+                "Session token must resolve to voterId in SessionStore");
     }
 
     @Test
@@ -82,70 +79,5 @@ class AuthControllerTest {
         LoginRequest unknownUser = new LoginRequest("AUTH-UNKNOWN-99", "Pass1234!");
         ResponseEntity<String> respUnknown = restTemplate.postForEntity("/api/login", unknownUser, String.class);
         assertEquals(HttpStatus.UNAUTHORIZED, respUnknown.getStatusCode());
-    }
-
-    @Test
-    @DisplayName("5. POST /api/login/totp correct code -> 200 + sessionToken")
-    void loginTotpCorrect() {
-        RegisterResponse reg = restTemplate.postForEntity("/api/register",
-                new RegisterRequest("AUTH-NAT-5", "Voter Five", "Pass1234!"), RegisterResponse.class).getBody();
-        assertNotNull(reg);
-
-        LoginResponse login = restTemplate.postForEntity("/api/login",
-                new LoginRequest("AUTH-NAT-5", "Pass1234!"), LoginResponse.class).getBody();
-        assertNotNull(login);
-
-        byte[] secret = TotpService.base32Decode(reg.totpSecretBase32());
-        int code = TotpService.generateTotp(secret);
-
-        TotpRequest totpReq = new TotpRequest(login.challengeToken(), code);
-        ResponseEntity<TotpResponse> resp = restTemplate.postForEntity("/api/login/totp", totpReq, TotpResponse.class);
-
-        assertEquals(HttpStatus.OK, resp.getStatusCode());
-        assertNotNull(resp.getBody());
-        assertNotNull(resp.getBody().sessionToken());
-    }
-
-    @Test
-    @DisplayName("6. POST /api/login/totp wrong code -> 401")
-    void loginTotpWrongCode() {
-        RegisterResponse reg = restTemplate.postForEntity("/api/register",
-                new RegisterRequest("AUTH-NAT-6", "Voter Six", "Pass1234!"), RegisterResponse.class).getBody();
-        assertNotNull(reg);
-
-        LoginResponse login = restTemplate.postForEntity("/api/login",
-                new LoginRequest("AUTH-NAT-6", "Pass1234!"), LoginResponse.class).getBody();
-        assertNotNull(login);
-
-        byte[] secret = TotpService.base32Decode(reg.totpSecretBase32());
-        int code = TotpService.generateTotp(secret);
-        int wrongCode = (code + 500_000) % 1_000_000;
-
-        TotpRequest totpReq = new TotpRequest(login.challengeToken(), wrongCode);
-        ResponseEntity<String> resp = restTemplate.postForEntity("/api/login/totp", totpReq, String.class);
-
-        assertEquals(HttpStatus.UNAUTHORIZED, resp.getStatusCode());
-    }
-
-    @Test
-    @DisplayName("7. Full chain: register -> login -> totp -> sessionToken valid in SessionStore")
-    void fullAuthChain() {
-        RegisterResponse reg = restTemplate.postForEntity("/api/register",
-                new RegisterRequest("AUTH-NAT-7", "Voter Seven", "Pass1234!"), RegisterResponse.class).getBody();
-        assertNotNull(reg);
-
-        LoginResponse login = restTemplate.postForEntity("/api/login",
-                new LoginRequest("AUTH-NAT-7", "Pass1234!"), LoginResponse.class).getBody();
-        assertNotNull(login);
-
-        byte[] secret = TotpService.base32Decode(reg.totpSecretBase32());
-        int code = TotpService.generateTotp(secret);
-
-        TotpResponse totpResp = restTemplate.postForEntity("/api/login/totp",
-                new TotpRequest(login.challengeToken(), code), TotpResponse.class).getBody();
-        assertNotNull(totpResp);
-
-        assertTrue(sessionStore.getVoterId(totpResp.sessionToken()).isPresent(),
-                "Session token must resolve to a valid voterId in SessionStore");
     }
 }

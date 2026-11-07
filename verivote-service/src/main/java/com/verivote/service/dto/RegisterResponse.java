@@ -1,3 +1,7 @@
 package com.verivote.service.dto;
 
-public record RegisterResponse(String totpSecretBase32, String otpauthUri) {}
+public record RegisterResponse(String status) {
+    public RegisterResponse() {
+        this("registered");
+    }
+}
