@@ -11,7 +11,7 @@ target/
 *.log
 
 # Ledger files
-/ledger/
+**/ledger/
 
 # Torn-write recovery files
 *.torn
