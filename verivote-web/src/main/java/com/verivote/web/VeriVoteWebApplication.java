@@ -28,13 +28,20 @@ public class VeriVoteWebApplication {
 
     @Bean
     public LedgerService ledgerService() {
-        Path p = Paths.get(System.getProperty("verivote.ledger.path", "./ledger/blocks.ndjson"));
-        return new FileLedgerService(p);
+        String pathStr = System.getenv("VERIVOTE_LEDGER_PATH");
+        if (pathStr == null || pathStr.isBlank()) {
+            pathStr = System.getProperty("verivote.ledger.path", "./ledger/blocks.ndjson");
+        }
+        return new FileLedgerService(Paths.get(pathStr));
     }
 
     @Bean
     public FileSink fileSink() {
-        return new FileSink("./ledger/checkpoints");
+        String dirStr = System.getenv("VERIVOTE_CHECKPOINT_DIR");
+        if (dirStr == null || dirStr.isBlank()) {
+            dirStr = System.getProperty("verivote.checkpoint.dir", "./ledger/checkpoints");
+        }
+        return new FileSink(dirStr);
     }
 
     @Bean

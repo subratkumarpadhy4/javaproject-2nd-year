@@ -37,4 +37,4 @@ EXPOSE 8080
 
 VOLUME ["/app/ledger"]
 
-ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar /app/verivote-web.jar"]
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -Dserver.port=${PORT:-8080} -jar /app/verivote-web.jar"]

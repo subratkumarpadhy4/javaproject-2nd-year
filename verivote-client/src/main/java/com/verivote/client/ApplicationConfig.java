@@ -31,6 +31,11 @@ public final class ApplicationConfig {
         if (val != null && !val.isBlank()) {
             return val;
         }
+        String envKey = key.replace('.', '_').toUpperCase();
+        String envVal = System.getenv(envKey);
+        if (envVal != null && !envVal.isBlank()) {
+            return envVal;
+        }
         return props.getProperty(key, defaultValue);
     }
 }

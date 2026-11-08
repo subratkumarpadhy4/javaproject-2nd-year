@@ -5,6 +5,8 @@
     "dockerfilePath": "Dockerfile"
   },
   "deploy": {
+    "healthcheckPath": "/bb/receipts",
+    "healthcheckTimeout": 120,
     "restartPolicyType": "ON_FAILURE",
     "restartPolicyMaxRetries": 10
   }
