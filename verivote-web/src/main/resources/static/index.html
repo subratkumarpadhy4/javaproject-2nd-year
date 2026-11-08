@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VeriVote-J | Verifiable E-Voting</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    code, pre, .font-mono { font-family: 'JetBrains Mono', monospace; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+
+  <!-- Navigation Bar -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
+    <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-9 h-9 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold text-lg shadow-sm">
+          V
+        </div>
+        <div>
+          <span class="font-bold text-lg text-slate-900 tracking-tight">VeriVote-J</span>
+          <span class="text-xs ml-1.5 px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 font-medium border border-blue-200">Cloud Live</span>
+        </div>
+      </div>
+      <nav class="flex items-center space-x-1 sm:space-x-2">
+        <button onclick="switchTab('vote')" id="nav-vote" class="px-3 py-1.5 rounded-lg text-sm font-medium bg-blue-50 text-blue-700 transition">
+          Vote Portal
+        </button>
+        <button onclick="switchTab('verify')" id="nav-verify" class="px-3 py-1.5 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition">
+          Verify Vote
+        </button>
+        <button onclick="switchTab('bb')" id="nav-bb" class="px-3 py-1.5 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition">
+          Bulletin Board
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="flex-1 max-w-4xl w-full mx-auto p-4 sm:p-6 my-6">
+
+    <!-- ==================== TAB 1: VOTE PORTAL ==================== -->
+    <section id="tab-vote" class="space-y-6">
+
+      <!-- STEP 1: AUTH (Register / Login) -->
+      <div id="auth-card" class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-8">
+        <div class="max-w-md mx-auto space-y-6">
+          <div class="text-center">
+            <h2 id="auth-title" class="text-2xl font-bold text-slate-900">Voter Login</h2>
+            <p id="auth-subtitle" class="text-sm text-slate-500 mt-1">Sign in with your national voter credentials</p>
+          </div>
+
+          <div id="auth-error" class="hidden p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm font-medium"></div>
+          <div id="auth-success" class="hidden p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm font-medium"></div>
+
+          <form id="auth-form" onsubmit="handleAuth(event)" class="space-y-4">
+            <div id="field-name" class="hidden">
+              <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Full Name</label>
+              <input type="text" id="input-name" placeholder="John Doe" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm outline-none transition">
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">National ID</label>
+              <input type="text" id="input-nid" required placeholder="e.g. NID-883921" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm outline-none transition font-mono">
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Password</label>
+              <input type="password" id="input-pw" required placeholder="••••••••" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm outline-none transition">
+            </div>
+
+            <button type="submit" id="btn-auth-submit" class="w-full py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm shadow-sm transition">
+              Sign In
+            </button>
+          </form>
+
+          <div class="text-center">
+            <button type="button" onclick="toggleAuthMode()" id="btn-auth-toggle" class="text-xs text-blue-600 hover:text-blue-800 font-medium underline">
+              Don't have an account? Register as new voter
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 2: TOKEN ISSUANCE -->
+      <div id="token-card" class="hidden bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-8">
+        <div class="max-w-md mx-auto text-center space-y-6">
+          <div class="w-12 h-12 mx-auto rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-xl font-bold">
+            🔑
+          </div>
+          <div>
+            <h2 class="text-2xl font-bold text-slate-900">Anonymous Token Issuance</h2>
+            <p class="text-sm text-slate-500 mt-1">Cryptographic Blind Signature ensures your identity cannot be linked to your vote</p>
+          </div>
+
+          <div id="token-error" class="hidden p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm font-medium"></div>
+
+          <button onclick="requestToken()" id="btn-request-token" class="w-full py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm shadow-sm transition">
+            Request Blind-Signed Token
+          </button>
+        </div>
+      </div>
+
+      <!-- STEP 3: OFFICIAL BALLOT -->
+      <div id="ballot-card" class="hidden bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-8">
+        <div class="space-y-6">
+          <div class="border-b border-slate-100 pb-4">
+            <h2 class="text-2xl font-bold text-slate-900">Official Ballot</h2>
+            <p class="text-sm text-slate-500 mt-1">Select your candidate. Your ballot is encrypted with the election tally public key.</p>
+          </div>
+
+          <div id="ballot-error" class="hidden p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm font-medium"></div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <label class="candidate-option cursor-pointer border-2 border-slate-200 rounded-2xl p-5 hover:border-blue-500 transition relative block">
+              <input type="radio" name="candidate" value="1" checked class="hidden">
+              <div class="flex items-center justify-between mb-3">
+                <span class="w-7 h-7 rounded-full bg-blue-100 text-blue-700 text-xs font-bold flex items-center justify-center">1</span>
+                <span class="text-xs px-2 py-0.5 rounded-full bg-slate-100 font-medium text-slate-600">Party A</span>
+              </div>
+              <h3 class="font-bold text-slate-900 text-lg">Alice Johnson</h3>
+              <p class="text-xs text-slate-500 mt-1">Progressive Democratic Coalition</p>
+            </label>
+
+            <label class="candidate-option cursor-pointer border-2 border-slate-200 rounded-2xl p-5 hover:border-blue-500 transition relative block">
+              <input type="radio" name="candidate" value="2" class="hidden">
+              <div class="flex items-center justify-between mb-3">
+                <span class="w-7 h-7 rounded-full bg-emerald-100 text-emerald-700 text-xs font-bold flex items-center justify-center">2</span>
+                <span class="text-xs px-2 py-0.5 rounded-full bg-slate-100 font-medium text-slate-600">Party B</span>
+              </div>
+              <h3 class="font-bold text-slate-900 text-lg">Bob Smith</h3>
+              <p class="text-xs text-slate-500 mt-1">National Union Reform</p>
+            </label>
+
+            <label class="candidate-option cursor-pointer border-2 border-slate-200 rounded-2xl p-5 hover:border-blue-500 transition relative block">
+              <input type="radio" name="candidate" value="3" class="hidden">
+              <div class="flex items-center justify-between mb-3">
+                <span class="w-7 h-7 rounded-full bg-purple-100 text-purple-700 text-xs font-bold flex items-center justify-center">3</span>
+                <span class="text-xs px-2 py-0.5 rounded-full bg-slate-100 font-medium text-slate-600">Party C</span>
+              </div>
+              <h3 class="font-bold text-slate-900 text-lg">Charlie Davis</h3>
+              <p class="text-xs text-slate-500 mt-1">Liberty & Independent Alliance</p>
+            </label>
+          </div>
+
+          <button onclick="castBallot()" id="btn-cast-ballot" class="w-full py-3 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm shadow-sm transition">
+            Cast Encrypted Vote
+          </button>
+        </div>
+      </div>
+
+      <!-- STEP 4: RECEIPT CARD -->
+      <div id="receipt-card" class="hidden bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-8">
+        <div class="text-center space-y-5">
+          <div class="w-14 h-14 mx-auto rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center text-2xl font-bold">
+            ✓
+          </div>
+          <div>
+            <h2 class="text-2xl font-bold text-slate-900">Vote Cast Successfully!</h2>
+            <p class="text-sm text-slate-500 mt-1">Your encrypted ballot is anchored in the append-only ledger</p>
+          </div>
+
+          <div class="bg-slate-50 rounded-xl p-4 text-left border border-slate-200 space-y-2">
+            <div>
+              <span class="text-xs font-semibold text-slate-500 uppercase">Block Height</span>
+              <p id="receipt-height" class="font-mono text-sm font-bold text-slate-900">#0</p>
+            </div>
+            <div>
+              <span class="text-xs font-semibold text-slate-500 uppercase">Cryptographic Receipt Hash</span>
+              <p id="receipt-hash" class="font-mono text-xs break-all bg-white p-2.5 rounded-lg border border-slate-200 text-slate-800"></p>
+            </div>
+          </div>
+
+          <button onclick="verifyCurrentVote()" class="w-full py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm shadow-sm transition">
+            Verify Vote in Ledger (1 Click)
+          </button>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ==================== TAB 2: VERIFY PORTAL ==================== -->
+    <section id="tab-verify" class="hidden space-y-6">
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-8 space-y-6">
+        <div>
+          <h2 class="text-2xl font-bold text-slate-900">Cryptographic Verification</h2>
+          <p class="text-sm text-slate-500 mt-1">Independently audit that your ballot exists in the tamper-evident Merkle ledger</p>
+        </div>
+
+        <div class="flex gap-2">
+          <input type="text" id="verify-input" placeholder="Paste 64-character receipt hash..." class="flex-1 px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm font-mono outline-none">
+          <button onclick="runVerification()" id="btn-run-verify" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-sm transition">
+            Verify
+          </button>
+        </div>
+
+        <div id="verify-result" class="hidden"></div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 3: PUBLIC BULLETIN BOARD ==================== -->
+    <section id="tab-bb" class="hidden space-y-6">
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-8 space-y-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-2xl font-bold text-slate-900">Public Bulletin Board</h2>
+            <p class="text-sm text-slate-500 mt-1">Append-only audit trail and signed checkpoints published live</p>
+          </div>
+          <button onclick="loadBulletinBoard()" class="px-3 py-1.5 rounded-lg text-xs font-medium border border-slate-300 text-slate-700 hover:bg-slate-50 transition">
+            ↻ Refresh
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Receipts List -->
+          <div class="border border-slate-200 rounded-xl p-4">
+            <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wide mb-3 flex items-center justify-between">
+              <span>Cast Receipts</span>
+              <span id="bb-receipts-count" class="px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 text-xs">0</span>
+            </h3>
+            <div id="bb-receipts-list" class="space-y-1.5 max-h-80 overflow-y-auto text-xs font-mono text-slate-600 pr-1">
+              <p class="text-slate-400 italic">No receipts recorded yet</p>
+            </div>
+          </div>
+
+          <!-- Checkpoints List -->
+          <div class="border border-slate-200 rounded-xl p-4">
+            <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wide mb-3 flex items-center justify-between">
+              <span>Signed Checkpoints</span>
+              <span id="bb-checkpoints-count" class="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-xs">0</span>
+            </h3>
+            <div id="bb-checkpoints-list" class="space-y-2 max-h-80 overflow-y-auto text-xs pr-1">
+              <p class="text-slate-400 italic">No checkpoints recorded yet</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-200 bg-white py-6 mt-auto text-center text-xs text-slate-500">
+    <p>VeriVote-J • Cryptographically Verifiable End-to-End Electronic Voting System</p>
+    <p class="mt-1">Powered by RSA Blind Signatures, OAEP Encryption, and SHA-256 Merkle Trees</p>
+  </footer>
+
+  <!-- Application Logic -->
+  <script>
+    let isRegisterMode = false;
+    let sessionToken = null;
+    let tokenData = null;
+    let lastReceiptHash = null;
+
+    // Candidate selector styling
+    document.querySelectorAll('.candidate-option').forEach(card => {
+      card.addEventListener('click', () => {
+        document.querySelectorAll('.candidate-option').forEach(c => {
+          c.classList.remove('border-blue-600', 'bg-blue-50/50');
+          c.classList.add('border-slate-200');
+        });
+        card.classList.remove('border-slate-200');
+        card.classList.add('border-blue-600', 'bg-blue-50/50');
+      });
+    });
+
+    function switchTab(tab) {
+      ['vote', 'verify', 'bb'].forEach(t => {
+        document.getElementById(`tab-${t}`).classList.add('hidden');
+        document.getElementById(`nav-${t}`).className = 'px-3 py-1.5 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition';
+      });
+      document.getElementById(`tab-${tab}`).classList.remove('hidden');
+      document.getElementById(`nav-${tab}`).className = 'px-3 py-1.5 rounded-lg text-sm font-medium bg-blue-50 text-blue-700 transition';
+
+      if (tab === 'bb') loadBulletinBoard();
+    }
+
+    function toggleAuthMode() {
+      isRegisterMode = !isRegisterMode;
+      document.getElementById('auth-error').classList.add('hidden');
+      document.getElementById('auth-success').classList.add('hidden');
+
+      if (isRegisterMode) {
+        document.getElementById('auth-title').innerText = 'Voter Registration';
+        document.getElementById('auth-subtitle').innerText = 'Create your verifiable national credentials';
+        document.getElementById('field-name').classList.remove('hidden');
+        document.getElementById('btn-auth-submit').innerText = 'Register Voter';
+        document.getElementById('btn-auth-toggle').innerText = 'Already have credentials? Sign in instead';
+      } else {
+        document.getElementById('auth-title').innerText = 'Voter Login';
+        document.getElementById('auth-subtitle').innerText = 'Sign in with your national voter credentials';
+        document.getElementById('field-name').classList.add('hidden');
+        document.getElementById('btn-auth-submit').innerText = 'Sign In';
+        document.getElementById('btn-auth-toggle').innerText = "Don't have an account? Register as new voter";
+      }
+    }
+
+    async function handleAuth(e) {
+      e.preventDefault();
+      const errBox = document.getElementById('auth-error');
+      const succBox = document.getElementById('auth-success');
+      errBox.classList.add('hidden');
+      succBox.classList.add('hidden');
+
+      const nid = document.getElementById('input-nid').value.trim();
+      const pw = document.getElementById('input-pw').value;
+      const name = document.getElementById('input-name').value.trim();
+
+      try {
+        if (isRegisterMode) {
+          const res = await fetch('/api/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ nationalId: nid, displayName: name, password: pw })
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || 'Registration failed');
+
+          succBox.innerText = 'Registration successful! You may now sign in.';
+          succBox.classList.remove('hidden');
+          toggleAuthMode();
+        } else {
+          const res = await fetch('/api/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ nationalId: nid, password: pw })
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || 'Invalid credentials');
+
+          sessionToken = data.sessionToken;
+          document.getElementById('auth-card').classList.add('hidden');
+          document.getElementById('token-card').classList.remove('hidden');
+        }
+      } catch (err) {
+        errBox.innerText = err.message;
+        errBox.classList.remove('hidden');
+      }
+    }
+
+    async function requestToken() {
+      const errBox = document.getElementById('token-error');
+      const btn = document.getElementById('btn-request-token');
+      errBox.classList.add('hidden');
+      btn.disabled = true;
+      btn.innerText = 'Requesting Blind Signature...';
+
+      try {
+        const res = await fetch('/api/web/request-token', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${sessionToken}`
+          }
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to issue token');
+
+        tokenData = data;
+        document.getElementById('token-card').classList.add('hidden');
+        document.getElementById('ballot-card').classList.remove('hidden');
+      } catch (err) {
+        errBox.innerText = err.message;
+        errBox.classList.remove('hidden');
+        btn.disabled = false;
+        btn.innerText = 'Request Blind-Signed Token';
+      }
+    }
+
+    async function castBallot() {
+      const errBox = document.getElementById('ballot-error');
+      const btn = document.getElementById('btn-cast-ballot');
+      errBox.classList.add('hidden');
+      btn.disabled = true;
+      btn.innerText = 'Encrypting & Appending to Ledger...';
+
+      const selected = document.querySelector('input[name="candidate"]:checked').value;
+
+      try {
+        const res = await fetch('/api/web/cast-vote', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            candidateId: parseInt(selected),
+            tokenPlain: tokenData.tokenPlain,
+            signature: tokenData.signature
+          })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Vote submission failed');
+
+        lastReceiptHash = data.receiptHash;
+        document.getElementById('receipt-height').innerText = `#${data.blockHeight}`;
+        document.getElementById('receipt-hash').innerText = data.receiptHash;
+
+        document.getElementById('ballot-card').classList.add('hidden');
+        document.getElementById('receipt-card').classList.remove('hidden');
+      } catch (err) {
+        errBox.innerText = err.message;
+        errBox.classList.remove('hidden');
+        btn.disabled = false;
+        btn.innerText = 'Cast Encrypted Vote';
+      }
+    }
+
+    function verifyCurrentVote() {
+      document.getElementById('verify-input').value = lastReceiptHash;
+      switchTab('verify');
+      runVerification();
+    }
+
+    async function runVerification() {
+      const hash = document.getElementById('verify-input').value.trim();
+      const resBox = document.getElementById('verify-result');
+      const btn = document.getElementById('btn-run-verify');
+
+      if (!hash) return;
+      btn.disabled = true;
+      btn.innerText = 'Verifying...';
+
+      try {
+        const res = await fetch(`/api/web/verify/${hash}`);
+        const data = await res.json();
+
+        resBox.classList.remove('hidden');
+
+        if (data.status === 'VERIFIED') {
+          resBox.innerHTML = `
+            <div class="p-6 rounded-2xl bg-emerald-50 border border-emerald-200 text-slate-800 space-y-4">
+              <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-lg">✓</div>
+                <div>
+                  <h4 class="font-bold text-emerald-950 text-base">Cryptographically Verified in Ledger</h4>
+                  <p class="text-xs text-emerald-700">Valid Merkle inclusion proof evaluates to signed checkpoint root</p>
+                </div>
+              </div>
+              <div class="space-y-1.5 font-mono text-xs bg-white/70 p-4 rounded-xl border border-emerald-100">
+                <p><span class="font-bold text-slate-600">Block Height:</span> #${data.blockHeight}</p>
+                <p><span class="font-bold text-slate-600">Merkle Tree Size:</span> ${data.treeSize} blocks</p>
+                <p><span class="font-bold text-slate-600">Merkle Root:</span> ${data.merkleRoot}</p>
+                <p class="truncate"><span class="font-bold text-slate-600">Ed25519 Checkpoint Sig:</span> ${data.checkpointSignature}</p>
+              </div>
+            </div>
+          `;
+        } else if (data.status === 'PENDING_INCLUSION') {
+          resBox.innerHTML = `
+            <div class="p-5 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 space-y-2">
+              <div class="flex items-center space-x-2 font-bold text-sm">
+                <span>⏳</span>
+                <span>Pending Checkpoint Inclusion</span>
+              </div>
+              <p class="text-xs text-amber-800">Your vote is appended at block #${data.blockHeight}. Awaiting checkpoint seal.</p>
+            </div>
+          `;
+        } else {
+          resBox.innerHTML = `
+            <div class="p-5 rounded-2xl bg-red-50 border border-red-200 text-red-900 text-xs font-medium">
+              ${data.error || 'Verification failed'}
+            </div>
+          `;
+        }
+      } catch (err) {
+        resBox.classList.remove('hidden');
+        resBox.innerHTML = `<div class="p-4 rounded-xl bg-red-50 text-red-700 text-xs">${err.message}</div>`;
+      } finally {
+        btn.disabled = false;
+        btn.innerText = 'Verify';
+      }
+    }
+
+    async function loadBulletinBoard() {
+      try {
+        const [rRes, cRes] = await Promise.all([
+          fetch('/bb/receipts'),
+          fetch('/bb/checkpoints')
+        ]);
+        const receipts = await rRes.json();
+        const checkpoints = await cRes.json();
+
+        document.getElementById('bb-receipts-count').innerText = receipts.length;
+        document.getElementById('bb-checkpoints-count').innerText = checkpoints.length;
+
+        const rList = document.getElementById('bb-receipts-list');
+        if (receipts.length > 0) {
+          rList.innerHTML = receipts.map((r, i) => `
+            <div class="p-2 bg-slate-50 hover:bg-slate-100 rounded-lg truncate border border-slate-100 flex items-center justify-between">
+              <span class="truncate pr-2">${r}</span>
+              <button onclick="document.getElementById('verify-input').value='${r}'; switchTab('verify'); runVerification();" class="text-blue-600 hover:text-blue-800 text-[10px] uppercase font-bold shrink-0">Verify</button>
+            </div>
+          `).join('');
+        }
+
+        const cList = document.getElementById('bb-checkpoints-list');
+        if (checkpoints.length > 0) {
+          cList.innerHTML = checkpoints.map(c => `
+            <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-100 font-mono space-y-1">
+              <div class="flex justify-between items-center text-slate-800 font-bold">
+                <span>Tree Size: ${c.treeSize} blocks</span>
+              </div>
+              <div class="text-[11px] text-slate-500 truncate">Root: ${c.merkleRoot}</div>
+            </div>
+          `).join('');
+        }
+      } catch (e) {
+        console.error('Failed to load bulletin board', e);
+      }
+    }
+  </script>
+</body>
+</html>

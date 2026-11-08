@@ -10,8 +10,8 @@ import java.util.Map;
 @RestController
 public class HomeController {
 
-    @GetMapping("/")
-    public ResponseEntity<Map<String, Object>> home() {
+    @GetMapping("/api/status")
+    public ResponseEntity<Map<String, Object>> status() {
         return ResponseEntity.ok(Map.of(
                 "system", "VeriVote-J Cryptographically Verifiable E-Voting Service",
                 "status", "ONLINE",
