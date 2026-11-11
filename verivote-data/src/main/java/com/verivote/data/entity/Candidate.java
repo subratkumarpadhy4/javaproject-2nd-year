@@ -24,12 +24,26 @@ public class Candidate {
     @Column(name = "party", length = 255)
     private String party;
 
+    @Column(name = "constituency", length = 255)
+    private String constituency;
+
+    @Column(name = "symbol", length = 255)
+    private String symbol;
+
     public Candidate() {}
 
     public Candidate(Long electionId, String name, String party) {
         this.electionId = electionId;
         this.name = name;
         this.party = party;
+    }
+
+    public Candidate(Long electionId, String name, String party, String constituency, String symbol) {
+        this.electionId = electionId;
+        this.name = name;
+        this.party = party;
+        this.constituency = constituency;
+        this.symbol = symbol;
     }
 
     public Long getId() {
@@ -62,5 +76,21 @@ public class Candidate {
 
     public void setParty(String party) {
         this.party = party;
+    }
+
+    public String getConstituency() {
+        return constituency;
+    }
+
+    public void setConstituency(String constituency) {
+        this.constituency = constituency;
+    }
+
+    public String getSymbol() {
+        return symbol;
+    }
+
+    public void setSymbol(String symbol) {
+        this.symbol = symbol;
     }
 }
