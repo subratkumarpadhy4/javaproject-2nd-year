@@ -62,7 +62,7 @@ public class VeriVoteWebApplication {
             electionRepo.saveAndFlush(election);
 
             // Seed Indian Political Parties if empty or outdated
-            if (candidateRepo.count() == 0 || candidateRepo.findAll().stream().anyMatch(c -> "Alice Johnson".equals(c.getName()))) {
+            if (candidateRepo.count() == 0 || candidateRepo.count() < 7 || candidateRepo.findAll().stream().anyMatch(c -> "Alice Johnson".equals(c.getName()))) {
                 candidateRepo.deleteAll();
                 candidateRepo.saveAndFlush(new Candidate(1L, "Party Nominee (Configurable by Admin)", "Bharatiya Janata Party (BJP)", "Demo Constituency 01 (National)", "bjp"));
                 candidateRepo.saveAndFlush(new Candidate(1L, "Party Nominee (Configurable by Admin)", "Telugu Desam Party (TDP)", "Demo Constituency 01 (National)", "tdp"));
@@ -70,6 +70,7 @@ public class VeriVoteWebApplication {
                 candidateRepo.saveAndFlush(new Candidate(1L, "Party Nominee (Configurable by Admin)", "Yuvajana Sramika Rythu Congress Party (YSRCP)", "Demo Constituency 01 (National)", "ysrcp"));
                 candidateRepo.saveAndFlush(new Candidate(1L, "Party Nominee (Configurable by Admin)", "Janata Dal (United) — JD(U)", "Demo Constituency 01 (National)", "jdu"));
                 candidateRepo.saveAndFlush(new Candidate(1L, "Party Nominee (Configurable by Admin)", "Aam Aadmi Party (AAP)", "Demo Constituency 01 (National)", "aap"));
+                candidateRepo.saveAndFlush(new Candidate(1L, "Party Nominee (Configurable by Admin)", "All India Trinamool Congress (TMC)", "Demo Constituency 01 (National)", "tmc"));
             }
 
             // Seed Initial Operators if empty
