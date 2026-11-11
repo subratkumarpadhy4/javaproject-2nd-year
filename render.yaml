@@ -10,3 +10,21 @@ services:
         value: 8080
       - key: SPRING_PROFILES_ACTIVE
         value: prod
+      - key: DATABASE_URL
+        fromDatabase:
+          name: verivote-postgres
+          property: connectionString
+      - key: VERIVOTE_HMAC_MASTER_KEY
+        generateValue: true
+      - key: VERIVOTE_LEDGER_PATH
+        value: /data/ledger/blocks.ndjson
+      - key: VERIVOTE_CHECKPOINT_DIR
+        value: /data/ledger/checkpoints
+
+databases:
+  - name: verivote-postgres
+    databaseName: verivotedb
+    user: verivote
+    plan: free
+    region: oregon
+    version: "16"
