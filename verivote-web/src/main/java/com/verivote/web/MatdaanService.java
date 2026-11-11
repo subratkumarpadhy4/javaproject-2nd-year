@@ -295,6 +295,52 @@ public class MatdaanService {
     // ------------------------------------------------------------------
 
     /**
+     * Builds {@code n} randomised demo ballots in which {@code favourite} receives
+     * strictly more votes than every other option (NOTA included). Only used by the
+     * "Load sample votes" classroom utility; real ballots are never altered.
+     *
+     * <p>The favourite's count {@code k} is drawn uniformly from the feasible range
+     * (smallest k that still lets the rest fit under k-1 each, up to a bare majority),
+     * the remaining votes are spread randomly with every other option capped at k-1,
+     * and the ballot order is shuffled.
+     */
+    public static List<Candidate> sampleBallots(List<Candidate> options, Candidate favourite, int n, java.util.Random rnd) {
+        if (n <= 0) {
+            return List.of();
+        }
+        List<Candidate> others = options.stream()
+                .filter(c -> !c.getId().equals(favourite.getId()))
+                .toList();
+        int m = others.size();
+
+        int kMin = 1;
+        while (kMin < n && (n - kMin) > (long) m * (kMin - 1)) {
+            kMin++;
+        }
+        int kMax = Math.max(kMin, Math.min(n, n / 2 + 1));
+        int k = kMin + rnd.nextInt(kMax - kMin + 1);
+
+        List<Candidate> ballots = new ArrayList<>(n);
+        for (int i = 0; i < k; i++) {
+            ballots.add(favourite);
+        }
+        int[] counts = new int[m];
+        for (int remaining = n - k; remaining > 0; remaining--) {
+            List<Integer> open = new ArrayList<>();
+            for (int i = 0; i < m; i++) {
+                if (counts[i] < k - 1) {
+                    open.add(i);
+                }
+            }
+            int pick = open.get(rnd.nextInt(open.size()));
+            counts[pick]++;
+            ballots.add(others.get(pick));
+        }
+        java.util.Collections.shuffle(ballots, rnd);
+        return ballots;
+    }
+
+    /**
      * Clears database election records: votes, spent tokens, issuance counters and
      * the electoral roll. The ledger file is append-only by design and is kept.
      */

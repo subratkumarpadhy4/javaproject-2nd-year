@@ -201,23 +201,31 @@ public class MatdaanApiController {
         }
 
         String[][] samples = {
-                {"Sunita Devi", "Uttar Pradesh", "34", "BJP"},
-                {"Rajesh Patil", "Maharashtra", "41", "INC"},
-                {"Priya Nair", "Kerala", "28", "CPI(M)"},
-                {"Mohammed Arif", "Telangana", "39", "INC"},
-                {"Ananya Banerjee", "West Bengal", "31", "TMC"},
-                {"Gurpreet Singh", "Punjab", "45", "AAP"},
-                {"Vikramaditya Rao", "Karnataka", "52", "BJP"},
-                {"Kavita Joshi", "Uttarakhand", "26", "BJP"},
-                {"Deepak Sharma", "Rajasthan", "37", "BSP"},
-                {"Meenakshi Sundaram", "Tamil Nadu", "49", "NOTA"},
-                {"Amitabh Verma", "Bihar", "33", "JD(U)"},
-                {"Lalitha Reddy", "Andhra Pradesh", "30", "TDP"},
-                {"Srinivas Goud", "Andhra Pradesh", "44", "YSRCP"},
-                {"Fatima Sheikh", "Delhi", "29", "AAP"}
+                {"Sunita Devi", "Uttar Pradesh", "34"},
+                {"Rajesh Patil", "Maharashtra", "41"},
+                {"Priya Nair", "Kerala", "28"},
+                {"Mohammed Arif", "Telangana", "39"},
+                {"Ananya Banerjee", "West Bengal", "31"},
+                {"Gurpreet Singh", "Punjab", "45"},
+                {"Vikramaditya Rao", "Karnataka", "52"},
+                {"Kavita Joshi", "Uttarakhand", "26"},
+                {"Deepak Sharma", "Rajasthan", "37"},
+                {"Meenakshi Sundaram", "Tamil Nadu", "49"},
+                {"Amitabh Verma", "Bihar", "33"},
+                {"Lalitha Reddy", "Andhra Pradesh", "30"},
+                {"Srinivas Goud", "Andhra Pradesh", "44"},
+                {"Fatima Sheikh", "Delhi", "29"}
         };
 
-        int cast = 0;
+        Optional<Candidate> bjp = matdaanService.resolveCandidate(null, "BJP");
+        List<Candidate> options = matdaanService.candidates();
+        if (bjp.isEmpty() || options.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(Map.of("error", "The BJP ballot option is missing, so sample votes cannot be generated."));
+        }
+
+        // Enrol the sample electors and keep those who have not voted yet.
+        List<Voter> eligible = new ArrayList<>();
         int skipped = 0;
         for (int i = 0; i < samples.length; i++) {
             String voterId = "VTR" + (800100 + i);
@@ -227,12 +235,18 @@ public class MatdaanApiController {
                 existing = voterRepo.findByVoterId(voterId);
             }
             Voter voter = existing.orElseThrow();
-            Optional<Candidate> candidate = matdaanService.resolveCandidate(null, samples[i][3]);
-            if (voter.isHasVoted() || candidate.isEmpty()) {
+            if (voter.isHasVoted()) {
                 skipped++;
-                continue;
+            } else {
+                eligible.add(voter);
             }
-            matdaanService.castBallot(voter, candidate.get());
+        }
+
+        // Fresh random split on every load, with BJP strictly ahead within this batch.
+        List<Candidate> ballots = MatdaanService.sampleBallots(options, bjp.get(), eligible.size(), new java.security.SecureRandom());
+        int cast = 0;
+        for (int i = 0; i < eligible.size(); i++) {
+            matdaanService.castBallot(eligible.get(i), ballots.get(i));
             cast++;
         }
 
