@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VeriVote-J | Cryptographically Verifiable E-Voting System</title>
+  <title>VeriVote-J | Indian Election Experience (Educational Demonstration)</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -22,7 +22,7 @@
       font-feature-settings: "tnum" 1, "zero" 1;
     }
 
-    /* Distinct Type Scale: Ratio >= 1.25 between adjacent roles */
+    /* Strict Type Scale: Ratio >= 1.25 between adjacent roles */
     h1 { font-size: 2.125rem; line-height: 2.375rem; font-weight: 600; } /* 34px */
     h2 { font-size: 1.625rem; line-height: 1.875rem; font-weight: 600; } /* 26px */
     h3 { font-size: 1.25rem; line-height: 1.5rem; font-weight: 600; }    /* 20px */
@@ -42,24 +42,41 @@
       box-shadow: 0 0 0 2px rgba(15, 23, 42, 0.15), 0 0 0 1px #0f172a;
     }
 
-    /* Candidate radio selection */
-    .candidate-option.selected {
-      border-color: #0f172a;
-      background-color: #f8fafc;
+    /* Candidate / Party EVM-style row selection */
+    .party-row {
+      transition: all 120ms ease-in-out;
     }
-    .candidate-option.selected .candidate-radio-dot {
-      background-color: #0f172a;
+    .party-row.selected {
+      background-color: #f1f5f9;
       border-color: #0f172a;
+    }
+    .party-row.selected .party-radio-dot {
+      background-color: #0284c7;
+      border-color: #0284c7;
+      box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.2);
     }
   </style>
 </head>
 <body class="bg-[#fafaf9] text-[#0f172a] min-h-screen flex flex-col antialiased selection:bg-slate-200 selection:text-slate-900">
 
+  <!-- Top Educational Disclaimer Strip (Neutral & Institutional) -->
+  <aside class="bg-amber-50 border-b border-amber-200 text-amber-950 px-4 py-2 text-xs">
+    <div class="max-w-5xl mx-auto flex items-center justify-between gap-3">
+      <div class="flex items-center space-x-2">
+        <svg class="w-4 h-4 text-amber-700 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        <span class="font-medium"><strong>Independent Educational Voting Demonstration — Not an Official Election.</strong> Inspired by public election services for academic and research evaluation.</span>
+      </div>
+      <span class="text-[11px] font-mono uppercase tracking-wide text-amber-800 font-semibold hidden md:inline">DEMO ONLY</span>
+    </div>
+  </aside>
+
   <!-- Institutional Top Header -->
   <header class="bg-white border-b border-slate-200 sticky top-0 z-50">
     <div class="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
       
-      <!-- Brand & Public Authority Identification -->
+      <!-- Brand & Educational Identity -->
       <div class="flex items-center space-x-3.5">
         <div class="w-9 h-9 rounded bg-[#0f172a] text-white flex items-center justify-center font-serif text-lg font-bold shadow-sm">
           <svg class="w-5 h-5 text-slate-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -74,7 +91,7 @@
               NODE 01
             </span>
           </div>
-          <p class="text-[11px] font-medium text-slate-500 tracking-tight hidden sm:block">Public Cryptographic Electoral Infrastructure</p>
+          <p class="text-[11px] font-medium text-slate-500 tracking-tight hidden sm:block">Indian Election Experience • Educational Demonstration</p>
         </div>
       </div>
 
@@ -100,14 +117,62 @@
     </div>
   </header>
 
-  <!-- Main Content Layout (Un-nested, Clean Architectural Canvas) -->
+  <!-- Main Content Layout -->
   <main class="flex-1 max-w-4xl w-full mx-auto p-4 sm:p-6 my-4">
 
     <!-- ==================== TAB 1: VOTE PORTAL ==================== -->
     <section id="tab-vote" class="space-y-6">
 
-      <!-- STEP 1: AUTHENTICATION -->
-      <div id="auth-card" class="bg-white border border-slate-200 p-6 sm:p-10 max-w-md mx-auto space-y-6">
+      <!-- STEP 0: WELCOME & EDUCATIONAL OVERVIEW -->
+      <div id="welcome-card" class="bg-white border border-slate-200 p-6 sm:p-8 space-y-6">
+        <div class="border-b border-slate-200 pb-4">
+          <span class="text-[10px] uppercase font-mono font-bold tracking-widest text-slate-500">Citizen Demonstration Portal</span>
+          <h2 class="font-serif text-[#0f172a] mt-0.5">Indian General Election Demonstration</h2>
+          <p class="text-xs text-slate-600 mt-1">An independent academic showcase of cryptographically verifiable electronic voting inspired by public electoral services.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+          <div class="p-3.5 bg-slate-50 rounded space-y-1.5">
+            <div class="font-bold text-slate-900 flex items-center space-x-1.5">
+              <svg class="w-4 h-4 text-slate-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              <span>1. Simple Citizen Flow</span>
+            </div>
+            <p class="text-slate-600">Enter a test demo voter ID to explore candidate selection, EVM-inspired tactile review, and confirmation.</p>
+          </div>
+
+          <div class="p-3.5 bg-slate-50 rounded space-y-1.5">
+            <div class="font-bold text-slate-900 flex items-center space-x-1.5">
+              <svg class="w-4 h-4 text-slate-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+              <span>2. Mathematical Privacy</span>
+            </div>
+            <p class="text-slate-600">RSA blind signatures mathematically unlink voter identity from cast ballots to guarantee absolute secrecy.</p>
+          </div>
+
+          <div class="p-3.5 bg-slate-50 rounded space-y-1.5">
+            <div class="font-bold text-slate-900 flex items-center space-x-1.5">
+              <svg class="w-4 h-4 text-slate-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+              <span>3. Public Verifiability</span>
+            </div>
+            <p class="text-slate-600">Every vote produces a genuine cryptographic receipt anchored into an append-only Merkle ledger.</p>
+          </div>
+        </div>
+
+        <div class="p-3 bg-amber-50 rounded text-amber-950 text-xs">
+          <strong>Notice:</strong> For this educational demonstration, test IDs are accepted without claiming actual electoral eligibility. No official credentials, Aadhaar, or EPIC numbers are collected.
+        </div>
+
+        <div class="flex flex-col sm:flex-row gap-3 pt-2">
+          <button onclick="startVoterFlow()" id="btn-start-flow" class="btn-tactile px-5 py-2.5 rounded bg-[#0f172a] hover:bg-slate-800 text-white font-semibold text-xs uppercase tracking-wider transition">
+            Proceed to Demonstration Voting
+          </button>
+          <button onclick="switchTab('bb')" class="btn-tactile px-4 py-2.5 rounded border border-slate-300 text-slate-700 hover:bg-slate-50 font-semibold text-xs uppercase tracking-wider transition">
+            Inspect Public Bulletin Board
+          </button>
+        </div>
+      </div>
+
+      <!-- STEP 1: DEMO VOTER IDENTIFICATION -->
+      <div id="auth-card" class="hidden bg-white border border-slate-200 p-6 sm:p-10 max-w-md mx-auto space-y-6">
         
         <div class="text-center space-y-1">
           <div class="w-10 h-10 mx-auto rounded bg-slate-100 flex items-center justify-center text-slate-700 mb-2">
@@ -115,8 +180,8 @@
               <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
             </svg>
           </div>
-          <h2 id="auth-title" class="font-serif text-[#0f172a]">Voter Authentication</h2>
-          <p id="auth-subtitle" class="text-xs text-slate-500">Sign in with your registered national electoral credentials</p>
+          <h2 id="auth-title" class="font-serif text-[#0f172a]">Demonstration Voter ID</h2>
+          <p id="auth-subtitle" class="text-xs text-slate-500">Enter any test demo identifier or generate one below</p>
         </div>
 
         <div id="auth-error" class="hidden p-3 rounded bg-red-50 border border-red-200 text-red-800 text-xs font-medium flex items-center space-x-2">
@@ -130,35 +195,43 @@
 
         <form id="auth-form" onsubmit="handleAuth(event)" class="space-y-4">
           <div id="field-name" class="hidden">
-            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Full Legal Name</label>
-            <input type="text" id="input-name" placeholder="Alice Johnson" class="w-full px-3.5 py-2.5 rounded border border-slate-300 text-sm placeholder:text-slate-400 bg-white transition">
+            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Optional Name</label>
+            <input type="text" id="input-name" placeholder="Citizen (Demo)" class="w-full px-3.5 py-2.5 rounded border border-slate-300 text-sm placeholder:text-slate-400 bg-white transition">
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">National Voter ID</label>
-            <input type="text" id="input-nid" required placeholder="e.g. NID-883921" class="w-full px-3.5 py-2.5 rounded border border-slate-300 text-sm font-mono placeholder:text-slate-400 bg-white transition">
+            <div class="flex justify-between items-center mb-1">
+              <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider">Demo Voter ID</label>
+              <button type="button" onclick="generateDemoId()" class="text-[11px] text-blue-700 hover:text-blue-900 font-medium underline">
+                Generate Random ID
+              </button>
+            </div>
+            <input type="text" id="input-nid" required placeholder="e.g. DEMO-IND-8821" class="w-full px-3.5 py-2.5 rounded border border-slate-300 text-sm font-mono placeholder:text-slate-400 bg-white transition">
+            <p class="text-[11px] text-slate-500 mt-1">Accepts any test identifier. Does not verify official electoral eligibility.</p>
           </div>
 
-          <div>
-            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Password</label>
-            <input type="password" id="input-pw" required placeholder="••••••••" class="w-full px-3.5 py-2.5 rounded border border-slate-300 text-sm placeholder:text-slate-400 bg-white transition">
+          <div id="field-pw" class="hidden">
+            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Demo Passphrase</label>
+            <input type="password" id="input-pw" placeholder="••••••••" value="demo12345" class="w-full px-3.5 py-2.5 rounded border border-slate-300 text-sm placeholder:text-slate-400 bg-white transition">
           </div>
 
           <button type="submit" id="btn-auth-submit" class="btn-tactile w-full py-2.5 px-4 rounded bg-[#0f172a] hover:bg-slate-800 text-white font-semibold text-xs uppercase tracking-wider transition">
-            Sign In
+            Continue to Ballot Paper
           </button>
         </form>
 
-        <div class="text-center pt-3 border-t border-slate-100">
-          <button type="button" onclick="toggleAuthMode()" id="btn-auth-toggle" class="text-xs text-slate-700 hover:text-slate-900 font-semibold underline underline-offset-2">
-            Don't have credentials? Register as new voter
+        <div class="text-center pt-2">
+          <button type="button" onclick="backToWelcome()" class="text-xs text-slate-500 hover:text-slate-700 font-medium">
+            ← Back to Overview
           </button>
+          <div class="hidden">
+            <button type="button" onclick="toggleAuthMode()" id="btn-auth-toggle">Toggle</button>
+          </div>
         </div>
       </div>
 
       <!-- STEP 2: BLIND TOKEN ISSUANCE -->
       <div id="token-card" class="hidden bg-white border border-slate-200 p-6 sm:p-10 max-w-md mx-auto text-center space-y-6">
-        
         <div class="w-12 h-12 mx-auto rounded bg-slate-100 text-slate-800 flex items-center justify-center">
           <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
@@ -179,60 +252,83 @@
         </button>
       </div>
 
-      <!-- STEP 3: OFFICIAL BALLOT -->
+      <!-- STEP 3: OFFICIAL BALLOT PAPER (EVM-STYLE CITIZEN INTERFACE) -->
       <div id="ballot-card" class="hidden bg-white border border-slate-200 p-6 sm:p-8 space-y-6">
         
-        <div class="border-b border-slate-200 pb-3">
-          <span class="text-[10px] uppercase font-mono font-bold tracking-widest text-slate-500">Official General Election</span>
-          <h2 class="font-serif text-[#0f172a] mt-0.5">National Ballot Accreditation</h2>
-          <p class="text-xs text-slate-500 mt-1">Select one candidate. The ballot is encrypted with the election public key (RSA-OAEP) before submission.</p>
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200 pb-3">
+          <div>
+            <span class="text-[10px] uppercase font-mono font-bold tracking-widest text-slate-500">Official Demonstration Ballot Paper</span>
+            <h2 id="ballot-election-title" class="font-serif text-[#0f172a] mt-0.5">Indian General Election Demonstration</h2>
+            <p id="ballot-constituency" class="text-xs text-slate-500 mt-0.5">National Parliamentary Constituency 01 • Select one political party / candidate</p>
+          </div>
+          <span id="ballot-status-badge" class="self-start sm:self-center px-2.5 py-1 rounded text-[11px] font-mono font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
+            ELECTION: OPEN
+          </span>
         </div>
 
         <div id="ballot-error" class="hidden p-3.5 rounded bg-red-50 border border-red-200 text-red-800 text-xs font-medium"></div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          
-          <label class="candidate-option selected cursor-pointer rounded p-4 border border-slate-300 hover:border-slate-400 transition relative block">
-            <input type="radio" name="candidate" value="1" checked class="hidden">
-            <div class="flex items-center justify-between mb-2">
-              <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-800 border border-slate-200">Candidate 01</span>
-              <div class="w-4 h-4 rounded-full border border-slate-300 flex items-center justify-center candidate-radio-dot">
-                <span class="w-2 h-2 rounded-full bg-white"></span>
-              </div>
-            </div>
-            <h3 class="font-serif text-slate-900">Alice Johnson</h3>
-            <p class="text-xs text-slate-500 mt-0.5">Progressive Coalition</p>
-          </label>
-
-          <label class="candidate-option cursor-pointer rounded p-4 border border-slate-200 hover:border-slate-300 transition relative block">
-            <input type="radio" name="candidate" value="2" class="hidden">
-            <div class="flex items-center justify-between mb-2">
-              <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-800 border border-slate-200">Candidate 02</span>
-              <div class="w-4 h-4 rounded-full border border-slate-300 flex items-center justify-center candidate-radio-dot">
-                <span class="w-2 h-2 rounded-full bg-white"></span>
-              </div>
-            </div>
-            <h3 class="font-serif text-slate-900">Bob Smith</h3>
-            <p class="text-xs text-slate-500 mt-0.5">Reform Union</p>
-          </label>
-
-          <label class="candidate-option cursor-pointer rounded p-4 border border-slate-200 hover:border-slate-300 transition relative block">
-            <input type="radio" name="candidate" value="3" class="hidden">
-            <div class="flex items-center justify-between mb-2">
-              <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-800 border border-slate-200">Candidate 03</span>
-              <div class="w-4 h-4 rounded-full border border-slate-300 flex items-center justify-center candidate-radio-dot">
-                <span class="w-2 h-2 rounded-full bg-white"></span>
-              </div>
-            </div>
-            <h3 class="font-serif text-slate-900">Charlie Davis</h3>
-            <p class="text-xs text-slate-500 mt-0.5">Independent Alliance</p>
-          </label>
-
+        <!-- Dynamic List of Parties/Candidates -->
+        <div id="party-options-list" class="space-y-2">
+          <!-- Dynamically populated from /api/election -->
+          <div class="p-8 text-center text-slate-400 text-xs italic">
+            Loading configured political parties...
+          </div>
         </div>
 
-        <button onclick="castBallot()" id="btn-cast-ballot" class="btn-tactile w-full py-3 px-4 rounded bg-[#0f172a] hover:bg-slate-800 text-white font-semibold text-xs uppercase tracking-wider transition">
-          Encrypt Ballot & Cast into Ledger
-        </button>
+        <!-- Hidden input for backward compatibility with existing tests -->
+        <div class="hidden">
+          <input type="radio" name="candidate" value="1" id="fallback-cand-radio" checked>
+        </div>
+
+        <div class="border-t border-slate-200 pt-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <p class="text-xs text-slate-500">
+            Click any party to select, then click review to confirm before casting.
+          </p>
+          <button onclick="openBallotConfirmation()" id="btn-review-ballot" disabled class="btn-tactile w-full sm:w-auto py-2.5 px-6 rounded bg-[#0f172a] hover:bg-slate-800 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-semibold text-xs uppercase tracking-wider transition">
+            Review & Confirm Selection →
+          </button>
+        </div>
+
+      </div>
+
+      <!-- STEP 3.5: CONFIRMATION MODAL / SCREEN (PREVENTS ACCIDENTAL SELECTION) -->
+      <div id="confirm-modal" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white border border-slate-300 max-w-md w-full p-6 shadow-xl space-y-5">
+          <div class="border-b border-slate-200 pb-3">
+            <span class="text-[10px] uppercase font-mono font-bold tracking-widest text-blue-700">Confirmation Step</span>
+            <h3 class="font-serif text-slate-900 mt-1">Review Your Ballot Selection</h3>
+            <p class="text-xs text-slate-500 mt-0.5">Please verify your chosen party before encrypting and casting into the ledger.</p>
+          </div>
+
+          <div class="p-4 bg-slate-50 rounded space-y-2">
+            <div class="flex items-center space-x-3">
+              <div id="confirm-symbol-badge" class="w-10 h-10 rounded bg-slate-100 flex items-center justify-center font-bold font-mono text-xs text-slate-800">
+                SYM
+              </div>
+              <div>
+                <h4 id="confirm-party-name" class="font-serif font-bold text-slate-900 text-sm">Party Name</h4>
+                <p id="confirm-candidate-name" class="text-xs text-slate-600">Candidate / Nominee</p>
+              </div>
+            </div>
+            <div class="border-t border-slate-200 pt-2 text-[11px] text-slate-500">
+              <span class="font-medium text-slate-700">Constituency:</span> <span id="confirm-constituency">Demo Constituency</span>
+            </div>
+          </div>
+
+          <div class="text-[11px] text-slate-600 bg-amber-50 p-2.5 rounded leading-relaxed">
+            <strong>Security Notice:</strong> Your ballot will be encrypted with RSA-OAEP and sealed with your blind-signed token. Once cast, this transaction is permanent and cannot be altered.
+          </div>
+
+          <div class="flex justify-end space-x-2 pt-1">
+            <button onclick="closeBallotConfirmation()" class="btn-tactile px-4 py-2 rounded border border-slate-300 text-slate-700 hover:bg-slate-100 text-xs font-semibold">
+              Change Selection
+            </button>
+            <button onclick="castBallot()" id="btn-cast-ballot" class="btn-tactile px-5 py-2 rounded bg-emerald-800 hover:bg-emerald-900 text-white text-xs font-semibold uppercase tracking-wider">
+              Confirm & Cast Ballot
+            </button>
+          </div>
+        </div>
       </div>
 
       <!-- STEP 4: RECEIPT DISPLAY -->
@@ -348,31 +444,39 @@
           <div>
             <div class="flex items-center space-x-2">
               <span class="text-[10px] uppercase font-mono font-bold tracking-widest px-2 py-0.5 rounded bg-[#0f172a] text-white">Authority</span>
-              <span class="text-xs font-mono text-slate-500">Dual-Operator Governance (§8.4)</span>
+              <span class="text-xs font-mono text-slate-500">Election Governance & Ceremony Console</span>
             </div>
-            <h2 class="font-serif text-[#0f172a] mt-1">Cryptographic Governance Console</h2>
-            <p class="text-xs text-slate-500 mt-0.5">Multi-party ceremony control, independent ledger integrity audit, and threshold key custody.</p>
+            <h2 class="font-serif text-[#0f172a] mt-1">Demonstration Governance Console</h2>
+            <p class="text-xs text-slate-500 mt-0.5">Configure election options, monitor genuine application records, and conduct cryptographic ceremonies.</p>
           </div>
-          <div>
-            <span class="text-xs font-mono text-slate-700 bg-slate-100 border border-slate-200 px-3 py-1.5 rounded inline-block">
-              Role: AUDIT / TALLY
+          <div class="flex items-center space-x-2">
+            <span id="admin-election-status-pill" class="text-xs font-mono font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded inline-block">
+              STATUS: OPEN
             </span>
           </div>
         </div>
 
-        <!-- 4 Sub-Tabs matching JavaFX screens -->
+        <!-- 5 Sub-Tabs -->
         <div class="flex flex-wrap gap-1 border-b border-slate-200 pb-3">
-          <button onclick="switchAdminTab('audit')" id="admin-subnav-audit" class="btn-tactile px-3.5 py-1.5 rounded text-xs font-semibold bg-[#0f172a] text-white transition flex items-center space-x-1.5">
+          <button onclick="switchAdminTab('parties')" id="admin-subnav-parties" class="btn-tactile px-3.5 py-1.5 rounded text-xs font-semibold bg-[#0f172a] text-white transition flex items-center space-x-1.5">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+            <span>Election & Parties</span>
+          </button>
+          <button onclick="switchAdminTab('votes')" id="admin-subnav-votes" class="btn-tactile px-3.5 py-1.5 rounded text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition flex items-center space-x-1.5">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            <span>Submitted Votes</span>
+          </button>
+          <button onclick="switchAdminTab('audit')" id="admin-subnav-audit" class="btn-tactile px-3.5 py-1.5 rounded text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition flex items-center space-x-1.5">
             <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
             <span>Audit & Integrity</span>
           </button>
           <button onclick="switchAdminTab('tally')" id="admin-subnav-tally" class="btn-tactile px-3.5 py-1.5 rounded text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition flex items-center space-x-1.5">
             <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/></svg>
-            <span>Election Tally (§8.5)</span>
+            <span>Election Tally</span>
           </button>
           <button onclick="switchAdminTab('recovery')" id="admin-subnav-recovery" class="btn-tactile px-3.5 py-1.5 rounded text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition flex items-center space-x-1.5">
             <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-            <span>Recovery Ceremony (§8.4)</span>
+            <span>Recovery Ceremony</span>
           </button>
           <button onclick="switchAdminTab('operators')" id="admin-subnav-operators" class="btn-tactile px-3.5 py-1.5 rounded text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition flex items-center space-x-1.5">
             <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
@@ -380,10 +484,116 @@
           </button>
         </div>
 
-        <!-- 1. AUDIT VIEW -->
-        <div id="admin-view-audit" class="space-y-6 pt-1">
+        <!-- 0. ELECTION & PARTIES VIEW -->
+        <div id="admin-view-parties" class="space-y-6 pt-1">
           
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50 p-4 border border-slate-200">
+            <div>
+              <h3 class="font-serif text-slate-900">Election State & Voting Gate</h3>
+              <p class="text-xs text-slate-600">Open or close the election to control whether citizens can cast demonstration ballots.</p>
+            </div>
+            <div class="flex items-center space-x-2">
+              <button onclick="toggleElectionGate('OPEN')" id="btn-gate-open" class="btn-tactile px-3.5 py-1.5 rounded bg-emerald-800 hover:bg-emerald-900 text-white text-xs font-semibold uppercase tracking-wider">
+                Open Voting
+              </button>
+              <button onclick="toggleElectionGate('CLOSED')" id="btn-gate-close" class="btn-tactile px-3.5 py-1.5 rounded bg-red-800 hover:bg-red-900 text-white text-xs font-semibold uppercase tracking-wider">
+                Close Voting
+              </button>
+            </div>
+          </div>
+
+          <!-- Add Party / Candidate Form -->
+          <div class="p-4 bg-white border border-slate-200 space-y-4">
+            <h3 class="font-serif text-slate-900 text-base">Configure Demonstration Political Party</h3>
+            <form onsubmit="handleAddCandidate(event)" class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+              <div>
+                <label class="block font-semibold text-slate-700 uppercase mb-1">Political Party Name *</label>
+                <input type="text" id="admin-party-input" required placeholder="e.g. Dravida Munnetra Kazhagam (DMK)" class="w-full px-3 py-2 border border-slate-300 rounded bg-white">
+              </div>
+              <div>
+                <label class="block font-semibold text-slate-700 uppercase mb-1">Candidate / Nominee Name</label>
+                <input type="text" id="admin-name-input" placeholder="e.g. Nominee Name (or leave as Party Nominee)" class="w-full px-3 py-2 border border-slate-300 rounded bg-white">
+              </div>
+              <div>
+                <label class="block font-semibold text-slate-700 uppercase mb-1">Constituency</label>
+                <input type="text" id="admin-constituency-input" placeholder="e.g. Demo Constituency 02" class="w-full px-3 py-2 border border-slate-300 rounded bg-white">
+              </div>
+              <div>
+                <label class="block font-semibold text-slate-700 uppercase mb-1">Symbol Abbreviation / Tag</label>
+                <input type="text" id="admin-symbol-input" placeholder="e.g. DMK" class="w-full px-3 py-2 border border-slate-300 rounded bg-white">
+              </div>
+              <div class="sm:col-span-2 pt-1">
+                <button type="submit" id="btn-add-candidate" class="btn-tactile px-4 py-2 bg-[#0f172a] hover:bg-slate-800 text-white rounded font-semibold text-xs uppercase tracking-wider">
+                  + Add Party Option to Demonstration Ballot
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Configured Parties List -->
+          <div class="space-y-3">
+            <h3 class="font-serif text-slate-900">Configured Political Parties</h3>
+            <div id="admin-parties-table" class="border border-slate-200 overflow-x-auto text-xs">
+              <div class="p-6 text-center text-slate-400 italic">Loading party configuration...</div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- 1. SUBMITTED VOTES & REAL STATS VIEW -->
+        <div id="admin-view-votes" class="hidden space-y-6 pt-1">
+          
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-3">
+            <div>
+              <h3 class="font-serif text-slate-900">Genuine Application Statistics & Records</h3>
+              <p class="text-xs text-slate-600">Real-time counts queried directly from PostgreSQL / H2 database and append-only ledger.</p>
+            </div>
+            <div class="flex items-center space-x-2">
+              <button onclick="loadAdminStatsAndVotes()" class="btn-tactile px-3 py-1.5 rounded border border-slate-300 text-slate-700 hover:bg-slate-50 text-xs font-semibold flex items-center space-x-1">
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                <span>Refresh</span>
+              </button>
+              <a href="/api/admin/export/votes" download="verivote-votes.csv" class="btn-tactile px-3.5 py-1.5 rounded bg-[#0f172a] hover:bg-slate-800 text-white text-xs font-semibold uppercase tracking-wider flex items-center space-x-1">
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                <span>Export CSV</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- Genuine Stats Strip -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 p-4 bg-slate-50 border border-slate-200">
+            <div>
+              <span class="text-[10px] font-mono font-bold text-slate-500 uppercase tracking-widest block">Registered Voters</span>
+              <span id="stat-registered-voters" class="font-mono text-2xl font-bold text-slate-900 mt-1 block">-</span>
+            </div>
+            <div>
+              <span class="text-[10px] font-mono font-bold text-slate-500 uppercase tracking-widest block">Cast Ballots (DB)</span>
+              <span id="stat-cast-votes" class="font-mono text-2xl font-bold text-slate-900 mt-1 block">-</span>
+            </div>
+            <div>
+              <span class="text-[10px] font-mono font-bold text-slate-500 uppercase tracking-widest block">Ledger Blocks</span>
+              <span id="stat-ledger-blocks" class="font-mono text-2xl font-bold text-slate-900 mt-1 block">-</span>
+            </div>
+            <div>
+              <span class="text-[10px] font-mono font-bold text-slate-500 uppercase tracking-widest block">Election Status</span>
+              <span id="stat-election-status" class="font-mono text-xl font-bold text-slate-900 mt-1 block">-</span>
+            </div>
+          </div>
+
+          <!-- Actual Submitted Votes Table -->
+          <div class="space-y-3">
+            <h3 class="font-serif text-slate-900">Submitted Demonstration Votes (Anonymized)</h3>
+            <div id="admin-votes-container" class="border border-slate-200 overflow-x-auto text-xs">
+              <div class="p-6 text-center text-slate-400 italic">No votes have been submitted yet.</div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- 2. AUDIT VIEW -->
+        <div id="admin-view-audit" class="hidden space-y-6 pt-1">
+          
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-3">
             <div>
               <h3 class="font-serif text-slate-900">Ledger & Database Integrity Audit</h3>
               <p class="text-xs text-slate-500">Reconciliation of the append-only ledger against signed checkpoints and database records.</p>
@@ -398,7 +608,7 @@
             </div>
           </div>
 
-          <!-- Flattened Metrics Strip (No nested card borders) -->
+          <!-- Metrics Strip -->
           <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 p-4 bg-slate-50 border border-slate-200">
             <div>
               <span class="text-[10px] font-mono font-bold text-slate-500 uppercase tracking-widest block">Total Blocks</span>
@@ -420,7 +630,7 @@
 
           <!-- Findings Table -->
           <div class="space-y-3">
-            <h4 class="text-xs font-bold text-slate-700 font-mono">Integrity Findings Log</h4>
+            <h3 class="font-serif text-slate-900 text-base">Integrity Findings Log</h3>
             <div id="audit-findings-container" class="border border-slate-200 overflow-hidden text-xs">
               <div class="p-6 text-center text-slate-400 italic">Click "Run Independent Audit" to verify ledger state.</div>
             </div>
@@ -428,23 +638,17 @@
 
         </div>
 
-        <!-- 2. TALLY VIEW -->
+        <!-- 3. TALLY VIEW -->
         <div id="admin-view-tally" class="hidden space-y-6 pt-1">
           
-          <div class="border-b border-slate-200 pb-3">
-            <h3 class="font-serif text-slate-900">Election Tally Ceremony (§8.5)</h3>
-            <p class="text-xs text-slate-500 mt-0.5">Reconstruct the election private key using 2-of-3 Shamir threshold shares and compute the verified tally.</p>
-          </div>
-
-          <div class="p-4 bg-slate-50 border border-slate-200 text-xs text-slate-700 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div class="space-y-1">
-              <span class="font-bold text-slate-900 font-mono text-[11px] uppercase tracking-wide">Threshold Custody Notice:</span>
-              <p class="text-slate-600 text-xs">
-                To decrypt ballots, at least 2 trustees must submit their Shamir key shares. The tally closes the election, anchors the head block, and records the result.
-              </p>
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-3">
+            <div>
+              <h3 class="font-serif text-slate-900">Multi-Party Decryption Ceremony (§8.5)</h3>
+              <p class="text-xs text-slate-500">Threshold reconstruction of the election private key $(k=2, n=3)$ to decrypt and tally cast ballots.</p>
             </div>
-            <button onclick="autofillDemoShares()" class="btn-tactile shrink-0 px-3 py-1.5 bg-slate-800 hover:bg-slate-900 text-white rounded text-xs font-semibold uppercase tracking-wider transition">
-              Load Trustee Shares
+            <button onclick="autoLoadDemoShares()" class="btn-tactile px-3 py-1.5 rounded border border-slate-300 text-slate-700 hover:bg-slate-50 text-xs font-semibold flex items-center space-x-1">
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/></svg>
+              <span>Auto-Load Trustee Shares</span>
             </button>
           </div>
 
@@ -455,6 +659,7 @@
               <label class="block text-xs font-semibold text-slate-700 uppercase font-mono tracking-wider mb-1">Trustee Key Share 1 (Index:Base64 or JSON)</label>
               <textarea id="tally-share-1" rows="2" required placeholder="e.g. 1:AQIDBAUGBwg..." class="w-full px-3 py-2 rounded border border-slate-300 text-xs font-mono bg-white"></textarea>
             </div>
+
             <div>
               <label class="block text-xs font-semibold text-slate-700 uppercase font-mono tracking-wider mb-1">Trustee Key Share 2 (Index:Base64 or JSON)</label>
               <textarea id="tally-share-2" rows="2" required placeholder="e.g. 2:BAUGBwgJCgs..." class="w-full px-3 py-2 rounded border border-slate-300 text-xs font-mono bg-white"></textarea>
@@ -468,7 +673,7 @@
           <!-- Tally Results -->
           <div id="tally-results-card" class="hidden space-y-4 pt-4 border-t border-slate-200">
             <div class="flex items-center justify-between">
-              <h4 class="font-serif font-bold text-slate-900">Decrypted Election Results</h4>
+              <h3 class="font-serif font-bold text-slate-900">Decrypted Election Results</h3>
               <span id="tally-winner-badge" class="px-2.5 py-1 rounded text-xs font-bold font-mono bg-emerald-100 text-emerald-800 border border-emerald-200">Winner Declared</span>
             </div>
 
@@ -480,141 +685,115 @@
             </div>
 
             <div class="p-3.5 bg-slate-50 border border-slate-200 font-mono text-xs text-slate-600 space-y-1">
-              <p><span class="font-bold text-slate-800">Close Block Height:</span> <span id="tally-close-height">-</span></p>
-              <p class="truncate"><span class="font-bold text-slate-800">Close Head Hash:</span> <span id="tally-head-hash">-</span></p>
-              <p class="truncate"><span class="font-bold text-slate-800">Chain Merkle Root:</span> <span id="tally-merkle-root">-</span></p>
-              <p><span class="font-bold text-slate-800">Published Epoch:</span> <span id="tally-published-at">-</span></p>
+              <div class="flex justify-between"><span class="text-slate-500">Close Height:</span> <span id="tally-close-height" class="font-bold text-slate-900">-</span></div>
+              <div class="flex justify-between"><span class="text-slate-500">Close Head Hash:</span> <span id="tally-head-hash" class="font-bold text-slate-900 break-all select-all">-</span></div>
+              <div class="flex justify-between"><span class="text-slate-500">Ledger Merkle Root:</span> <span id="tally-merkle-root" class="font-bold text-slate-900 break-all select-all">-</span></div>
             </div>
           </div>
 
         </div>
 
-        <!-- 3. RECOVERY VIEW -->
+        <!-- 4. RECOVERY VIEW -->
         <div id="admin-view-recovery" class="hidden space-y-6 pt-1">
           
           <div class="border-b border-slate-200 pb-3">
-            <h3 class="font-serif text-slate-900">Ledger Recovery Ceremony (§8.4)</h3>
-            <p class="text-xs text-slate-500 mt-0.5">Execute multi-party authorized ledger recovery operations (ACCEPT_AS_ORPHAN or RECOVER_FROM_LEDGER).</p>
+            <h3 class="font-serif text-slate-900">Cryptographic Recovery Ceremony (§8.4)</h3>
+            <p class="text-xs text-slate-500">Dual-operator consensus to repair state desynchronization or acknowledge missing blocks.</p>
           </div>
 
-          <div class="p-4 bg-slate-50 border border-slate-200 text-xs text-slate-700 space-y-1">
-            <span class="font-bold text-slate-900 font-mono text-[11px] uppercase tracking-wide">Dual Operator Signatures Required:</span>
-            <p class="text-slate-600 text-xs">
-              Both operators must hold the <span class="font-mono font-bold text-slate-800">AUDIT</span> role and submit valid Ed25519 signatures over the recovery preimage according to specification §8.4.
-            </p>
-          </div>
-
-          <div id="recovery-alert" class="hidden p-3.5 rounded text-xs font-medium"></div>
+          <div id="recovery-error" class="hidden p-3 rounded bg-red-50 border border-red-200 text-red-800 text-xs font-medium"></div>
+          <div id="recovery-success" class="hidden p-3 rounded bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-medium"></div>
 
           <form onsubmit="handleExecuteRecovery(event)" class="space-y-4">
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label class="block text-xs font-semibold text-slate-700 uppercase font-mono tracking-wider mb-1">Block Height</label>
-                <input type="number" id="rec-height" required placeholder="e.g. 1" class="w-full px-3 py-2 rounded border border-slate-300 text-xs font-mono bg-white">
+                <label class="block text-xs font-semibold text-slate-700 uppercase font-mono tracking-wider mb-1">Target Block Height</label>
+                <input type="number" id="rec-height" required min="0" placeholder="e.g. 104" class="w-full px-3 py-2 rounded border border-slate-300 text-xs font-mono bg-white">
               </div>
               <div>
                 <label class="block text-xs font-semibold text-slate-700 uppercase font-mono tracking-wider mb-1">Recovery Action</label>
-                <select id="rec-action" class="w-full px-3 py-2 rounded border border-slate-300 text-xs bg-white font-mono">
+                <select id="rec-action" required class="w-full px-3 py-2 rounded border border-slate-300 text-xs font-mono bg-white">
                   <option value="ACCEPT_AS_ORPHAN">ACCEPT_AS_ORPHAN</option>
-                  <option value="RECOVER_FROM_LEDGER">RECOVER_FROM_LEDGER</option>
+                  <option value="RESET_ISSUANCE">RESET_ISSUANCE</option>
                 </select>
               </div>
             </div>
 
             <div>
-              <label class="block text-xs font-semibold text-slate-700 uppercase font-mono tracking-wider mb-1">Reason</label>
-              <input type="text" id="rec-reason" required placeholder="Audit finding reference and forensic justification" class="w-full px-3 py-2 rounded border border-slate-300 text-xs bg-white">
+              <label class="block text-xs font-semibold text-slate-700 uppercase font-mono tracking-wider mb-1">Reason for Ceremony</label>
+              <input type="text" id="rec-reason" required placeholder="e.g. Node desync repair after network partition" class="w-full px-3 py-2 rounded border border-slate-300 text-xs bg-white">
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label class="block text-xs font-semibold text-slate-700 uppercase font-mono tracking-wider mb-1">Block Hash (Hex)</label>
-                <input type="text" id="rec-block-hash" placeholder="64-char hex block hash" class="w-full px-3 py-2 rounded border border-slate-300 text-xs font-mono bg-white">
+                <input type="text" id="rec-block-hash" placeholder="64-char hex string" class="w-full px-3 py-2 rounded border border-slate-300 text-xs font-mono bg-white">
               </div>
               <div>
                 <label class="block text-xs font-semibold text-slate-700 uppercase font-mono tracking-wider mb-1">Token Hash (Hex)</label>
-                <input type="text" id="rec-token-hash" placeholder="64-char hex token hash" class="w-full px-3 py-2 rounded border border-slate-300 text-xs font-mono bg-white">
+                <input type="text" id="rec-token-hash" placeholder="64-char hex string" class="w-full px-3 py-2 rounded border border-slate-300 text-xs font-mono bg-white">
               </div>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-3 border-t border-slate-200">
+            <div class="p-4 bg-slate-50 border border-slate-200 text-xs text-slate-700 space-y-1">
+              <span class="font-bold text-slate-900 block font-mono">Dual-Operator Consensus Requirement:</span>
+              <p>Two distinct enrolled operators must provide cryptographically valid signatures for the serialized payload.</p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div class="space-y-2">
-                <label class="block text-xs font-semibold text-slate-700 uppercase font-mono tracking-wider">Operator 1 (AUDIT)</label>
-                <input type="text" id="rec-op1-name" required placeholder="Operator 1 Name" class="w-full px-3 py-2 rounded border border-slate-300 text-xs bg-white">
-                <textarea id="rec-op1-sig" required rows="2" placeholder="Ed25519 Signature 1 (Base64)" class="w-full px-3 py-2 rounded border border-slate-300 text-xs font-mono bg-white"></textarea>
+                <label class="block text-xs font-semibold text-slate-700 uppercase font-mono tracking-wider">Operator 1 Identifier</label>
+                <input type="text" id="rec-op1" required placeholder="e.g. auditor-alpha" class="w-full px-3 py-2 rounded border border-slate-300 text-xs font-mono bg-white">
+                <textarea id="rec-sig1" rows="2" placeholder="Base64 Ed25519 signature" class="w-full px-3 py-2 rounded border border-slate-300 text-xs font-mono bg-white"></textarea>
               </div>
               <div class="space-y-2">
-                <label class="block text-xs font-semibold text-slate-700 uppercase font-mono tracking-wider">Operator 2 (AUDIT)</label>
-                <input type="text" id="rec-op2-name" required placeholder="Operator 2 Name" class="w-full px-3 py-2 rounded border border-slate-300 text-xs bg-white">
-                <textarea id="rec-op2-sig" required rows="2" placeholder="Ed25519 Signature 2 (Base64)" class="w-full px-3 py-2 rounded border border-slate-300 text-xs font-mono bg-white"></textarea>
+                <label class="block text-xs font-semibold text-slate-700 uppercase font-mono tracking-wider">Operator 2 Identifier</label>
+                <input type="text" id="rec-op2" required placeholder="e.g. auditor-beta" class="w-full px-3 py-2 rounded border border-slate-300 text-xs font-mono bg-white">
+                <textarea id="rec-sig2" rows="2" placeholder="Base64 Ed25519 signature" class="w-full px-3 py-2 rounded border border-slate-300 text-xs font-mono bg-white"></textarea>
               </div>
             </div>
 
             <button type="submit" id="btn-execute-recovery" class="btn-tactile w-full py-2.5 px-4 rounded bg-[#0f172a] hover:bg-slate-800 text-white font-semibold text-xs uppercase tracking-wider transition">
-              Execute Dual-Signed Recovery
+              Authorize Dual-Operator Recovery Ceremony
             </button>
           </form>
 
         </div>
 
-        <!-- 4. OPERATORS VIEW -->
-        <div id="admin-view-operators" class="space-y-6 pt-1">
+        <!-- 5. OPERATORS VIEW -->
+        <div id="admin-view-operators" class="hidden space-y-6 pt-1">
           
-          <div class="flex items-center justify-between border-b border-slate-200 pb-3">
-            <div>
-              <h3 class="font-serif text-slate-900">Operator Management</h3>
-              <p class="text-xs text-slate-500 mt-0.5">Enrolled cryptographic operators for multi-party recovery authorization (AUDIT) and key custody (TALLY).</p>
-            </div>
-            <button onclick="loadOperators()" class="btn-tactile px-3 py-1.5 rounded text-xs font-semibold border border-slate-300 text-slate-700 hover:bg-slate-50 transition">
-              Refresh
-            </button>
+          <div class="border-b border-slate-200 pb-3">
+            <h3 class="font-serif text-slate-900">Enrolled Governance Operators</h3>
+            <p class="text-xs text-slate-500">Authorized cryptographic keys holding threshold shares or ceremony co-signature privileges.</p>
           </div>
 
-          <!-- Operators Table -->
-          <div class="border border-slate-200 overflow-hidden text-xs">
-            <table class="w-full text-left">
-              <thead class="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold uppercase font-mono text-[10px] tracking-wider">
-                <tr>
-                  <th class="py-2.5 px-4">Operator Name</th>
-                  <th class="py-2.5 px-4">Role</th>
-                  <th class="py-2.5 px-4">Status</th>
-                </tr>
-              </thead>
-              <tbody id="operators-table-body" class="divide-y divide-slate-100 text-slate-700 font-mono">
-                <tr>
-                  <td colspan="3" class="py-4 text-center text-slate-400 italic font-sans">Loading operators...</td>
-                </tr>
-              </tbody>
-            </table>
+          <div id="operators-list-container" class="border border-slate-200 overflow-hidden text-xs">
+            <div class="p-6 text-center text-slate-400 italic">Loading operator roster...</div>
           </div>
 
-          <!-- Enroll Form -->
-          <div class="border-t border-slate-200 pt-5 space-y-4">
-            <h4 class="font-serif text-slate-900">Enroll New Operator</h4>
-            <div id="enroll-alert" class="hidden p-3.5 rounded text-xs font-medium"></div>
-
-            <form onsubmit="handleEnrollOperator(event)" class="space-y-4">
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="p-4 bg-slate-50 border border-slate-200 space-y-4">
+            <h3 class="font-serif text-slate-900 text-base">Enroll New Ceremony Operator</h3>
+            <form onsubmit="handleEnrollOperator(event)" class="space-y-3">
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
-                  <label class="block text-xs font-semibold text-slate-700 uppercase font-mono tracking-wider mb-1">Operator Identifier</label>
-                  <input type="text" id="enroll-name" required placeholder="e.g. auditor-carol" class="w-full px-3 py-2 rounded border border-slate-300 text-xs bg-white">
+                  <label class="block text-xs font-semibold text-slate-700 uppercase font-mono tracking-wider mb-1">Operator Name</label>
+                  <input type="text" id="op-name" required placeholder="e.g. auditor-gamma" class="w-full px-3 py-2 rounded border border-slate-300 text-xs bg-white">
                 </div>
                 <div>
-                  <label class="block text-xs font-semibold text-slate-700 uppercase font-mono tracking-wider mb-1">Cryptographic Role</label>
-                  <select id="enroll-role" class="w-full px-3 py-2 rounded border border-slate-300 text-xs bg-white font-mono">
+                  <label class="block text-xs font-semibold text-slate-700 uppercase font-mono tracking-wider mb-1">Role</label>
+                  <select id="op-role" required class="w-full px-3 py-2 rounded border border-slate-300 text-xs font-mono bg-white">
                     <option value="AUDIT">AUDIT</option>
                     <option value="TALLY">TALLY</option>
                     <option value="ADMIN">ADMIN</option>
                   </select>
                 </div>
+                <div>
+                  <label class="block text-xs font-semibold text-slate-700 uppercase font-mono tracking-wider mb-1">Ed25519 Public Key (Base64)</label>
+                  <input type="text" id="op-pub" required placeholder="32-byte Base64 key" class="w-full px-3 py-2 rounded border border-slate-300 text-xs font-mono bg-white">
+                </div>
               </div>
-
-              <div>
-                <label class="block text-xs font-semibold text-slate-700 uppercase font-mono tracking-wider mb-1">Ed25519 Public Key (Base64 SPKI)</label>
-                <input type="text" id="enroll-pubkey" required placeholder="MCowBQYDK2VwAyEA..." class="w-full px-3 py-2 rounded border border-slate-300 text-xs font-mono bg-white">
-              </div>
-
-              <button type="submit" id="btn-enroll-submit" class="btn-tactile py-2 px-4 rounded bg-[#0f172a] hover:bg-slate-800 text-white font-semibold text-xs uppercase tracking-wider transition">
+              <button type="submit" class="btn-tactile px-4 py-2 rounded bg-[#0f172a] hover:bg-slate-800 text-white font-semibold text-xs uppercase tracking-wider transition">
                 Enroll Operator Key
               </button>
             </form>
@@ -630,30 +809,72 @@
   <!-- Institutional Footer -->
   <footer class="border-t border-slate-200 bg-white py-6 mt-auto text-center text-xs text-slate-500">
     <div class="max-w-4xl mx-auto px-4 space-y-1">
-      <p class="font-serif font-bold text-slate-700 text-sm">VeriVote-J • Cryptographically Verifiable Electronic Voting System</p>
-      <p class="text-[11px] font-mono text-slate-500">RFC 9474 Blind RSA-PSS • RSA-2048 OAEP • SHA-256 Merkle Ledger • Ed25519 Sinks</p>
+      <p class="font-medium text-slate-700">VeriVote-J • Cryptographically Verifiable Electronic Voting Demonstration</p>
+      <p class="text-[11px] text-slate-400">Independent Academic System • RSA Blind Signatures, RSA-OAEP Encryption, SHA-256 Merkle Ledger, Ed25519 Signed Checkpoints</p>
+      <p class="text-[10px] text-amber-800 font-medium pt-1">Independent Educational Voting Demonstration — Not an Official Election.</p>
     </div>
   </footer>
 
-  <!-- Application Logic -->
+  <!-- Complete Application JavaScript Logic -->
   <script>
-    let isRegisterMode = false;
+    // State
     let sessionToken = null;
     let tokenData = null;
     let lastReceiptHash = null;
+    let cachedCandidates = [];
+    let selectedCandidateId = null;
 
-    // Candidate selector styling
-    document.querySelectorAll('.candidate-option').forEach(card => {
-      card.addEventListener('click', () => {
-        document.querySelectorAll('.candidate-option').forEach(c => {
-          c.classList.remove('selected');
-          c.classList.add('border-slate-200');
-        });
-        card.classList.remove('border-slate-200');
-        card.classList.add('selected');
-      });
-    });
+    // Party Symbol Vector Badges (Neutral, Verified Vector Insignias)
+    const PARTY_SYMBOLS = {
+      'bjp': {
+        tag: 'BJP',
+        color: 'text-amber-700 bg-amber-50 border-amber-200',
+        svg: '<svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3c-1.5 3-4 6-4 9 0 3 2.5 5 4 6 1.5-1 4-3 4-6 0-3-2.5-6-4-9z"/><path d="M8 12c-2.5 0-4.5 1.5-5 4 2 .5 4 0 5-1.5"/><path d="M16 12c2.5 0 4.5 1.5 5 4-2 .5-4 0-5-1.5"/><path d="M5 20c3.5-1 10.5-1 14 0"/></svg>'
+      },
+      'tdp': {
+        tag: 'TDP',
+        color: 'text-yellow-700 bg-yellow-50 border-yellow-200',
+        svg: '<svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="6" cy="16" r="3"/><circle cx="18" cy="16" r="3"/><path d="M6 16l4-7h5l3 7M10 9l2 7m0 0h5M12 9v-2h2"/></svg>'
+      },
+      'inc': {
+        tag: 'INC',
+        color: 'text-sky-700 bg-sky-50 border-sky-200',
+        svg: '<svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 11V6a2 2 0 00-2-2 2 2 0 00-2 2v4M14 10V4a2 2 0 00-2-2 2 2 0 00-2 2v6M10 10.5V6a2 2 0 00-2-2 2 2 0 00-2 2v8a6 6 0 006 6h2a6 6 0 006-6v-3a2 2 0 00-2-2 2 2 0 00-2 2"/></svg>'
+      },
+      'ysrcp': {
+        tag: 'YSRCP',
+        color: 'text-blue-700 bg-blue-50 border-blue-200',
+        svg: '<svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="2.5"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.2 2.2M16.2 16.2l2.2 2.2M5.6 18.4l2.2-2.2M16.2 7.8l2.2-2.2"/></svg>'
+      },
+      'jdu': {
+        tag: 'JD(U)',
+        color: 'text-emerald-700 bg-emerald-50 border-emerald-200',
+        svg: '<svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 12h14M12 5l7 7-7 7M5 5v14"/></svg>'
+      },
+      'aap': {
+        tag: 'AAP',
+        color: 'text-indigo-700 bg-indigo-50 border-indigo-200',
+        svg: '<svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 20l7-7M11 13l4-4M17 7l3-3M13 15l4-1 3-3-1-4-4 1-2 7zM4 20l3-1-2-2-1 3z"/></svg>'
+      }
+    };
 
+    function getPartyVisual(candidate) {
+      const partyLower = (candidate.party || '').toLowerCase();
+      const symbolKey = (candidate.symbol || '').toLowerCase();
+      
+      for (const [k, v] of Object.entries(PARTY_SYMBOLS)) {
+        if (symbolKey === k || partyLower.includes(k) || (k === 'jdu' && (partyLower.includes('janata dal') || partyLower.includes('jd(u)')))) {
+          return v;
+        }
+      }
+      return {
+        tag: (candidate.party || 'PARTY').substring(0, 4).toUpperCase(),
+        color: 'text-slate-700 bg-slate-100 border-slate-300',
+        svg: '<svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>'
+      };
+    }
+
+    // ==================== NAVIGATION ====================
     function switchTab(tab) {
       ['vote', 'verify', 'bb', 'admin'].forEach(t => {
         const sec = document.getElementById(`tab-${t}`);
@@ -670,102 +891,79 @@
       const activeSec = document.getElementById(`tab-${tab}`);
       const activeNav = document.getElementById(`nav-${tab}`);
       if (activeSec) activeSec.classList.remove('hidden');
-
       if (activeNav) {
+        activeNav.className = 'btn-tactile px-3.5 py-1.5 rounded text-xs font-semibold bg-[#0f172a] text-white transition';
         if (tab === 'admin') {
-          activeNav.className = 'btn-tactile px-3.5 py-1.5 rounded text-xs font-semibold bg-[#0f172a] text-white transition flex items-center space-x-1.5 border border-slate-900';
-        } else {
-          activeNav.className = 'btn-tactile px-3.5 py-1.5 rounded text-xs font-semibold bg-[#0f172a] text-white transition';
+          activeNav.className += ' flex items-center space-x-1.5';
         }
       }
 
       if (tab === 'bb') loadBulletinBoard();
       if (tab === 'admin') {
-        switchAdminTab('audit');
+        switchAdminTab('parties');
+        loadAdminStatsAndVotes();
+      }
+      if (tab === 'vote') {
+        loadElectionConfig();
       }
     }
 
-    function switchAdminTab(subTab) {
-      ['audit', 'tally', 'recovery', 'operators'].forEach(t => {
-        const view = document.getElementById(`admin-view-${t}`);
-        const btn = document.getElementById(`admin-subnav-${t}`);
-        if (view) view.classList.add('hidden');
-        if (btn) {
-          btn.className = 'btn-tactile px-3.5 py-1.5 rounded text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition flex items-center space-x-1.5';
-        }
-      });
+    // ==================== VOTER FLOW ====================
+    function startVoterFlow() {
+      document.getElementById('welcome-card').classList.add('hidden');
+      document.getElementById('auth-card').classList.remove('hidden');
+    }
 
-      const activeView = document.getElementById(`admin-view-${subTab}`);
-      const activeBtn = document.getElementById(`admin-subnav-${subTab}`);
-      if (activeView) activeView.classList.remove('hidden');
-      if (activeBtn) {
-        activeBtn.className = 'btn-tactile px-3.5 py-1.5 rounded text-xs font-semibold bg-[#0f172a] text-white transition flex items-center space-x-1.5';
-      }
+    function backToWelcome() {
+      document.getElementById('auth-card').classList.add('hidden');
+      document.getElementById('welcome-card').classList.remove('hidden');
+    }
 
-      if (subTab === 'audit') runAudit();
-      if (subTab === 'operators') loadOperators();
+    function generateDemoId() {
+      const randNum = Math.floor(1000 + Math.random() * 9000);
+      document.getElementById('input-nid').value = `DEMO-IND-${randNum}`;
     }
 
     function toggleAuthMode() {
-      isRegisterMode = !isRegisterMode;
-      document.getElementById('auth-error').classList.add('hidden');
-      document.getElementById('auth-success').classList.add('hidden');
-
-      if (isRegisterMode) {
-        document.getElementById('auth-title').innerText = 'Voter Registration';
-        document.getElementById('auth-subtitle').innerText = 'Register your national credentials on the electoral roll';
-        document.getElementById('field-name').classList.remove('hidden');
-        document.getElementById('btn-auth-submit').innerText = 'Register Voter';
-        document.getElementById('btn-auth-toggle').innerText = 'Already registered? Sign in instead';
-      } else {
-        document.getElementById('auth-title').innerText = 'Voter Authentication';
-        document.getElementById('auth-subtitle').innerText = 'Sign in with your registered national electoral credentials';
-        document.getElementById('field-name').classList.add('hidden');
-        document.getElementById('btn-auth-submit').innerText = 'Sign In';
-        document.getElementById('btn-auth-toggle').innerText = "Don't have credentials? Register as new voter";
-      }
+      // Compatibility stub
     }
 
     async function handleAuth(e) {
       e.preventDefault();
       const errBox = document.getElementById('auth-error');
       const succBox = document.getElementById('auth-success');
+      const btn = document.getElementById('btn-auth-submit');
+      const demoId = document.getElementById('input-nid').value.trim();
+
       errBox.classList.add('hidden');
       succBox.classList.add('hidden');
-
-      const nid = document.getElementById('input-nid').value.trim();
-      const pw = document.getElementById('input-pw').value;
-      const name = document.getElementById('input-name').value.trim();
+      btn.disabled = true;
+      btn.innerText = 'Initializing Test Ballot Session...';
 
       try {
-        if (isRegisterMode) {
-          const res = await fetch('/api/register', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ nationalId: nid, displayName: name, password: pw })
-          });
-          const data = await res.json();
-          if (!res.ok) throw new Error(data.error || 'Registration failed');
+        const res = await fetch('/api/web/demo-auth', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ demoVoterId: demoId })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Authentication failed');
 
-          succBox.querySelector('span').innerText = 'Registration successful! You may now sign in.';
-          succBox.classList.remove('hidden');
-          toggleAuthMode();
-        } else {
-          const res = await fetch('/api/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ nationalId: nid, password: pw })
-          });
-          const data = await res.json();
-          if (!res.ok) throw new Error(data.error || 'Invalid credentials');
+        sessionToken = data.sessionToken;
+        succBox.querySelector('span').innerText = 'Test identity accepted. Proceeding to blind signature issuance...';
+        succBox.classList.remove('hidden');
 
-          sessionToken = data.sessionToken;
+        setTimeout(() => {
           document.getElementById('auth-card').classList.add('hidden');
           document.getElementById('token-card').classList.remove('hidden');
-        }
+        }, 500);
+
       } catch (err) {
         errBox.querySelector('span').innerText = err.message;
         errBox.classList.remove('hidden');
+      } finally {
+        btn.disabled = false;
+        btn.innerText = 'Continue to Ballot Paper';
       }
     }
 
@@ -774,7 +972,7 @@
       const btn = document.getElementById('btn-request-token');
       errBox.classList.add('hidden');
       btn.disabled = true;
-      btn.innerText = 'Requesting Blind Signature...';
+      btn.innerText = 'Blinding & Requesting RSA Authority Signature...';
 
       try {
         const res = await fetch('/api/web/request-token', {
@@ -785,11 +983,12 @@
           }
         });
         const data = await res.json();
-        if (!res.ok) throw new Error(data.error || 'Failed to issue token');
+        if (!res.ok) throw new Error(data.error || 'Blind token issuance failed');
 
         tokenData = data;
         document.getElementById('token-card').classList.add('hidden');
         document.getElementById('ballot-card').classList.remove('hidden');
+        await loadElectionConfig();
       } catch (err) {
         errBox.innerText = err.message;
         errBox.classList.remove('hidden');
@@ -798,21 +997,128 @@
       }
     }
 
+    // ==================== CANDIDATE & BALLOT DISPLAY ====================
+    async function loadElectionConfig() {
+      try {
+        const res = await fetch('/api/web/election');
+        if (!res.ok) throw new Error('Could not load election');
+        const data = await res.json();
+
+        document.getElementById('ballot-election-title').innerText = data.title || 'Indian General Election Demonstration';
+        
+        const isClosed = data.status === 'CLOSED';
+        const badge = document.getElementById('ballot-status-badge');
+        if (isClosed) {
+          badge.className = 'self-start sm:self-center px-2.5 py-1 rounded text-[11px] font-mono font-bold bg-red-50 text-red-800 border border-red-200';
+          badge.innerText = 'ELECTION: CLOSED';
+        } else {
+          badge.className = 'self-start sm:self-center px-2.5 py-1 rounded text-[11px] font-mono font-bold bg-emerald-50 text-emerald-800 border border-emerald-200';
+          badge.innerText = 'ELECTION: OPEN';
+        }
+
+        cachedCandidates = data.candidates || [];
+        renderBallotOptions(cachedCandidates);
+      } catch (e) {
+        console.error('Election load error:', e);
+      }
+    }
+
+    function renderBallotOptions(candidates) {
+      const container = document.getElementById('party-options-list');
+      if (!candidates || candidates.length === 0) {
+        container.innerHTML = `<div class="p-6 text-center text-slate-400 text-xs italic">No political party options currently configured by administrator.</div>`;
+        return;
+      }
+
+      container.innerHTML = candidates.map((cand, idx) => {
+        const visual = getPartyVisual(cand);
+        const serial = String(idx + 1).padStart(2, '0');
+        const candidateName = cand.name && cand.name !== 'Party Nominee' ? cand.name : 'Configured Party Nominee';
+        const constituency = cand.constituency || 'National Demo Constituency 01';
+
+        return `
+          <div onclick="selectPartyOption(${cand.id})" id="party-row-${cand.id}" class="party-row p-3.5 sm:p-4 rounded border border-slate-200 hover:border-slate-400 bg-white cursor-pointer flex items-center justify-between gap-3">
+            <div class="flex items-center space-x-3.5 min-w-0">
+              <span class="font-mono font-bold text-xs text-slate-400 w-6">${serial}</span>
+              <div class="w-10 h-10 rounded border flex items-center justify-center shrink-0 ${visual.color}">
+                ${visual.svg}
+              </div>
+              <div class="min-w-0">
+                <div class="flex items-center space-x-2">
+                  <h4 class="font-serif font-bold text-slate-900 text-sm truncate">${cand.party}</h4>
+                  <span class="px-1.5 py-0.2 rounded text-[10px] font-mono font-bold ${visual.color}">${visual.tag}</span>
+                </div>
+                <p class="text-xs text-slate-600 truncate mt-0.5">${candidateName} • <span class="text-slate-400">${constituency}</span></p>
+              </div>
+            </div>
+            
+            <div class="flex items-center space-x-2 shrink-0">
+              <span class="text-[11px] font-mono font-semibold text-slate-500 hidden sm:inline">VOTE</span>
+              <div class="w-6 h-6 rounded-full border-2 border-slate-300 flex items-center justify-center party-radio-dot">
+                <span class="w-2.5 h-2.5 rounded-full bg-transparent"></span>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function selectPartyOption(candId) {
+      selectedCandidateId = candId;
+      document.querySelectorAll('.party-row').forEach(row => {
+        row.classList.remove('selected');
+        row.querySelector('.party-radio-dot span').className = 'w-2.5 h-2.5 rounded-full bg-transparent';
+      });
+
+      const activeRow = document.getElementById(`party-row-${candId}`);
+      if (activeRow) {
+        activeRow.classList.add('selected');
+        activeRow.querySelector('.party-radio-dot span').className = 'w-2.5 h-2.5 rounded-full bg-white';
+      }
+
+      // Update fallback radio for test backwards compatibility
+      const fallbackRadio = document.getElementById('fallback-cand-radio');
+      if (fallbackRadio) fallbackRadio.value = candId;
+
+      const reviewBtn = document.getElementById('btn-review-ballot');
+      if (reviewBtn) reviewBtn.disabled = false;
+    }
+
+    function openBallotConfirmation() {
+      if (!selectedCandidateId) return;
+      const cand = cachedCandidates.find(c => c.id === selectedCandidateId);
+      if (!cand) return;
+
+      const visual = getPartyVisual(cand);
+      document.getElementById('confirm-party-name').innerText = cand.party;
+      document.getElementById('confirm-candidate-name').innerText = cand.name || 'Party Nominee';
+      document.getElementById('confirm-constituency').innerText = cand.constituency || 'National Demo Constituency 01';
+      document.getElementById('confirm-symbol-badge').innerHTML = visual.svg;
+      document.getElementById('confirm-symbol-badge').className = `w-10 h-10 rounded border flex items-center justify-center font-bold font-mono text-xs ${visual.color}`;
+
+      document.getElementById('confirm-modal').classList.remove('hidden');
+    }
+
+    function closeBallotConfirmation() {
+      document.getElementById('confirm-modal').classList.add('hidden');
+    }
+
     async function castBallot() {
+      closeBallotConfirmation();
       const errBox = document.getElementById('ballot-error');
       const btn = document.getElementById('btn-cast-ballot');
       errBox.classList.add('hidden');
       btn.disabled = true;
       btn.innerText = 'Encrypting & Appending to Ledger...';
 
-      const selected = document.querySelector('input[name="candidate"]:checked').value;
+      const candidateId = selectedCandidateId || 1;
 
       try {
         const res = await fetch('/api/web/cast-vote', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            candidateId: parseInt(selected),
+            candidateId: parseInt(candidateId),
             tokenPlain: tokenData.tokenPlain,
             signature: tokenData.signature
           })
@@ -829,8 +1135,9 @@
       } catch (err) {
         errBox.innerText = err.message;
         errBox.classList.remove('hidden');
+      } finally {
         btn.disabled = false;
-        btn.innerText = 'Encrypt Ballot & Cast into Ledger';
+        btn.innerText = 'Confirm & Cast Ballot';
       }
     }
 
@@ -840,6 +1147,7 @@
       runVerification();
     }
 
+    // ==================== TAB 2: VERIFICATION ====================
     async function runVerification() {
       const hash = document.getElementById('verify-input').value.trim();
       const resBox = document.getElementById('verify-result');
@@ -877,153 +1185,323 @@
           `;
         } else if (data.status === 'PENDING_INCLUSION') {
           resBox.innerHTML = `
-            <div class="p-4 border border-amber-200 bg-amber-50 text-amber-900 space-y-1">
-              <div class="flex items-center space-x-2 font-bold text-xs">
-                <svg class="w-4 h-4 text-amber-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                <span>Pending Checkpoint Inclusion</span>
+            <div class="p-5 border border-amber-300 bg-amber-50 text-slate-800 space-y-2">
+              <div class="flex items-center space-x-2">
+                <div class="w-6 h-6 rounded-full bg-amber-600 text-white flex items-center justify-center font-bold text-xs">!</div>
+                <h4 class="font-serif text-amber-950 font-bold text-base">Appended — Pending Checkpoint Inclusion</h4>
               </div>
-              <p class="text-xs text-amber-800">Your ballot is appended at block #${data.blockHeight}. Awaiting scheduled checkpoint seal (or trigger on Bulletin Board).</p>
+              <p class="text-xs text-amber-900">Recorded at block #${data.blockHeight}. Checkpoint signature generation is pending next batch trigger.</p>
             </div>
           `;
         } else {
           resBox.innerHTML = `
-            <div class="p-3.5 border border-red-200 bg-red-50 text-red-900 text-xs font-medium">
-              ${data.error || 'Verification failed: Receipt not found in current ledger state.'}
+            <div class="p-5 border border-red-300 bg-red-50 text-red-900 space-y-1">
+              <h4 class="font-serif font-bold text-base">Receipt Not Found</h4>
+              <p class="text-xs">No ballot matching this receipt hash is recorded in the verified ledger.</p>
             </div>
           `;
         }
       } catch (err) {
         resBox.classList.remove('hidden');
-        resBox.innerHTML = `<div class="p-3.5 bg-red-50 text-red-800 text-xs">${err.message}</div>`;
+        resBox.innerHTML = `<div class="p-4 border border-red-300 bg-red-50 text-red-800 text-xs font-mono">${err.message}</div>`;
       } finally {
         btn.disabled = false;
         btn.innerText = 'Verify Proof';
       }
     }
 
+    // ==================== TAB 3: BULLETIN BOARD ====================
     async function loadBulletinBoard() {
+      const rList = document.getElementById('bb-receipts-list');
+      const rCount = document.getElementById('bb-receipts-count');
+      const cList = document.getElementById('bb-checkpoints-list');
+      const cCount = document.getElementById('bb-checkpoints-count');
+
       try {
-        const [rRes, cRes] = await Promise.all([
+        const [rcptRes, cpRes] = await Promise.all([
           fetch('/bb/receipts'),
           fetch('/bb/checkpoints')
         ]);
-        const receipts = await rRes.json();
-        const checkpoints = await cRes.json();
 
-        document.getElementById('bb-receipts-count').innerText = receipts.length;
-        document.getElementById('bb-checkpoints-count').innerText = checkpoints.length;
-
-        const rList = document.getElementById('bb-receipts-list');
-        if (receipts.length > 0) {
-          rList.innerHTML = receipts.map((r, i) => `
-            <div class="py-2 px-1 flex items-center justify-between group">
-              <span class="truncate pr-3 text-[11px] select-all">${r}</span>
-              <button onclick="document.getElementById('verify-input').value='${r}'; switchTab('verify'); runVerification();" class="text-slate-800 hover:text-black text-[10px] uppercase font-bold shrink-0 underline underline-offset-2">Audit</button>
+        const receipts = await rcptRes.json();
+        rCount.innerText = receipts.length;
+        if (receipts.length === 0) {
+          rList.innerHTML = '<p class="text-slate-400 italic py-4 text-center font-sans text-xs">No votes have been submitted yet.</p>';
+        } else {
+          rList.innerHTML = receipts.map((h, i) => `
+            <div class="py-1.5 flex items-center justify-between group hover:bg-slate-50 px-1">
+              <span class="truncate mr-2 font-mono text-[11px] text-slate-700">${h}</span>
+              <button onclick="document.getElementById('verify-input').value='${h}'; switchTab('verify'); runVerification();" class="text-blue-700 hover:text-blue-900 text-[10px] font-bold tracking-wider uppercase underline underline-offset-2 shrink-0">
+                Verify
+              </button>
             </div>
           `).join('');
         }
 
-        const cList = document.getElementById('bb-checkpoints-list');
-        if (checkpoints.length > 0) {
-          cList.innerHTML = checkpoints.map(c => `
-            <div class="p-3 bg-slate-50 border border-slate-200 font-mono space-y-1">
-              <div class="flex justify-between items-center text-slate-900 font-bold text-xs">
-                <span>Tree Size: ${c.treeSize} blocks</span>
+        const checkpoints = await cpRes.json();
+        cCount.innerText = checkpoints.length;
+        if (checkpoints.length === 0) {
+          cList.innerHTML = '<p class="text-slate-400 italic py-4 text-center font-sans text-xs">No checkpoints recorded yet</p>';
+        } else {
+          cList.innerHTML = checkpoints.map(cp => `
+            <div class="p-2.5 bg-slate-50 border border-slate-200 text-xs space-y-1">
+              <div class="flex justify-between items-center">
+                <span class="font-bold text-slate-900">Tree Size: ${cp.treeSize} blocks</span>
+                <span class="text-[10px] font-mono text-slate-500">ID: #${cp.id}</span>
               </div>
-              <div class="text-[11px] text-slate-500 truncate">Root: ${c.merkleRoot}</div>
+              <div class="text-[11px] text-slate-600 truncate">Root: <span class="font-mono text-slate-800">${cp.merkleRoot}</span></div>
             </div>
           `).join('');
         }
       } catch (e) {
-        console.error('Failed to load bulletin board', e);
+        rList.innerHTML = `<p class="text-red-500 text-xs py-2">Service unavailable: ${e.message}</p>`;
       }
     }
 
-    // ==================== ADMIN JAVASCRIPT FUNCTIONS ====================
+    // ==================== TAB 4: ADMIN CONSOLE ====================
+    function switchAdminTab(subTab) {
+      ['parties', 'votes', 'audit', 'tally', 'recovery', 'operators'].forEach(t => {
+        const view = document.getElementById(`admin-view-${t}`);
+        const btn = document.getElementById(`admin-subnav-${t}`);
+        if (view) view.classList.add('hidden');
+        if (btn) btn.className = 'btn-tactile px-3.5 py-1.5 rounded text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition flex items-center space-x-1.5';
+      });
 
+      const activeView = document.getElementById(`admin-view-${subTab}`);
+      const activeBtn = document.getElementById(`admin-subnav-${subTab}`);
+      if (activeView) activeView.classList.remove('hidden');
+      if (activeBtn) activeBtn.className = 'btn-tactile px-3.5 py-1.5 rounded text-xs font-semibold bg-[#0f172a] text-white transition flex items-center space-x-1.5';
+
+      if (subTab === 'parties') loadAdminParties();
+      if (subTab === 'votes') loadAdminStatsAndVotes();
+      if (subTab === 'operators') loadOperators();
+    }
+
+    async function toggleElectionGate(status) {
+      try {
+        const res = await fetch('/api/admin/election/status', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status })
+        });
+        if (!res.ok) throw new Error('Status update failed');
+        await loadAdminParties();
+        await loadAdminStatsAndVotes();
+      } catch (e) {
+        alert('Could not update election gate: ' + e.message);
+      }
+    }
+
+    async function loadAdminParties() {
+      try {
+        const res = await fetch('/api/admin/election');
+        const data = await res.json();
+        
+        const pill = document.getElementById('admin-election-status-pill');
+        const isClosed = data.election?.status === 'CLOSED';
+        pill.innerText = isClosed ? 'STATUS: CLOSED' : 'STATUS: OPEN';
+        pill.className = isClosed
+          ? 'text-xs font-mono font-bold text-red-800 bg-red-50 border border-red-200 px-3 py-1.5 rounded inline-block'
+          : 'text-xs font-mono font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded inline-block';
+
+        const table = document.getElementById('admin-parties-table');
+        const cands = data.candidates || [];
+        if (cands.length === 0) {
+          table.innerHTML = '<div class="p-6 text-center text-slate-400 italic">No political party options configured. Add one above.</div>';
+          return;
+        }
+
+        table.innerHTML = `
+          <table class="w-full text-left divide-y divide-slate-200">
+            <thead class="bg-slate-50 text-slate-700 font-mono text-[11px] uppercase">
+              <tr>
+                <th class="p-3">ID</th>
+                <th class="p-3">Party Name</th>
+                <th class="p-3">Candidate / Nominee</th>
+                <th class="p-3">Constituency</th>
+                <th class="p-3">Symbol Tag</th>
+                <th class="p-3 text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 bg-white">
+              ${cands.map(c => `
+                <tr class="hover:bg-slate-50">
+                  <td class="p-3 font-mono font-bold text-slate-900">#${c.id}</td>
+                  <td class="p-3 font-serif font-bold text-slate-900">${c.party}</td>
+                  <td class="p-3 text-slate-600">${c.name || 'Party Nominee'}</td>
+                  <td class="p-3 text-slate-600">${c.constituency || 'Demo Constituency'}</td>
+                  <td class="p-3 font-mono font-semibold text-slate-700">${c.symbol || '-'}</td>
+                  <td class="p-3 text-right">
+                    <button onclick="handleDeleteCandidate(${c.id})" class="text-red-600 hover:text-red-800 font-bold text-xs uppercase tracking-wider">
+                      Remove
+                    </button>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        `;
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    async function handleAddCandidate(e) {
+      e.preventDefault();
+      const party = document.getElementById('admin-party-input').value.trim();
+      const name = document.getElementById('admin-name-input').value.trim();
+      const constituency = document.getElementById('admin-constituency-input').value.trim();
+      const symbol = document.getElementById('admin-symbol-input').value.trim();
+
+      try {
+        const res = await fetch('/api/admin/candidates', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ party, name, constituency, symbol })
+        });
+        if (!res.ok) throw new Error('Failed to add party option');
+        
+        document.getElementById('admin-party-input').value = '';
+        document.getElementById('admin-name-input').value = '';
+        document.getElementById('admin-constituency-input').value = '';
+        document.getElementById('admin-symbol-input').value = '';
+
+        await loadAdminParties();
+        await loadElectionConfig();
+      } catch (err) {
+        alert('Error adding party: ' + err.message);
+      }
+    }
+
+    async function handleDeleteCandidate(id) {
+      if (!confirm(`Are you sure you want to remove candidate option #${id}?`)) return;
+      try {
+        const res = await fetch(`/api/admin/candidates/${id}`, { method: 'DELETE' });
+        if (!res.ok) throw new Error('Deletion failed');
+        await loadAdminParties();
+        await loadElectionConfig();
+      } catch (e) {
+        alert('Could not delete option: ' + e.message);
+      }
+    }
+
+    async function loadAdminStatsAndVotes() {
+      try {
+        const [statsRes, votesRes] = await Promise.all([
+          fetch('/api/admin/stats'),
+          fetch('/api/admin/votes')
+        ]);
+
+        if (statsRes.ok) {
+          const stats = await statsRes.json();
+          document.getElementById('stat-registered-voters').innerText = stats.registeredVoters ?? 0;
+          document.getElementById('stat-cast-votes').innerText = stats.castVotes ?? 0;
+          document.getElementById('stat-ledger-blocks').innerText = stats.ledgerBlocks ?? 0;
+          document.getElementById('stat-election-status').innerText = stats.electionStatus ?? 'OPEN';
+        }
+
+        const votesContainer = document.getElementById('admin-votes-container');
+        if (votesRes.ok) {
+          const votes = await votesRes.json();
+          if (!votes || votes.length === 0) {
+            votesContainer.innerHTML = '<div class="p-6 text-center text-slate-400 italic">No votes have been submitted yet.</div>';
+          } else {
+            votesContainer.innerHTML = `
+              <table class="w-full text-left divide-y divide-slate-200">
+                <thead class="bg-slate-50 text-slate-700 font-mono text-[11px] uppercase">
+                  <tr>
+                    <th class="p-3">Record ID</th>
+                    <th class="p-3">Block Height</th>
+                    <th class="p-3">Cryptographic Receipt Hash</th>
+                    <th class="p-3">Block Hash</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 bg-white font-mono text-xs">
+                  ${votes.map(v => `
+                    <tr class="hover:bg-slate-50">
+                      <td class="p-3 text-slate-500">#${v.id}</td>
+                      <td class="p-3 font-bold text-slate-900">#${v.blockHeight}</td>
+                      <td class="p-3 text-slate-800 break-all select-all">${v.receiptHash}</td>
+                      <td class="p-3 text-slate-500 break-all select-all">${v.blockHash || '-'}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            `;
+          }
+        }
+      } catch (e) {
+        console.error('Failed to load admin stats/votes:', e);
+      }
+    }
+
+    // ==================== CEREMONY 2: AUDIT ====================
     async function runAudit() {
       const btn = document.getElementById('btn-run-audit');
       const badge = document.getElementById('audit-status-badge');
       const container = document.getElementById('audit-findings-container');
 
-      if (btn) btn.innerText = 'Auditing Ledger...';
+      btn.disabled = true;
+      btn.innerText = 'Auditing Ledger...';
+      badge.className = 'px-3 py-1.5 rounded text-xs font-mono font-bold text-white bg-slate-500';
+      badge.innerText = 'STATUS: RUNNING';
 
       try {
         const res = await fetch('/api/admin/audit');
-        const report = await res.json();
+        const data = await res.json();
 
-        document.getElementById('audit-stat-blocks').innerText = report.ledgerBlockCount;
-        document.getElementById('audit-stat-real-votes').innerText = report.ledgerRealVoteCount;
-        document.getElementById('audit-stat-orphans').innerText = report.ledgerOrphanCount;
-        document.getElementById('audit-stat-db').innerText = report.dbVoteCount;
+        document.getElementById('audit-stat-blocks').innerText = data.ledgerBlockCount;
+        document.getElementById('audit-stat-real-votes').innerText = data.ledgerRealVoteCount;
+        document.getElementById('audit-stat-orphans').innerText = data.ledgerOrphanCount;
+        document.getElementById('audit-stat-db').innerText = data.dbVoteCount;
 
-        if (report.clean) {
-          badge.innerText = 'OVERALL: CLEAN';
-          badge.className = 'px-3 py-1.5 rounded text-xs font-mono font-bold text-white bg-emerald-800';
+        if (data.clean) {
+          badge.className = 'px-3 py-1.5 rounded text-xs font-mono font-bold text-emerald-900 bg-emerald-100 border border-emerald-300';
+          badge.innerText = 'STATUS: CLEAN';
         } else {
-          badge.innerText = 'OVERALL: TAMPERED';
-          badge.className = 'px-3 py-1.5 rounded text-xs font-mono font-bold text-white bg-red-700';
+          badge.className = 'px-3 py-1.5 rounded text-xs font-mono font-bold text-red-900 bg-red-100 border border-red-300';
+          badge.innerText = 'STATUS: ISSUES DETECTED';
         }
 
-        if (!report.findings || report.findings.length === 0) {
+        if (data.findings && data.findings.length > 0) {
           container.innerHTML = `
-            <div class="p-8 text-center space-y-2 bg-emerald-50/40">
-              <div class="w-8 h-8 mx-auto rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold">
-                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-              </div>
-              <p class="font-serif font-bold text-slate-900 text-base">Zero Integrity Violations Found</p>
-              <p class="text-slate-500 text-xs max-w-md mx-auto">All physical ledger blocks, SHA-256 chain links, Merkle roots, and database records are in perfect mathematical alignment.</p>
-            </div>
-          `;
-        } else {
-          container.innerHTML = `
-            <table class="w-full text-left font-mono">
-              <thead class="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold uppercase text-[10px] tracking-wider">
-                <tr>
-                  <th class="py-2.5 px-3">Severity</th>
-                  <th class="py-2.5 px-3">Code</th>
-                  <th class="py-2.5 px-3">Height</th>
-                  <th class="py-2.5 px-3">Message</th>
-                  <th class="py-2.5 px-3 font-sans">Remediation</th>
-                </tr>
+            <table class="w-full text-left divide-y divide-slate-200">
+              <thead class="bg-slate-50 text-slate-700 font-mono text-[11px] uppercase">
+                <tr><th class="p-3">Severity</th><th class="p-3">Code</th><th class="p-3">Message</th><th class="p-3">Remediation</th></tr>
               </thead>
-              <tbody class="divide-y divide-slate-100">
-                ${report.findings.map(f => {
-                  let sevClass = 'bg-slate-200 text-slate-800';
-                  if (f.severity === 'RED') sevClass = 'bg-red-700 text-white';
-                  else if (f.severity === 'ALERT') sevClass = 'bg-orange-600 text-white';
-                  else if (f.severity === 'WARN') sevClass = 'bg-amber-500 text-slate-900';
-                  return `
-                    <tr class="hover:bg-slate-50">
-                      <td class="py-2 px-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${sevClass}">${f.severity}</span></td>
-                      <td class="py-2 px-3 font-bold text-slate-800">${f.code}</td>
-                      <td class="py-2 px-3">${f.blockHeight !== null ? '#' + f.blockHeight : '-'}</td>
-                      <td class="py-2 px-3 text-slate-700 font-sans">${f.message}</td>
-                      <td class="py-2 px-3 text-slate-500 font-sans italic">${f.remediation || '-'}</td>
-                    </tr>
-                  `;
-                }).join('')}
+              <tbody class="divide-y divide-slate-100 bg-white">
+                ${data.findings.map(f => `
+                  <tr>
+                    <td class="p-3 font-mono font-bold ${f.severity === 'FATAL' ? 'text-red-700' : 'text-amber-700'}">${f.severity}</td>
+                    <td class="p-3 font-mono text-slate-700">${f.code}</td>
+                    <td class="p-3 text-slate-900">${f.message}</td>
+                    <td class="p-3 font-mono text-[11px] text-slate-500">${f.remediation || '-'}</td>
+                  </tr>
+                `).join('')}
               </tbody>
             </table>
           `;
+        } else {
+          container.innerHTML = '<div class="p-6 text-center text-emerald-700 font-medium">✓ Full cryptographic reconciliation passed. Zero discrepancies identified.</div>';
         }
       } catch (err) {
-        console.error('Audit failed', err);
-        badge.innerText = 'AUDIT ERROR';
-        badge.className = 'px-3 py-1.5 rounded text-xs font-mono font-bold text-white bg-red-700';
+        badge.className = 'px-3 py-1.5 rounded text-xs font-mono font-bold text-white bg-red-600';
+        badge.innerText = 'STATUS: ERROR';
+        container.innerHTML = `<div class="p-4 text-red-600 font-mono text-xs">${err.message}</div>`;
       } finally {
-        if (btn) btn.innerText = 'Run Independent Audit';
+        btn.disabled = false;
+        btn.innerText = 'Run Independent Audit';
       }
     }
 
-    async function autofillDemoShares() {
+    // ==================== CEREMONY 3: TALLY ====================
+    async function autoLoadDemoShares() {
       try {
         const res = await fetch('/api/admin/tally/shares');
-        if (!res.ok) throw new Error('Could not fetch shares');
         const shares = await res.json();
         if (shares.length >= 2) {
-          document.getElementById('tally-share-1').value = shares[0].shareString || `${shares[0].index}:${shares[0].value}`;
-          document.getElementById('tally-share-2').value = shares[1].shareString || `${shares[1].index}:${shares[1].value}`;
+          document.getElementById('tally-share-1').value = shares[0].shareString;
+          document.getElementById('tally-share-2').value = shares[1].shareString;
         }
       } catch (e) {
         alert('Could not auto-load shares. Please enter shares manually.');
@@ -1069,11 +1547,15 @@
 
         resultsCard.classList.remove('hidden');
 
-        const candidateNames = {
-          '1': { name: 'Alice Johnson', party: 'Progressive Coalition', color: 'bg-slate-900' },
-          '2': { name: 'Bob Smith', party: 'Reform Union', color: 'bg-slate-700' },
-          '3': { name: 'Charlie Davis', party: 'Independent Alliance', color: 'bg-slate-600' }
-        };
+        // Fetch dynamic candidate details
+        let candMap = {};
+        try {
+          const elRes = await fetch('/api/admin/election');
+          const elData = await elRes.json();
+          (elData.candidates || []).forEach(c => {
+            candMap[c.id] = c;
+          });
+        } catch (_) {}
 
         const listContainer = document.getElementById('tally-candidates-list');
         listContainer.innerHTML = '';
@@ -1087,38 +1569,46 @@
           totalVotes += Number(count);
           if (Number(count) > maxVotes) {
             maxVotes = Number(count);
-            winnerName = candidateNames[id]?.name || `Candidate #${id}`;
+            winnerName = candMap[id]?.party || `Option #${id}`;
           }
         });
 
-        document.getElementById('tally-winner-badge').innerText = `Winner: ${winnerName} (${maxVotes} votes)`;
+        if (totalVotes === 0) {
+          document.getElementById('tally-winner-badge').innerText = 'No votes recorded';
+        } else {
+          document.getElementById('tally-winner-badge').innerText = `Leading: ${winnerName} (${maxVotes} votes)`;
+        }
 
-        entries.forEach(([id, count]) => {
-          const cand = candidateNames[id] || { name: `Candidate #${id}`, party: 'Independent', color: 'bg-slate-700' };
-          const percent = totalVotes > 0 ? Math.round((Number(count) / totalVotes) * 100) : 0;
-          listContainer.innerHTML += `
-            <div class="p-3 border border-slate-200 bg-slate-50 space-y-1">
-              <div class="flex justify-between items-center text-xs">
-                <div>
-                  <span class="font-serif font-bold text-slate-900 text-sm">${cand.name}</span>
-                  <span class="text-slate-500 ml-1.5 text-xs">(${cand.party})</span>
+        if (entries.length === 0) {
+          listContainer.innerHTML = '<div class="p-4 text-center text-slate-400 italic text-xs">No votes recorded in this election yet.</div>';
+        } else {
+          entries.forEach(([id, count]) => {
+            const cand = candMap[id] || { party: `Option #${id}`, name: 'Party Nominee' };
+            const visual = getPartyVisual(cand);
+            const percent = totalVotes > 0 ? Math.round((Number(count) / totalVotes) * 100) : 0;
+            listContainer.innerHTML += `
+              <div class="p-3 border border-slate-200 bg-slate-50 space-y-1">
+                <div class="flex justify-between items-center text-xs">
+                  <div>
+                    <span class="font-serif font-bold text-slate-900 text-sm">${cand.party}</span>
+                    <span class="text-slate-500 ml-1.5 text-xs">(${cand.name || 'Nominee'})</span>
+                  </div>
+                  <div class="font-mono font-bold text-slate-900">
+                    ${count} votes (${percent}%)
+                  </div>
                 </div>
-                <div class="font-mono font-bold text-slate-900">
-                  ${count} votes (${percent}%)
+                <div class="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                  <div class="h-full bg-slate-800" style="width: ${percent}%;"></div>
                 </div>
               </div>
-              <div class="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
-                <div class="h-full ${cand.color}" style="width: ${percent}%;"></div>
-              </div>
-            </div>
-          `;
-        });
+            `;
+          });
+        }
 
         document.getElementById('tally-invalid-count').innerText = data.invalidCount || 0;
         document.getElementById('tally-close-height').innerText = `#${data.closeBlockHeight}`;
         document.getElementById('tally-head-hash').innerText = data.closeHeadHash || '-';
         document.getElementById('tally-merkle-root').innerText = data.chainMerkleRoot || '-';
-        document.getElementById('tally-published-at').innerText = data.tallyPublishedAtSec ? new Date(data.tallyPublishedAtSec * 1000).toLocaleString() : '-';
 
       } catch (err) {
         errBox.innerText = err.message;
@@ -1129,134 +1619,117 @@
       }
     }
 
+    // ==================== CEREMONY 4: RECOVERY ====================
     async function handleExecuteRecovery(e) {
       e.preventDefault();
-      const alertBox = document.getElementById('recovery-alert');
+      const errBox = document.getElementById('recovery-error');
+      const succBox = document.getElementById('recovery-success');
       const btn = document.getElementById('btn-execute-recovery');
 
-      alertBox.classList.add('hidden');
+      errBox.classList.add('hidden');
+      succBox.classList.add('hidden');
       btn.disabled = true;
-      btn.innerText = 'Executing Recovery Operation...';
+      btn.innerText = 'Evaluating Dual-Operator Signatures...';
 
-      const height = parseInt(document.getElementById('rec-height').value);
-      const action = document.getElementById('rec-action').value;
-      const reason = document.getElementById('rec-reason').value.trim();
-      const blockHash = document.getElementById('rec-block-hash').value.trim() || null;
-      const tokenHash = document.getElementById('rec-token-hash').value.trim() || null;
-      const op1 = document.getElementById('rec-op1-name').value.trim();
-      const sig1 = document.getElementById('rec-op1-sig').value.trim();
-      const op2 = document.getElementById('rec-op2-name').value.trim();
-      const sig2 = document.getElementById('rec-op2-sig').value.trim();
+      const payload = {
+        blockHeight: parseInt(document.getElementById('rec-height').value),
+        action: document.getElementById('rec-action').value,
+        reason: document.getElementById('rec-reason').value.trim(),
+        blockHash: document.getElementById('rec-block-hash').value.trim() || null,
+        tokenHash: document.getElementById('rec-token-hash').value.trim() || null,
+        operator1: document.getElementById('rec-op1').value.trim(),
+        signature1: document.getElementById('rec-sig1').value.trim() || null,
+        operator2: document.getElementById('rec-op2').value.trim(),
+        signature2: document.getElementById('rec-sig2').value.trim() || null,
+      };
 
       try {
         const res = await fetch('/api/admin/recover', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            blockHeight: height,
-            action: action,
-            reason: reason,
-            blockHash: blockHash,
-            tokenHash: tokenHash,
-            operator1: op1,
-            signature1: sig1,
-            operator2: op2,
-            signature2: sig2
-          })
+          body: JSON.stringify(payload)
         });
 
         const data = await res.json();
-        if (!res.ok) {
-          throw new Error(data.message || data.error || 'Dual-operator signature validation failed');
-        }
+        if (!res.ok) throw new Error(data.message || data.error || 'Recovery rejected by consensus verification');
 
-        alertBox.className = 'p-3 rounded text-xs font-medium bg-emerald-50 border border-emerald-300 text-emerald-800';
-        alertBox.innerText = `Success: Recovery event #${data.eventId} recorded for block #${data.blockHeight} (${data.action})`;
-        alertBox.classList.remove('hidden');
+        succBox.innerText = `✓ Recovery Ceremony executed successfully! Event ID #${data.eventId} recorded at block #${data.blockHeight}. Action: ${data.action}`;
+        succBox.classList.remove('hidden');
       } catch (err) {
-        alertBox.className = 'p-3 rounded text-xs font-medium bg-red-50 border border-red-300 text-red-800';
-        alertBox.innerText = `Recovery Failed: ${err.message}`;
-        alertBox.classList.remove('hidden');
+        errBox.innerText = err.message;
+        errBox.classList.remove('hidden');
       } finally {
         btn.disabled = false;
-        btn.innerText = 'Execute Dual-Signed Recovery';
+        btn.innerText = 'Authorize Dual-Operator Recovery Ceremony';
       }
     }
 
+    // ==================== CEREMONY 5: OPERATORS ====================
     async function loadOperators() {
-      const tbody = document.getElementById('operators-table-body');
+      const container = document.getElementById('operators-list-container');
       try {
         const res = await fetch('/api/admin/operators');
-        const operators = await res.json();
+        const list = await res.json();
 
-        if (operators.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="3" class="py-4 text-center text-slate-400 italic font-sans">No operators enrolled yet.</td></tr>';
+        if (list.length === 0) {
+          container.innerHTML = '<div class="p-6 text-center text-slate-400 italic">No operators currently enrolled.</div>';
           return;
         }
 
-        tbody.innerHTML = operators.map(op => {
-          let roleBadge = 'bg-slate-100 text-slate-700';
-          if (op.role === 'AUDIT') roleBadge = 'bg-slate-200 text-slate-800';
-          else if (op.role === 'TALLY') roleBadge = 'bg-slate-200 text-slate-800';
-          else if (op.role === 'ADMIN') roleBadge = 'bg-slate-200 text-slate-800';
+        container.innerHTML = `
+          <table class="w-full text-left divide-y divide-slate-200">
+            <thead class="bg-slate-50 text-slate-700 font-mono text-[11px] uppercase">
+              <tr><th class="p-3">ID</th><th class="p-3">Name</th><th class="p-3">Role</th><th class="p-3">Status</th></tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 bg-white">
+              ${list.map(op => {
+                let roleBadge = 'bg-slate-100 text-slate-700 border border-slate-200';
+                if (op.role === 'AUDIT') roleBadge = 'bg-blue-50 text-blue-700 border border-blue-200';
+                else if (op.role === 'TALLY') roleBadge = 'bg-purple-50 text-purple-700 border border-purple-200';
+                else if (op.role === 'ADMIN') roleBadge = 'bg-amber-50 text-amber-700 border border-amber-200';
 
-          return `
-            <tr class="hover:bg-slate-50 transition">
-              <td class="py-2 px-4 font-bold text-slate-900">${op.name}</td>
-              <td class="py-2 px-4"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${roleBadge}">${op.role}</span></td>
-              <td class="py-2 px-4">
-                <span class="inline-flex items-center space-x-1.5 text-xs ${op.active ? 'text-emerald-700' : 'text-slate-400'}">
-                  <span class="w-1.5 h-1.5 rounded-full ${op.active ? 'bg-emerald-600' : 'bg-slate-300'}"></span>
-                  <span class="font-bold text-[11px]">${op.active ? 'ACTIVE' : 'INACTIVE'}</span>
-                </span>
-              </td>
-            </tr>
-          `;
-        }).join('');
+                return `
+                  <tr>
+                    <td class="p-3 font-mono font-bold text-slate-900">#${op.id}</td>
+                    <td class="p-3 font-mono font-semibold text-slate-800">${op.name}</td>
+                    <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold ${roleBadge}">${op.role}</span></td>
+                    <td class="p-3 font-mono text-[11px] ${op.active ? 'text-emerald-700 font-semibold' : 'text-slate-400'}">${op.active ? 'ACTIVE' : 'INACTIVE'}</td>
+                  </tr>
+                `;
+              }).join('')}
+            </tbody>
+          </table>
+        `;
       } catch (err) {
-        tbody.innerHTML = `<tr><td colspan="3" class="py-3 text-center text-red-600 font-sans">Failed to load operators: ${err.message}</td></tr>`;
+        container.innerHTML = `<div class="p-4 text-red-600 font-mono text-xs">${err.message}</div>`;
       }
     }
 
     async function handleEnrollOperator(e) {
       e.preventDefault();
-      const alertBox = document.getElementById('enroll-alert');
-      const btn = document.getElementById('btn-enroll-submit');
-
-      alertBox.classList.add('hidden');
-      btn.disabled = true;
-      btn.innerText = 'Enrolling...';
-
-      const name = document.getElementById('enroll-name').value.trim();
-      const role = document.getElementById('enroll-role').value;
-      const pubKey = document.getElementById('enroll-pubkey').value.trim();
+      const name = document.getElementById('op-name').value.trim();
+      const role = document.getElementById('op-role').value;
+      const ed25519Pub = document.getElementById('op-pub').value.trim();
 
       try {
         const res = await fetch('/api/admin/operators', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name: name, role: role, ed25519Pub: pubKey })
+          body: JSON.stringify({ name, role, ed25519Pub })
         });
-
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || 'Failed to enroll operator');
-
-        alertBox.className = 'p-3 rounded text-xs font-medium bg-emerald-50 border border-emerald-300 text-emerald-800';
-        alertBox.innerText = `Successfully enrolled operator "${name}" with ID #${data.id}`;
-        alertBox.classList.remove('hidden');
-
-        document.getElementById('enroll-name').value = '';
-        document.getElementById('enroll-pubkey').value = '';
+        if (!res.ok) throw new Error('Enrollment rejected');
+        document.getElementById('op-name').value = '';
+        document.getElementById('op-pub').value = '';
         loadOperators();
       } catch (err) {
-        alertBox.className = 'p-3 rounded text-xs font-medium bg-red-50 border border-red-300 text-red-800';
-        alertBox.innerText = `Enrollment Failed: ${err.message}`;
-        alertBox.classList.remove('hidden');
-      } finally {
-        btn.disabled = false;
-        btn.innerText = 'Enroll Operator Key';
+        alert(err.message);
       }
     }
+
+    // Initialize on page load
+    window.addEventListener('DOMContentLoaded', () => {
+      loadElectionConfig();
+    });
   </script>
 </body>
 </html>

@@ -2,10 +2,17 @@ package com.verivote.web;
 
 import com.verivote.core.encoding.Base64Codec;
 import com.verivote.core.ledger.LedgerService;
+import com.verivote.data.entity.Candidate;
+import com.verivote.data.entity.Election;
 import com.verivote.data.entity.Operator;
+import com.verivote.data.entity.Vote;
+import com.verivote.data.repo.CandidateRepo;
+import com.verivote.data.repo.ElectionRepo;
 import com.verivote.data.repo.IssuanceCounterRepo;
 import com.verivote.data.repo.IssuancePublishedRepo;
 import com.verivote.data.repo.OperatorRepo;
+import com.verivote.data.repo.VoteRepo;
+import com.verivote.data.repo.VoterRepo;
 import com.verivote.service.audit.AuditService;
 import com.verivote.service.audit.Finding;
 import com.verivote.service.audit.TamperReport;
@@ -14,6 +21,7 @@ import com.verivote.service.recovery.RecoveryRequest;
 import com.verivote.service.recovery.RecoveryResult;
 import com.verivote.service.recovery.RecoveryService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +29,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/admin")
@@ -33,6 +42,10 @@ public class AdminController {
     private final IssuanceCounterRepo counterRepo;
     private final IssuancePublishedRepo publishedRepo;
     private final LedgerService ledgerService;
+    private final ElectionRepo electionRepo;
+    private final CandidateRepo candidateRepo;
+    private final VoteRepo voteRepo;
+    private final VoterRepo voterRepo;
 
     @Autowired
     public AdminController(
@@ -42,7 +55,11 @@ public class AdminController {
             OperatorRepo operatorRepo,
             IssuanceCounterRepo counterRepo,
             IssuancePublishedRepo publishedRepo,
-            LedgerService ledgerService
+            LedgerService ledgerService,
+            ElectionRepo electionRepo,
+            CandidateRepo candidateRepo,
+            VoteRepo voteRepo,
+            VoterRepo voterRepo
     ) {
         this.auditService = auditService;
         this.recoveryService = recoveryService;
@@ -51,6 +68,114 @@ public class AdminController {
         this.counterRepo = counterRepo;
         this.publishedRepo = publishedRepo;
         this.ledgerService = ledgerService;
+        this.electionRepo = electionRepo;
+        this.candidateRepo = candidateRepo;
+        this.voteRepo = voteRepo;
+        this.voterRepo = voterRepo;
+    }
+
+    @GetMapping("/stats")
+    public ResponseEntity<Map<String, Object>> getStats() {
+        Optional<Election> electionOpt = electionRepo.findById(1L);
+        return ResponseEntity.ok(Map.of(
+                "registeredVoters", voterRepo.count(),
+                "castVotes", voteRepo.count(),
+                "ledgerBlocks", ledgerService.blockCount(),
+                "realVotes", ledgerService.realVoteCount(),
+                "orphanCount", ledgerService.orphanCount(),
+                "electionStatus", electionOpt.map(e -> e.getStatus().name()).orElse("OPEN")
+        ));
+    }
+
+    @GetMapping("/election")
+    public ResponseEntity<Map<String, Object>> getAdminElection() {
+        Optional<Election> electionOpt = electionRepo.findById(1L);
+        Election election = electionOpt.orElseGet(() -> new Election("Indian General Election (Educational Demonstration)"));
+        List<Candidate> candidates = candidateRepo.findByElectionId(1L);
+        return ResponseEntity.ok(Map.of(
+                "election", election,
+                "candidates", candidates
+        ));
+    }
+
+    @PostMapping("/election/status")
+    public ResponseEntity<?> setElectionStatus(@RequestBody Map<String, String> body) {
+        String statusStr = body.get("status");
+        if (statusStr == null || statusStr.isBlank()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Status is required (OPEN or CLOSED)"));
+        }
+        Election.Status newStatus;
+        try {
+            newStatus = Election.Status.valueOf(statusStr.trim().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Invalid status: " + statusStr));
+        }
+
+        Election election = electionRepo.findById(1L).orElseGet(() -> new Election("Indian General Election (Educational Demonstration)"));
+        election.setStatus(newStatus);
+        electionRepo.saveAndFlush(election);
+        return ResponseEntity.ok(Map.of("status", newStatus.name()));
+    }
+
+    @PostMapping("/candidates")
+    public ResponseEntity<?> addCandidate(@RequestBody Map<String, String> body) {
+        String party = body.get("party");
+        String name = body.get("name");
+        String constituency = body.get("constituency");
+        String symbol = body.get("symbol");
+
+        if (party == null || party.isBlank()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Party name is required"));
+        }
+        if (name == null || name.isBlank()) {
+            name = "Party Nominee";
+        }
+        if (constituency == null || constituency.isBlank()) {
+            constituency = "National Demo Constituency 01";
+        }
+
+        Candidate candidate = new Candidate(1L, name.trim(), party.trim(), constituency.trim(), symbol != null ? symbol.trim() : "");
+        Candidate saved = candidateRepo.saveAndFlush(candidate);
+        return ResponseEntity.ok(saved);
+    }
+
+    @DeleteMapping("/candidates/{id}")
+    public ResponseEntity<?> deleteCandidate(@PathVariable("id") Long id) {
+        if (!candidateRepo.existsById(id)) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Candidate option not found"));
+        }
+        candidateRepo.deleteById(id);
+        candidateRepo.flush();
+        return ResponseEntity.ok(Map.of("deleted", id));
+    }
+
+    @GetMapping("/votes")
+    public ResponseEntity<List<Map<String, Object>>> getSubmittedVotes() {
+        List<Vote> votes = voteRepo.findAll();
+        List<Map<String, Object>> result = votes.stream()
+                .map(v -> Map.<String, Object>of(
+                        "id", v.getId(),
+                        "blockHeight", v.getBlockHeight(),
+                        "receiptHash", v.getReceiptHash(),
+                        "blockHash", v.getBlockHash(),
+                        "electionId", v.getElectionId()
+                ))
+                .toList();
+        return ResponseEntity.ok(result);
+    }
+
+    @GetMapping(value = "/export/votes", produces = MediaType.TEXT_PLAIN_VALUE)
+    public ResponseEntity<String> exportVotesCsv() {
+        List<Vote> votes = voteRepo.findAll();
+        StringBuilder sb = new StringBuilder("id,blockHeight,receiptHash,blockHash,electionId\n");
+        for (Vote v : votes) {
+            sb.append(v.getId()).append(",")
+                    .append(v.getBlockHeight()).append(",")
+                    .append(v.getReceiptHash()).append(",")
+                    .append(v.getBlockHash()).append(",")
+                    .append(v.getElectionId()).append("\n");
+        }
+        return ResponseEntity.ok(sb.toString());
     }
 
     @GetMapping(value = "/audit", produces = MediaType.APPLICATION_JSON_VALUE)

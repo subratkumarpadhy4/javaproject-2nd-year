@@ -19,7 +19,7 @@ RUN mvn clean package -pl verivote-web -am -DskipTests
 FROM eclipse-temurin:21-jre
 WORKDIR /app
 
-RUN mkdir -p /app/ledger/checkpoints
+RUN mkdir -p /data/ledger/checkpoints /app/ledger/checkpoints
 
 COPY --from=builder /workspace/verivote-web/target/verivote-web-0.1.0-SNAPSHOT.jar /app/verivote-web.jar
 

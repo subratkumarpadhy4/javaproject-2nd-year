@@ -7,12 +7,19 @@ import com.verivote.core.encoding.BigEndian;
 import com.verivote.core.encoding.Hex;
 import com.verivote.core.ledger.Block;
 import com.verivote.core.ledger.LedgerService;
+import com.verivote.data.entity.Candidate;
 import com.verivote.data.entity.Checkpoint;
+import com.verivote.data.entity.Election;
 import com.verivote.data.entity.Vote;
+import com.verivote.data.entity.Voter;
+import com.verivote.data.repo.CandidateRepo;
 import com.verivote.data.repo.CheckpointRepo;
+import com.verivote.data.repo.ElectionRepo;
 import com.verivote.data.repo.VoteRepo;
+import com.verivote.data.repo.VoterRepo;
 import com.verivote.service.TokenService;
 import com.verivote.service.VoteService;
+import com.verivote.service.VoterService;
 import com.verivote.service.checkpoint.CheckpointService;
 import com.verivote.service.dto.TokenIssuanceResponse;
 import com.verivote.service.dto.VoteRequest;
@@ -39,6 +46,10 @@ public class WebClientController {
     private final CheckpointRepo checkpointRepo;
     private final VoteRepo voteRepo;
     private final LedgerService ledgerService;
+    private final ElectionRepo electionRepo;
+    private final CandidateRepo candidateRepo;
+    private final VoterRepo voterRepo;
+    private final VoterService voterService;
     private final SecureRandom rnd = new SecureRandom();
 
     public WebClientController(
@@ -49,7 +60,11 @@ public class WebClientController {
             CheckpointService checkpointService,
             CheckpointRepo checkpointRepo,
             VoteRepo voteRepo,
-            LedgerService ledgerService
+            LedgerService ledgerService,
+            ElectionRepo electionRepo,
+            CandidateRepo candidateRepo,
+            VoterRepo voterRepo,
+            VoterService voterService
     ) {
         this.tokenService = tokenService;
         this.voteService = voteService;
@@ -59,6 +74,55 @@ public class WebClientController {
         this.checkpointRepo = checkpointRepo;
         this.voteRepo = voteRepo;
         this.ledgerService = ledgerService;
+        this.electionRepo = electionRepo;
+        this.candidateRepo = candidateRepo;
+        this.voterRepo = voterRepo;
+        this.voterService = voterService;
+    }
+
+    @GetMapping("/election")
+    public ResponseEntity<?> getElection() {
+        Optional<Election> electionOpt = electionRepo.findById(1L);
+        Election election = electionOpt.orElseGet(() -> new Election("Indian General Election (Educational Demonstration)"));
+        List<Candidate> candidates = candidateRepo.findByElectionId(1L);
+        return ResponseEntity.ok(Map.of(
+                "id", 1L,
+                "title", election.getTitle() != null ? election.getTitle() : "Indian General Election (Educational Demonstration)",
+                "status", election.getStatus() != null ? election.getStatus().name() : "OPEN",
+                "notice", "Independent Educational Voting Demonstration — Not an Official Election.",
+                "candidates", candidates
+        ));
+    }
+
+    @PostMapping("/demo-auth")
+    public ResponseEntity<?> demoAuth(@RequestBody Map<String, String> body) {
+        String demoVoterId = body != null ? body.get("demoVoterId") : null;
+        if (demoVoterId == null || demoVoterId.trim().isBlank()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "A DEMO Voter ID is required for educational voting."));
+        }
+        demoVoterId = demoVoterId.trim();
+        if (!demoVoterId.toUpperCase().startsWith("DEMO-")) {
+            demoVoterId = "DEMO-" + demoVoterId;
+        }
+
+        String hmac = voterService.computeNationalIdHmac(demoVoterId);
+        Optional<Voter> existingVoter = voterRepo.findByNationalIdHmac(hmac);
+        Voter voter;
+        if (existingVoter.isPresent()) {
+            voter = existingVoter.get();
+        } else {
+            byte[] totpSecret = new byte[20];
+            rnd.nextBytes(totpSecret);
+            voter = new Voter(hmac, demoVoterId, "$2a$12$e80yJ/6d8V74mN66K0Oq/e2s3K3pY7o9V8A3C5bF8dJ1G2H3K4L5M", totpSecret);
+            voter = voterRepo.saveAndFlush(voter);
+        }
+
+        String sessionToken = sessionStore.createSession(voter.getId());
+        return ResponseEntity.ok(Map.of(
+                "sessionToken", sessionToken,
+                "demoVoterId", demoVoterId,
+                "notice", "Independent Educational Voting Demonstration — Not an Official Election. Test ID accepted without verifying actual electoral eligibility."
+        ));
     }
 
     @PostMapping("/request-token")
@@ -109,7 +173,17 @@ public class WebClientController {
 
     @PostMapping("/cast-vote")
     public ResponseEntity<?> castVote(@RequestBody Map<String, Object> body) {
+        Optional<Election> electionOpt = electionRepo.findById(1L);
+        if (electionOpt.isPresent() && electionOpt.get().getStatus() != Election.Status.OPEN) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "The demonstration election is currently CLOSED by the administrator."));
+        }
+
         int candidateId = body.get("candidateId") instanceof Number n ? n.intValue() : 1;
+        Optional<Candidate> candOpt = candidateRepo.findById((long) candidateId);
+        if (candOpt.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Invalid political party / candidate selection."));
+        }
+
         String tokenPlainB64 = (String) body.get("tokenPlain");
         String signatureB64 = (String) body.get("signature");
 

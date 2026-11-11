@@ -10,6 +10,7 @@ import com.verivote.data.repo.ElectionRepo;
 import com.verivote.data.repo.OperatorRepo;
 import com.verivote.service.checkpoint.sink.FileSink;
 import com.verivote.service.recovery.OperatorService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -34,20 +35,12 @@ public class VeriVoteWebApplication {
     }
 
     @Bean
-    public LedgerService ledgerService() {
-        String pathStr = System.getenv("VERIVOTE_LEDGER_PATH");
-        if (pathStr == null || pathStr.isBlank()) {
-            pathStr = System.getProperty("verivote.ledger.path", "./ledger/blocks.ndjson");
-        }
+    public LedgerService ledgerService(@Value("${verivote.ledger.path:./ledger/blocks.ndjson}") String pathStr) {
         return new FileLedgerService(Paths.get(pathStr));
     }
 
     @Bean
-    public FileSink fileSink() {
-        String dirStr = System.getenv("VERIVOTE_CHECKPOINT_DIR");
-        if (dirStr == null || dirStr.isBlank()) {
-            dirStr = System.getProperty("verivote.checkpoint.dir", "./ledger/checkpoints");
-        }
+    public FileSink fileSink(@Value("${verivote.checkpoint.dir:./ledger/checkpoints}") String dirStr) {
         return new FileSink(dirStr);
     }
 
@@ -59,18 +52,24 @@ public class VeriVoteWebApplication {
             OperatorRepo operatorRepo
     ) {
         return args -> {
-            // Seed Election 1
-            Election election = electionRepo.findById(1L).orElseGet(() -> new Election("General Election"));
-            if (election.getStatus() != Election.Status.OPEN) {
+            // Seed Election 1: Independent Educational Demonstration
+            Election election = electionRepo.findById(1L).orElseGet(() -> new Election("Indian General Election (Educational Demonstration)"));
+            election.setTitle("Indian General Election (Educational Demonstration)");
+            // Only transition from initial SETUP to OPEN so admin changes (e.g. CLOSED) survive restarts
+            if (election.getStatus() == null || election.getStatus() == Election.Status.SETUP) {
                 election.setStatus(Election.Status.OPEN);
             }
             electionRepo.saveAndFlush(election);
 
-            // Seed Candidates if empty
-            if (candidateRepo.count() == 0) {
-                candidateRepo.saveAndFlush(new Candidate(1L, "Alice Johnson", "Progressive Coalition"));
-                candidateRepo.saveAndFlush(new Candidate(1L, "Bob Smith", "Reform Union"));
-                candidateRepo.saveAndFlush(new Candidate(1L, "Charlie Davis", "Independent Alliance"));
+            // Seed Indian Political Parties if empty or outdated
+            if (candidateRepo.count() == 0 || candidateRepo.findAll().stream().anyMatch(c -> "Alice Johnson".equals(c.getName()))) {
+                candidateRepo.deleteAll();
+                candidateRepo.saveAndFlush(new Candidate(1L, "Party Nominee (Configurable by Admin)", "Bharatiya Janata Party (BJP)", "Demo Constituency 01 (National)", "bjp"));
+                candidateRepo.saveAndFlush(new Candidate(1L, "Party Nominee (Configurable by Admin)", "Telugu Desam Party (TDP)", "Demo Constituency 01 (National)", "tdp"));
+                candidateRepo.saveAndFlush(new Candidate(1L, "Party Nominee (Configurable by Admin)", "Indian National Congress (INC)", "Demo Constituency 01 (National)", "inc"));
+                candidateRepo.saveAndFlush(new Candidate(1L, "Party Nominee (Configurable by Admin)", "Yuvajana Sramika Rythu Congress Party (YSRCP)", "Demo Constituency 01 (National)", "ysrcp"));
+                candidateRepo.saveAndFlush(new Candidate(1L, "Party Nominee (Configurable by Admin)", "Janata Dal (United) — JD(U)", "Demo Constituency 01 (National)", "jdu"));
+                candidateRepo.saveAndFlush(new Candidate(1L, "Party Nominee (Configurable by Admin)", "Aam Aadmi Party (AAP)", "Demo Constituency 01 (National)", "aap"));
             }
 
             // Seed Initial Operators if empty
