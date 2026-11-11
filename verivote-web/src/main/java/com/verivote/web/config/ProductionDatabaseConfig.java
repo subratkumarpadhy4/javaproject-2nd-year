@@ -4,11 +4,13 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
+import org.springframework.core.env.Environment;
 
 import javax.sql.DataSource;
 
@@ -28,6 +30,12 @@ import javax.sql.DataSource;
 public class ProductionDatabaseConfig {
 
     private static final Logger log = LoggerFactory.getLogger(ProductionDatabaseConfig.class);
+
+    @Autowired(required = false)
+    private Environment environment;
+
+    @Value("${spring.datasource.url:#{null}}")
+    private String directSpringDatasourceUrl;
 
     @Value("${SPRING_DATASOURCE_URL:#{null}}")
     private String springDatasourceUrl;
@@ -79,8 +87,8 @@ public class ProductionDatabaseConfig {
         }
 
         // 2. Resolve default user and password
-        String defaultUser = (springUsername != null && !springUsername.isBlank()) ? springUsername : pgUser;
-        String defaultPassword = (springPassword != null && !springPassword.isBlank()) ? springPassword : pgPassword;
+        String defaultUser = resolveUsername();
+        String defaultPassword = resolvePassword();
 
         // 3. Parse into JDBC URL and credentials
         PostgresUrlParser.ParsedDbConfig parsed = PostgresUrlParser.parse(rawUrl, defaultUser, defaultPassword);
@@ -111,6 +119,10 @@ public class ProductionDatabaseConfig {
     }
 
     private String resolveRawDatabaseUrl() {
+        // 1. Injected fields via @Value
+        if (directSpringDatasourceUrl != null && !directSpringDatasourceUrl.isBlank() && !directSpringDatasourceUrl.contains(":h2:")) {
+            return directSpringDatasourceUrl;
+        }
         if (springDatasourceUrl != null && !springDatasourceUrl.isBlank()) {
             return springDatasourceUrl;
         }
@@ -123,10 +135,82 @@ public class ProductionDatabaseConfig {
         if (databasePublicUrl != null && !databasePublicUrl.isBlank()) {
             return databasePublicUrl;
         }
-        if (pgHost != null && !pgHost.isBlank()) {
-            return "jdbc:postgresql://" + pgHost.trim() + ":" + pgPort.trim() + "/" + pgDatabase.trim();
+
+        // 2. Fallback to Environment bean property queries (handles lowercase dot notation)
+        if (environment != null) {
+            String envDsUrl = environment.getProperty("spring.datasource.url");
+            if (envDsUrl != null && !envDsUrl.isBlank() && !envDsUrl.contains(":h2:")) {
+                return envDsUrl;
+            }
+            String envDbUrl = environment.getProperty("DATABASE_URL");
+            if (envDbUrl != null && !envDbUrl.isBlank()) {
+                return envDbUrl;
+            }
+            String envPrivUrl = environment.getProperty("DATABASE_PRIVATE_URL");
+            if (envPrivUrl != null && !envPrivUrl.isBlank()) {
+                return envPrivUrl;
+            }
+            String envPubUrl = environment.getProperty("DATABASE_PUBLIC_URL");
+            if (envPubUrl != null && !envPubUrl.isBlank()) {
+                return envPubUrl;
+            }
         }
+
+        // 3. Fallback to direct OS environment variable queries
+        String osDatabaseUrl = System.getenv("DATABASE_URL");
+        if (osDatabaseUrl != null && !osDatabaseUrl.isBlank()) {
+            return osDatabaseUrl;
+        }
+        String osDatabasePrivateUrl = System.getenv("DATABASE_PRIVATE_URL");
+        if (osDatabasePrivateUrl != null && !osDatabasePrivateUrl.isBlank()) {
+            return osDatabasePrivateUrl;
+        }
+        String osDatabasePublicUrl = System.getenv("DATABASE_PUBLIC_URL");
+        if (osDatabasePublicUrl != null && !osDatabasePublicUrl.isBlank()) {
+            return osDatabasePublicUrl;
+        }
+        String osSpringDsUrl = System.getenv("SPRING_DATASOURCE_URL");
+        if (osSpringDsUrl != null && !osSpringDsUrl.isBlank()) {
+            return osSpringDsUrl;
+        }
+
+        // 4. Synthesize from individual PG host/port/database parameters
+        String host = (pgHost != null && !pgHost.isBlank()) ? pgHost : System.getenv("PGHOST");
+        if (host != null && !host.isBlank()) {
+            String port = (pgPort != null && !pgPort.isBlank()) ? pgPort : (System.getenv("PGPORT") != null ? System.getenv("PGPORT") : "5432");
+            String db = (pgDatabase != null && !pgDatabase.isBlank()) ? pgDatabase : (System.getenv("PGDATABASE") != null ? System.getenv("PGDATABASE") : "railway");
+            return "jdbc:postgresql://" + host.trim() + ":" + port.trim() + "/" + db.trim();
+        }
+
         return null;
+    }
+
+    private String resolveUsername() {
+        if (springUsername != null && !springUsername.isBlank()) return springUsername;
+        if (pgUser != null && !pgUser.isBlank()) return pgUser;
+        if (environment != null) {
+            String u = environment.getProperty("spring.datasource.username");
+            if (u != null && !u.isBlank()) return u;
+            u = environment.getProperty("PGUSER");
+            if (u != null && !u.isBlank()) return u;
+        }
+        String envUser = System.getenv("PGUSER");
+        if (envUser != null && !envUser.isBlank()) return envUser;
+        return System.getenv("SPRING_DATASOURCE_USERNAME");
+    }
+
+    private String resolvePassword() {
+        if (springPassword != null && !springPassword.isBlank()) return springPassword;
+        if (pgPassword != null && !pgPassword.isBlank()) return pgPassword;
+        if (environment != null) {
+            String p = environment.getProperty("spring.datasource.password");
+            if (p != null && !p.isBlank()) return p;
+            p = environment.getProperty("PGPASSWORD");
+            if (p != null && !p.isBlank()) return p;
+        }
+        String envPass = System.getenv("PGPASSWORD");
+        if (envPass != null && !envPass.isBlank()) return envPass;
+        return System.getenv("SPRING_DATASOURCE_PASSWORD");
     }
 
     private static String sanitizeJdbcUrl(String url) {

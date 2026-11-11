@@ -42,6 +42,8 @@ public class ProductionHmacKeyValidator {
             candidateKey = envKey;
         } else if (hmacKeyProp != null && !hmacKeyProp.isBlank()) {
             candidateKey = hmacKeyProp;
+        } else if (System.getenv("VERIVOTE_HMAC_MASTER_KEY") != null && !System.getenv("VERIVOTE_HMAC_MASTER_KEY").isBlank()) {
+            candidateKey = System.getenv("VERIVOTE_HMAC_MASTER_KEY");
         }
         validateKey(candidateKey);
     }
