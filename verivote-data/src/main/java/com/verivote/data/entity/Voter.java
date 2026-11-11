@@ -30,6 +30,15 @@ public class Voter {
     @Column(name = "totp_secret", length = 256)
     private byte[] totpSecret;
 
+    @Column(name = "voter_id", length = 64)
+    private String voterId;
+
+    @Column(name = "age")
+    private Integer age;
+
+    @Column(name = "state", length = 100)
+    private String state;
+
     @Column(name = "has_voted", nullable = false)
     private boolean hasVoted = false;
 
@@ -90,6 +99,30 @@ public class Voter {
 
     public void setTotpSecret(byte[] totpSecret) {
         this.totpSecret = totpSecret;
+    }
+
+    public String getVoterId() {
+        return voterId;
+    }
+
+    public void setVoterId(String voterId) {
+        this.voterId = voterId;
+    }
+
+    public Integer getAge() {
+        return age;
+    }
+
+    public void setAge(Integer age) {
+        this.age = age;
+    }
+
+    public String getState() {
+        return state;
+    }
+
+    public void setState(String state) {
+        this.state = state;
     }
 
     public boolean isHasVoted() {

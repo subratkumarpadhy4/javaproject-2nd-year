@@ -15,3 +15,6 @@ target/
 
 # Torn-write recovery files
 *.torn
+
+# Local H2 database and tally key
+**/data/

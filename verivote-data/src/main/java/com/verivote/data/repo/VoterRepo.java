@@ -13,6 +13,7 @@ import java.util.Optional;
 @Repository
 public interface VoterRepo extends JpaRepository<Voter, Long> {
     Optional<Voter> findByNationalIdHmac(String nationalIdHmac);
+    Optional<Voter> findByVoterId(String voterId);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT v FROM Voter v WHERE v.id = :id")

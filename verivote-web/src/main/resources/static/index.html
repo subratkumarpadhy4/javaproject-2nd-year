@@ -3,841 +3,1018 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VeriVote-J | Educational Voting Simulation Platform</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
-    body { font-family: 'Inter', system-ui, sans-serif; }
-    .font-mono { font-family: 'JetBrains Mono', monospace; }
-    .avatar-hover:hover img { transform: scale(1.06); }
-    .btn-press:active { transform: scale(0.97); }
-  </style>
+  <title>Matdaan — Sovereign Electronic Voting Platform &bull; Republic of India</title>
+  
+  <!-- Premium 2026 Typography: Plus Jakarta Sans for UI + Playfair Display for selective poetic accents -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Playfair+Display:ital,wght@1,500;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='10' fill='none' stroke='%23F59E0B' stroke-width='1.5' stroke-dasharray='2 2'/%3E%3Ccircle cx='12' cy='12' r='4' fill='%230A1128'/%3E%3Ccircle cx='12' cy='12' r='2' fill='%23F59E0B'/%3E%3C/svg%3E">
 </head>
-<body class="bg-slate-50 text-slate-800 antialiased overflow-hidden select-none">
-<div class="flex h-screen w-full overflow-hidden">
+<body>
 
-  <!-- ===================== LEFT SIDEBAR ===================== -->
-  <aside class="w-64 bg-white border-r border-slate-200 flex flex-col justify-between p-5 shrink-0 shadow-sm">
-    <div>
-      <!-- Logo -->
-      <div class="flex items-center gap-3 px-2 py-3 mb-6">
-        <div class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center shadow-md shadow-indigo-100">
-          <svg class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 12 2 2 4-4"/><path d="M5 7c0-1.1.9-2 2-2h10a2 2 0 0 1 2 2v12H5V7Z"/><path d="M22 19H2"/></svg>
-        </div>
-        <div>
-          <h1 class="text-xl font-bold tracking-tight text-slate-900">VeriVote<span class="text-indigo-600">-J</span></h1>
-          <span class="text-[10px] text-slate-400 font-medium tracking-wider uppercase">Educational Polling</span>
-        </div>
-      </div>
-      <!-- Nav -->
-      <nav class="space-y-1" id="sidebar-nav">
-        <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-btn active-nav w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-semibold transition-all bg-indigo-50 text-indigo-700 border-l-4 border-indigo-600 shadow-xs">
-          <svg class="w-4 h-4 text-indigo-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
-          Dashboard
-        </button>
-        <button onclick="switchTab('candidates')" id="nav-candidates" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-semibold text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-all">
-          <svg class="w-4 h-4 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-          Candidates
-        </button>
-        <button onclick="switchTab('leaderboard')" id="nav-leaderboard" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-semibold text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-all">
-          <svg class="w-4 h-4 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
-          Leaderboard
-        </button>
-        <button onclick="switchTab('verify')" id="nav-verify" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-semibold text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-all">
-          <svg class="w-4 h-4 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
-          Verify Audit
-        </button>
-        <button onclick="switchTab('about')" id="nav-about" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-semibold text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-all">
-          <svg class="w-4 h-4 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
-          About & Transparency
-        </button>
+  <!-- Ambient Lighting Elements -->
+  <div class="ambient-glow glow-top" aria-hidden="true"></div>
+  <div class="ambient-glow glow-right" aria-hidden="true"></div>
+
+  <!-- Minimal Glass Header -->
+  <header class="header-glass" id="site-header">
+    <div class="header-content">
+      
+      <!-- Brand Minimal Identity -->
+      <a href="#home" class="brand" aria-label="Matdaan Homepage">
+        <span class="brand-chakra">
+          <svg viewBox="0 0 24 24" fill="none" class="chakra-svg" aria-hidden="true">
+            <circle cx="12" cy="12" r="10" stroke="#F59E0B" stroke-width="1.5" stroke-dasharray="2 2"/>
+            <circle cx="12" cy="12" r="4" fill="#0A1128"/>
+            <circle cx="12" cy="12" r="2" fill="#F59E0B"/>
+          </svg>
+        </span>
+        <span class="brand-text">Matdaan<span class="brand-dot">.</span></span>
+      </a>
+
+      <!-- Clean Fluid Nav -->
+      <nav class="nav-links" aria-label="Main Navigation">
+        <a href="#home" id="nav-home" class="nav-item">Overview</a>
+        <a href="#how-it-works" id="nav-how-it-works" class="nav-item">Process</a>
+        <a href="#security-trust" id="nav-security" class="nav-item">Architecture</a>
+        <a href="#verify" id="nav-verify" class="nav-item">Verify Receipt</a>
       </nav>
-    </div>
-    <!-- Footer -->
-    <div class="pt-4 border-t border-slate-200 space-y-3">
-      <button onclick="toggleSound()" id="btn-sound-toggle" class="w-full flex items-center justify-between px-3 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-xs text-slate-700 transition-colors">
-        <span class="flex items-center gap-2 font-medium">
-          <svg id="icon-snd-on" class="w-4 h-4 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
-          <svg id="icon-snd-off" class="w-4 h-4 text-slate-400 hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
-          Audio Chime SFX
-        </span>
-        <span id="badge-snd" class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700">ON</span>
+
+      <!-- Minimal Nav Actions -->
+      <div class="nav-actions">
+        <a href="#login" id="nav-login" class="nav-btn-text">Sign In</a>
+        <a href="#register" id="nav-register" class="nav-btn-pill">Enroll to Vote</a>
+        <a href="#admin" id="nav-admin" class="nav-btn-officer" title="Election Officer Portal">
+          <span class="officer-dot"></span>
+          <span>Officer Vault</span>
+        </a>
+      </div>
+
+      <!-- Mobile Hamburger Button -->
+      <button type="button" class="mobile-toggle" id="btn-mobile-menu" aria-label="Toggle navigation" aria-expanded="false">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
       </button>
-      <div class="px-2 text-[11px] text-slate-400 flex items-center justify-between font-mono">
-        <span>VeriVote v2.4 (Light)</span>
-        <span class="flex items-center gap-1.5 text-emerald-600 font-sans font-semibold">
-          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Live
-        </span>
-      </div>
+
     </div>
-  </aside>
+  </header>
 
-  <!-- ===================== MAIN CONTENT ===================== -->
-  <main class="flex-1 flex flex-col overflow-y-auto bg-slate-50">
+  <!-- Mobile Menu Drawer -->
+  <div class="mobile-drawer" id="mobile-drawer" aria-hidden="true">
+    <div class="drawer-inner">
+      <a href="#home" class="drawer-link">Overview</a>
+      <a href="#how-it-works" class="drawer-link">The Process</a>
+      <a href="#security-trust" class="drawer-link">Security Architecture</a>
+      <a href="#register" class="drawer-link">Enroll to Vote</a>
+      <a href="#login" class="drawer-link">Voter Sign In</a>
+      <a href="#verify" class="drawer-link">Verify Receipt</a>
+      <a href="#admin" class="drawer-link drawer-link-officer">Officer Portal</a>
+    </div>
+  </div>
 
-    <!-- TOP STICKY HEADER -->
-    <header class="sticky top-0 z-10 px-8 py-4 bg-white/90 backdrop-blur-md border-b border-slate-200 flex items-center justify-between shadow-xs">
-      <div class="flex items-center gap-4">
-        <div class="bg-slate-100 border border-slate-200 rounded-full px-4 py-1.5 flex items-center gap-3">
-          <span class="text-slate-900 font-bold text-xs tracking-wide">VeriVote-J Portal</span>
-          <div class="h-3.5 w-px bg-slate-300"></div>
-          <div class="flex items-center gap-1.5 bg-emerald-50 border border-emerald-200 rounded-full px-2.5 py-0.5">
-            <span class="relative flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span></span>
-            <span class="text-[11px] font-mono font-bold text-emerald-700 tracking-wider" id="election-status-badge">ELECTION: OPEN</span>
+  <!-- Primary Viewport Shell -->
+  <main class="page-shell" id="main-content">
+
+    <!-- ======================================================================
+         VIEW 1: HOME (MODERN 2026 EDITORIAL DESIGN)
+         ====================================================================== -->
+    <section id="view-home" class="view active-view" aria-label="Homepage">
+      
+      <!-- HERO: OPEN, FLUID, IMMERSIVE -->
+      <div class="hero-fluid">
+        <div class="hero-layout">
+          
+          <div class="hero-text-block">
+            <div class="hero-pill-badge">
+              <span class="badge-live-pulse"></span>
+              <span>General Election &bull; Sovereign Digital Ballot</span>
+            </div>
+
+            <h1 class="hero-display-title">
+              Every Vote <br>
+              <span class="title-italic-accent">Shapes Tomorrow.</span>
+            </h1>
+
+            <p class="hero-lead-text">
+              The next-generation electronic balloting system for the world’s largest democracy. Decoupled voter privacy, hardware-isolated verification, and tamper-evident custody ensure every voice counts with absolute certainty.
+            </p>
+
+            <div class="hero-action-cluster">
+              <a href="#register" class="btn-primary-large">
+                <span>Enroll as Elector</span>
+                <span class="btn-arrow-icon">&rarr;</span>
+              </a>
+              <a href="#how-it-works" class="btn-secondary-flat">
+                <span>How It Works &darr;</span>
+              </a>
+            </div>
+
+            <div class="hero-metrics-strip">
+              <div class="strip-item">
+                <span class="strip-check">&#10003;</span>
+                <span>Constitution Article 326</span>
+              </div>
+              <div class="strip-item">
+                <span class="strip-check">&#10003;</span>
+                <span>Decoupled Secret Ballot</span>
+              </div>
+              <div class="strip-item">
+                <span class="strip-check">&#10003;</span>
+                <span>Air-Gapped Officer Vault</span>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
-      <div class="flex items-center gap-4">
-        <div class="bg-slate-100 border border-slate-200 px-3.5 py-1.5 rounded-full flex items-center gap-2 text-xs font-medium text-slate-600">
-          <svg class="w-3.5 h-3.5 text-indigo-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-          TOTAL VOTES CAST:
-          <span id="header-total-votes" class="font-mono text-indigo-600 font-bold text-xs">—</span>
-        </div>
-        <div class="flex items-center gap-2 pl-2">
-          <div class="w-8 h-8 rounded-full bg-indigo-100 border border-indigo-300 flex items-center justify-center text-xs font-bold text-indigo-700" id="voter-id-initials">VK</div>
-          <span class="text-xs font-semibold text-slate-700 hidden sm:inline" id="voter-id-label">Voter ID #9042</span>
-        </div>
-      </div>
-    </header>
 
-    <!-- =================== TAB: DASHBOARD =================== -->
-    <section id="tab-dashboard" class="p-8 max-w-7xl mx-auto w-full space-y-6">
-      <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
-        <div>
-          <div class="flex items-center gap-1.5 mb-1">
-            <svg class="w-4 h-4 text-indigo-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/></svg>
-            <span class="text-xs font-bold text-indigo-600 tracking-wider uppercase">CIVIC TECH EDUCATIONAL POLLING</span>
+          <!-- Luminous Abstract Ballot Sculpture -->
+          <div class="hero-sculpture-block" aria-hidden="true">
+            <div class="luminous-orb">
+              <div class="orb-inner"></div>
+              
+              <!-- Floating Ashoka Geometric Rings -->
+              <div class="geometry-halo halo-one"></div>
+              <div class="geometry-halo halo-two"></div>
+              
+              <!-- Floating Glass Monolith with Saffron Prism -->
+              <div class="glass-monolith">
+                <div class="monolith-face">
+                  <div class="monolith-slot"></div>
+                  <div class="monolith-seal-mark">
+                    <span class="seal-icon">&#9670;</span>
+                    <span class="seal-text">ECI ENCRYPTED</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Floating Node Tag -->
+              <div class="glass-tag tag-top">
+                <span class="tag-dot"></span>
+                <span>Zero Public Leakage</span>
+              </div>
+              <div class="glass-tag tag-bottom">
+                <span class="tag-dot green"></span>
+                <span>Immutable Ledger</span>
+              </div>
+            </div>
           </div>
-          <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">Choose Your Leader</h1>
-          <p class="text-slate-500 text-xs mt-1">Educational Voting Mockup | Review policy platforms and cast a cryptographically verified ballot.</p>
-        </div>
-        <div class="flex items-center gap-3">
-          <div class="relative">
-            <svg class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input type="text" id="search-input" oninput="onSearch(this.value)" placeholder="Search candidates..." class="pl-9 pr-4 py-2 bg-white border border-slate-200 rounded-lg text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 w-48 sm:w-60 shadow-xs"/>
-          </div>
-          <div class="flex items-center gap-1.5 bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 shadow-xs">
-            <svg class="w-3.5 h-3.5 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" x2="4" y1="21" y2="14"/><line x1="4" x2="4" y1="10" y2="3"/><line x1="12" x2="12" y1="21" y2="12"/><line x1="12" x2="12" y1="8" y2="3"/><line x1="20" x2="20" y1="21" y2="16"/><line x1="20" x2="20" y1="12" y2="3"/><line x1="1" x2="7" y1="14" y2="14"/><line x1="9" x2="15" y1="8" y2="8"/><line x1="17" x2="23" y1="16" y2="16"/></svg>
-            <select id="party-filter" onchange="onFilter(this.value)" class="bg-transparent text-xs text-slate-700 font-medium focus:outline-none cursor-pointer">
-              <option value="All">All Parties</option>
-            </select>
-          </div>
+
         </div>
       </div>
 
-      <!-- Loading state -->
-      <div id="loading-state" class="col-span-full flex flex-col items-center justify-center py-20 gap-3 text-slate-400">
-        <svg class="w-8 h-8 animate-spin text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
-        <p class="text-sm font-medium">Connecting to election backend...</p>
+      <!-- EDITORIAL PARTICIPATION TELEMETRY (FLUID, UNBOXED) -->
+      <section class="telemetry-fluid" id="election-stats" aria-label="Electoral Telemetry">
+        <div class="telemetry-container">
+          
+          <div class="telemetry-narrative-bar">
+            <div>
+              <span class="kicker-label">CIVIC TELEMETRY</span>
+              <h2 class="telemetry-headline">National Voter Turnout</h2>
+            </div>
+            <div class="telemetry-privacy-pill">
+              <span class="lock-glyph">&#128274;</span>
+              <span><strong>Constitutional Secrecy Enforced:</strong> Candidate tallies are sealed in custodial officer custody. Only participation volume is shown publicly.</span>
+            </div>
+          </div>
+
+          <!-- Fluid Statistics Rows (No Rigid Box Borders) -->
+          <div class="telemetry-metrics-row">
+            
+            <div class="telemetry-metric">
+              <div class="metric-index">01 / ELECTORATE</div>
+              <div class="metric-value-wrap">
+                <span class="metric-big-number" id="home-registered-count" data-counter="0">0</span>
+              </div>
+              <h3 class="metric-title">Registered Electors</h3>
+              <p class="metric-desc">Verified citizens enrolled on the digital electoral roll across all 28 States and 8 Union Territories.</p>
+            </div>
+
+            <div class="telemetry-divider" aria-hidden="true"></div>
+
+            <div class="telemetry-metric">
+              <div class="metric-index">02 / BALLOTS</div>
+              <div class="metric-value-wrap">
+                <span class="metric-big-number" id="home-votes-count" data-counter="0">0</span>
+              </div>
+              <h3 class="metric-title">Ballots Cast</h3>
+              <p class="metric-desc">Decoupled, anonymized secret votes safely committed to the cryptographic ballot vault.</p>
+            </div>
+
+            <div class="telemetry-divider" aria-hidden="true"></div>
+
+            <div class="telemetry-metric">
+              <div class="metric-index">03 / TURNOUT</div>
+              <div class="metric-value-wrap">
+                <span class="metric-big-number text-accent" id="home-turnout-pct">0.0%</span>
+              </div>
+              <h3 class="metric-title">Voter Participation</h3>
+              <p class="metric-desc">Real-time democratic participation rate computed live from total registered electors.</p>
+            </div>
+
+          </div>
+
+        </div>
+      </section>
+
+      <!-- HOW IT WORKS (NATURAL EDITORIAL FLOW) -->
+      <section class="narrative-section" id="how-it-works" aria-label="The Process">
+        <div class="narrative-container">
+          
+          <div class="narrative-header">
+            <span class="kicker-label">THE 2026 VOTING PROCESS</span>
+            <h2 class="narrative-headline">Three Steps to Make Your Voice Count.</h2>
+            <p class="narrative-lead">Effortless and intuitive for every citizen, backed by military-grade cryptographic guarantees.</p>
+          </div>
+
+          <div class="process-stream">
+            
+            <!-- Step 1 -->
+            <div class="process-node">
+              <span class="process-num">01</span>
+              <div class="process-content">
+                <h3 class="process-heading">Digital Identity Enrollment</h3>
+                <p class="process-text">
+                  Provide your legal citizen credentials, constituency, and age. The system verifies Article 326 eligibility (&ge; 18 years) and immediately issues your encrypted, permanent <strong>Voter ID</strong>.
+                </p>
+                <a href="#register" class="process-action-link">Enroll Now &rarr;</a>
+              </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="process-node">
+              <span class="process-num">02</span>
+              <div class="process-content">
+                <h3 class="process-heading">Frictionless Authentication</h3>
+                <p class="process-text">
+                  Sign in with your unique Voter ID and your secret 4-digit PIN. The system verifies your active franchise and unlocks your personalized citizen dashboard.
+                </p>
+                <a href="#login" class="process-action-link">Voter Sign In &rarr;</a>
+              </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="process-node">
+              <span class="process-num">03</span>
+              <div class="process-content">
+                <h3 class="process-heading">Confidential Ballot Submission</h3>
+                <p class="process-text">
+                  Enter the voting booth to choose your preferred party or NOTA. Confirm your selection and receive an indelible digital purple ink receipt timestamped to the exact second.
+                </p>
+                <a href="#login" class="process-action-link">View Ballot Preview &rarr;</a>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </section>
+
+      <!-- SECURITY & TRUST ARCHITECTURE (MINIMAL, ASYMMETRICAL) -->
+      <section class="architecture-section" id="security-trust" aria-label="Security Architecture">
+        <div class="narrative-container">
+          
+          <div class="architecture-layout">
+            
+            <div class="arch-intro">
+              <span class="kicker-label">SECURITY ARCHITECTURE</span>
+              <h2 class="narrative-headline">Architected for Zero Trust and Absolute Secrecy.</h2>
+              <p class="narrative-lead">
+                No single entity—not even the Election Commission—can associate a cast ballot with an individual citizen's identity. Privacy is baked into the mathematical foundation.
+              </p>
+              
+              <div class="arch-quote">
+                <p>&ldquo;In democracy, the power of every citizen's single vote is the cornerstone of our sovereign destiny.&rdquo;</p>
+                <span>&mdash; Constitutional Assembly Principles</span>
+              </div>
+            </div>
+
+            <div class="arch-pillars-stream">
+              
+              <div class="arch-pillar">
+                <div class="pillar-line"></div>
+                <div class="pillar-detail">
+                  <h3 class="pillar-title">Voter Privacy Decoupling</h3>
+                  <p class="pillar-desc">Your Voter ID confirms your eligibility to cast one ballot, but the moment you press submit, the selection is cryptographically severed from your identity before reaching the tally.</p>
+                </div>
+              </div>
+
+              <div class="arch-pillar">
+                <div class="pillar-line"></div>
+                <div class="pillar-detail">
+                  <h3 class="pillar-title">One Elector, One Vote</h3>
+                  <p class="pillar-desc">State transition locking is atomic and instantaneous. Once marked as voted, any duplicate authentication or casting attempt is mathematically impossible.</p>
+                </div>
+              </div>
+
+              <div class="arch-pillar">
+                <div class="pillar-line"></div>
+                <div class="pillar-detail">
+                  <h3 class="pillar-title">Zero Public Result Leakage</h3>
+                  <p class="pillar-desc">Unlike informal polling tools, live candidate vote tallies are sealed in custodial quarantine. Only authorized Returning Officers with hardware credentials can access the results vault.</p>
+                </div>
+              </div>
+
+              <div class="arch-pillar">
+                <div class="pillar-line"></div>
+                <div class="pillar-detail">
+                  <h3 class="pillar-title">Java Enterprise Backend</h3>
+                  <p class="pillar-desc">Engineered with thread-safe Java core architecture, synchronized domain models, and zero external dependencies for maximum enterprise reliability.</p>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+      </section>
+
+    </section>
+
+    <!-- ======================================================================
+         VIEW 2: SIGN UP (RETHOUGHT DIGITAL IDENTITY ENROLLMENT)
+         ====================================================================== -->
+    <section id="view-register" class="view" aria-label="Elector Registration">
+      <div class="enrollment-stage">
+        
+        <!-- Center-Stage Enrollment Experience -->
+        <div id="register-form-container" class="enrollment-canvas">
+          
+          <!-- Stepper Indicator -->
+          <div class="enrollment-stepper">
+            <span class="step-pill active">01 Citizen Identity</span>
+            <span class="step-line"></span>
+            <span class="step-pill">02 Constituency</span>
+            <span class="step-line"></span>
+            <span class="step-pill">03 Security Key</span>
+          </div>
+
+          <div class="enrollment-header">
+            <span class="kicker-label">CITIZEN ENROLLMENT</span>
+            <h1 class="enrollment-title">Create Your Digital Voter Identity</h1>
+            <p class="enrollment-sub">Inscribe your name on the national electoral register. You must be an Indian citizen aged 18 years or older.</p>
+          </div>
+
+          <form id="registration-form" class="enrollment-form-clean" novalidate>
+            
+            <div class="form-clean-group">
+              <label for="reg-name" class="clean-label">Full Legal Name</label>
+              <input type="text" id="reg-name" class="clean-input" placeholder="Enter your full legal name" autocomplete="name" required>
+              <span class="clean-hint">As printed on your Aadhaar, Passport, or Government Photo ID.</span>
+            </div>
+
+            <div class="form-clean-row">
+              <div class="form-clean-group">
+                <label for="reg-age" class="clean-label">Age in Years</label>
+                <input type="number" id="reg-age" class="clean-input font-mono" placeholder="e.g. 21" min="1" max="120" required>
+                <span class="clean-hint">Article 326: Minimum 18 years required.</span>
+              </div>
+
+              <div class="form-clean-group">
+                <label for="reg-state" class="clean-label">Constituency / State</label>
+                <select id="reg-state" class="clean-select" required>
+                  <option value="">Select your State or UT</option>
+                  <option value="Andhra Pradesh">Andhra Pradesh</option>
+                  <option value="Arunachal Pradesh">Arunachal Pradesh</option>
+                  <option value="Assam">Assam</option>
+                  <option value="Bihar">Bihar</option>
+                  <option value="Chhattisgarh">Chhattisgarh</option>
+                  <option value="Goa">Goa</option>
+                  <option value="Gujarat">Gujarat</option>
+                  <option value="Haryana">Haryana</option>
+                  <option value="Himachal Pradesh">Himachal Pradesh</option>
+                  <option value="Jharkhand">Jharkhand</option>
+                  <option value="Karnataka">Karnataka</option>
+                  <option value="Kerala">Kerala</option>
+                  <option value="Madhya Pradesh">Madhya Pradesh</option>
+                  <option value="Maharashtra">Maharashtra</option>
+                  <option value="Manipur">Manipur</option>
+                  <option value="Meghalaya">Meghalaya</option>
+                  <option value="Mizoram">Mizoram</option>
+                  <option value="Nagaland">Nagaland</option>
+                  <option value="Odisha">Odisha</option>
+                  <option value="Punjab">Punjab</option>
+                  <option value="Rajasthan">Rajasthan</option>
+                  <option value="Sikkim">Sikkim</option>
+                  <option value="Tamil Nadu">Tamil Nadu</option>
+                  <option value="Telangana">Telangana</option>
+                  <option value="Tripura">Tripura</option>
+                  <option value="Uttar Pradesh">Uttar Pradesh</option>
+                  <option value="Uttarakhand">Uttarakhand</option>
+                  <option value="West Bengal">West Bengal</option>
+                  <option value="Andaman and Nicobar Islands">Andaman and Nicobar Islands</option>
+                  <option value="Chandigarh">Chandigarh</option>
+                  <option value="Dadra and Nagar Haveli and Daman and Diu">Dadra and Nagar Haveli and Daman and Diu</option>
+                  <option value="Delhi (NCT)">Delhi (NCT)</option>
+                  <option value="Jammu and Kashmir">Jammu and Kashmir</option>
+                  <option value="Ladakh">Ladakh</option>
+                  <option value="Lakshadweep">Lakshadweep</option>
+                  <option value="Puducherry">Puducherry</option>
+                </select>
+                <span class="clean-hint">Your permanent parliamentary jurisdiction.</span>
+              </div>
+            </div>
+
+            <div class="form-clean-group">
+              <label for="reg-pin" class="clean-label">Create a 4-Digit Security PIN</label>
+              <input type="password" id="reg-pin" class="clean-input font-mono pin-spacing" placeholder="&bull;&bull;&bull;&bull;" maxlength="4" inputmode="numeric" pattern="[0-9]{4}" required>
+              <span class="clean-hint">Your confidential access key to authenticate and unlock your ballot paper.</span>
+            </div>
+
+            <!-- Inline Error Notice -->
+            <div id="register-error" class="notice-clean notice-error hidden" role="alert"></div>
+
+            <div class="form-clean-actions">
+              <button type="submit" class="btn-enroll-primary">
+                <span>Complete Digital Enrollment</span>
+                <span class="btn-arrow-icon">&rarr;</span>
+              </button>
+            </div>
+
+            <div class="form-clean-footer">
+              Already enrolled on the electoral register? <a href="#login" class="clean-link">Sign In to Dashboard</a>
+            </div>
+
+          </form>
+
+        </div>
+
+        <!-- COMPLETION STATE: MODERN DIGITAL IDENTITY PASS -->
+        <div id="register-success-card" class="enrollment-canvas success-canvas hidden">
+          
+          <div class="pass-verified-header">
+            <span class="verified-glyph">&#10003;</span>
+            <span class="verified-tag">ENROLLMENT VERIFIED &bull; ELECTOR ISSUED</span>
+          </div>
+
+          <h2 class="pass-hero-title">Welcome to the Electorate.</h2>
+          <p class="pass-hero-sub">Your official digital identity pass has been committed to the sovereign electoral register.</p>
+
+          <!-- Modern Apple-Wallet Style Elector Pass -->
+          <div class="elector-digital-pass">
+            
+            <div class="pass-top">
+              <div class="pass-republic-row">
+                <span class="pass-seal-badge">&#9670; ECI</span>
+                <span class="pass-republic-text">REPUBLIC OF INDIA &bull; DIGITAL ELECTOR CARD</span>
+              </div>
+              <div class="pass-voter-id-box">
+                <span class="voter-id-label">OFFICIAL VOTER ID</span>
+                <span class="voter-id-val font-mono" id="success-voter-id">VTR000000</span>
+              </div>
+            </div>
+
+            <div class="pass-divider"></div>
+
+            <div class="pass-body">
+              <div class="pass-col">
+                <span class="pass-label">ELECTOR NAME</span>
+                <span class="pass-val" id="success-voter-name">—</span>
+              </div>
+              <div class="pass-col">
+                <span class="pass-label">AGE</span>
+                <span class="pass-val" id="success-voter-age">—</span>
+              </div>
+              <div class="pass-col full">
+                <span class="pass-label">PARLIAMENTARY CONSTITUENCY</span>
+                <span class="pass-val" id="success-voter-state">—</span>
+              </div>
+            </div>
+
+            <div class="pass-bottom">
+              <div class="pass-barcode-lines font-mono">
+                || | ||| | |||| ||| || | |||| | ||| || ||| |
+              </div>
+              <span class="pass-crypto-text">&#128737; SECURE ENCRYPTED PASS</span>
+            </div>
+
+          </div>
+
+          <div class="pass-instruction-box">
+            <strong>Important:</strong> Record your <strong>Voter ID</strong> and <strong>4-digit PIN</strong>. Both credentials are required to sign in and unlock your electronic ballot.
+          </div>
+
+          <div class="pass-actions-cluster">
+            <button type="button" id="btn-proceed-to-login" class="btn-primary-large">
+              <span>Sign In to Voter Dashboard</span>
+              <span class="btn-arrow-icon">&rarr;</span>
+            </button>
+            <button type="button" id="btn-register-another" class="btn-secondary-flat">
+              <span>Enroll Another Elector</span>
+            </button>
+          </div>
+
+        </div>
+
       </div>
+    </section>
 
-      <!-- Error state -->
-      <div id="error-state" class="hidden p-5 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm">
-        <strong>⚠️ Backend Connection Error:</strong> <span id="error-msg">Could not load election data.</span>
-        <button onclick="loadElection()" class="ml-3 underline font-semibold">Retry</button>
+    <!-- ======================================================================
+         VIEW 3: VOTER SIGN IN
+         ====================================================================== -->
+    <section id="view-login" class="view" aria-label="Elector Authentication">
+      <div class="auth-fluid-stage">
+        
+        <div class="auth-minimal-box">
+          
+          <div class="auth-header">
+            <span class="kicker-label">SECURE ENTRANCE</span>
+            <h1 class="auth-title">Voter Sign In</h1>
+            <p class="auth-sub">Enter your issued Voter ID and confidential 4-digit PIN to access your personal dashboard.</p>
+          </div>
+
+          <form id="voter-login-form" class="auth-form-clean" novalidate>
+            
+            <div class="form-clean-group">
+              <label for="login-voter-id" class="clean-label">Voter ID</label>
+              <input type="text" id="login-voter-id" class="clean-input font-mono text-uppercase" placeholder="e.g. VTR482910" maxlength="12" required>
+              <span class="clean-hint">Issued during digital enrollment (starts with &lsquo;VTR&rsquo;).</span>
+            </div>
+
+            <div class="form-clean-group">
+              <label for="login-pin" class="clean-label">4-Digit Security PIN</label>
+              <input type="password" id="login-pin" class="clean-input font-mono pin-spacing" placeholder="&bull;&bull;&bull;&bull;" maxlength="4" inputmode="numeric" required>
+              <span class="clean-hint">Your confidential access key.</span>
+            </div>
+
+            <!-- Inline Login Error -->
+            <div id="voter-login-error" class="notice-clean notice-error hidden" role="alert"></div>
+
+            <div class="form-clean-actions">
+              <button type="submit" class="btn-enroll-primary">
+                <span>Authenticate &amp; Open Dashboard</span>
+                <span class="btn-arrow-icon">&rarr;</span>
+              </button>
+            </div>
+
+            <div class="form-clean-footer">
+              Not registered on the electoral roll? <a href="#register" class="clean-link">Enroll as an elector</a>
+            </div>
+
+          </form>
+
+        </div>
+
       </div>
+    </section>
 
-      <!-- Candidate Grid -->
-      <div id="candidate-grid" class="hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
-
-      <!-- Hidden test-compat elements -->
-      <div class="hidden" aria-hidden="true">
-        <input type="text" id="input-nid" value="DEMO-IND-9042"/>
-        <button id="btn-auth-submit"></button>
-        <button id="btn-request-token"></button>
-        <input type="radio" name="candidate" id="fallback-cand-radio" value="1" checked/>
-        <button id="btn-review-ballot" disabled></button>
-        <button id="btn-cast-ballot"></button>
-        <input type="text" id="verify-input"/>
-        <button id="btn-run-verify" onclick="runVerify()"></button>
-        <div id="verify-result"></div>
-        <span id="receipt-height">#1</span>
-        <span id="receipt-hash">0x0</span>
-        <div id="ballot-card"></div>
-        <div id="receipt-card"></div>
-        <div id="party-options-list"></div>
-      </div>
-
-      <!-- Bottom Analytics Section -->
-      <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-xs space-y-5">
-        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+    <!-- ======================================================================
+         VIEW 4: VOTER DASHBOARD
+         ====================================================================== -->
+    <section id="view-dashboard" class="view" aria-label="Voter Dashboard">
+      <div class="narrative-container dashboard-viewport">
+        
+        <div class="dash-hero-row">
           <div>
-            <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
-              <svg class="w-4 h-4 text-indigo-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-              Learning & Verification Feed
-            </h2>
-            <p class="text-xs text-slate-500">Live audit metrics, cryptographic proofs, and platform standards — from the real database.</p>
+            <span class="kicker-label">CITIZEN PORTAL</span>
+            <h1 class="narrative-headline">Elector Dashboard</h1>
           </div>
-          <div class="bg-slate-100 p-1 rounded-lg flex items-center border border-slate-200">
-            <button onclick="switchBottomTab('leaderboard')" id="bottom-tab-leaderboard" class="px-3.5 py-1.5 rounded-md text-xs font-semibold bg-white text-indigo-700 shadow-xs transition-all">Leaderboard</button>
-            <button onclick="switchBottomTab('recent')" id="bottom-tab-recent" class="px-3.5 py-1.5 rounded-md text-xs font-semibold text-slate-600 hover:text-slate-900 transition-all">Live Audit Feed</button>
-            <button onclick="switchBottomTab('guide')" id="bottom-tab-guide" class="px-3.5 py-1.5 rounded-md text-xs font-semibold text-slate-600 hover:text-slate-900 transition-all">Civic Guide</button>
+          <button type="button" id="btn-voter-logout" class="btn-secondary-flat small">Sign Out</button>
+        </div>
+
+        <!-- Elector Profile Slate -->
+        <div class="citizen-slate">
+          
+          <div class="slate-profile-header">
+            <div class="profile-monogram" id="profile-avatar-initials">AS</div>
+            <div class="profile-details">
+              <div class="profile-name-row">
+                <h2 class="profile-display-name" id="profile-name">—</h2>
+                <span class="profile-badge-pill" id="profile-status-badge">Eligible to Vote</span>
+              </div>
+              <span class="profile-voter-id">Official Voter ID: <strong id="profile-voter-id" class="font-mono">—</strong></span>
+            </div>
+          </div>
+
+          <div class="slate-details-grid">
+            <div class="detail-cell">
+              <span class="cell-label">CONSTITUENCY</span>
+              <span class="cell-val" id="profile-state">—</span>
+            </div>
+            <div class="detail-cell">
+              <span class="cell-label">AGE QUALIFICATION</span>
+              <span class="cell-val" id="profile-age">—</span>
+            </div>
+            <div class="detail-cell">
+              <span class="cell-label">BALLOT STATUS</span>
+              <span class="cell-val" id="profile-vote-status">—</span>
+            </div>
+          </div>
+
+          <!-- Unvoted State Action Gateway -->
+          <div id="dash-unvoted-actions" class="slate-ballot-gateway">
+            <div class="gateway-text">
+              <span class="gateway-tag">BALLOT ACTIVE</span>
+              <h3 class="gateway-title">Your Electronic Ballot Paper is Ready</h3>
+              <p class="gateway-desc">Proceed to the secret voting booth to cast your vote. Once cast, your choice cannot be altered.</p>
+            </div>
+            <a href="#vote" class="btn-primary-large">
+              <span>Enter Voting Booth</span>
+              <span class="btn-arrow-icon">&rarr;</span>
+            </a>
+          </div>
+
+          <!-- Already Voted State Certificate -->
+          <div id="dash-voted-notice" class="slate-voted-certificate hidden">
+            <div class="voted-cert-inner">
+              <span class="cert-check-glyph">&#10003;</span>
+              <div class="cert-copy">
+                <span class="cert-status-tag">VOTE COMMITTED &bull; SOVEREIGN FRANCHISE EXERCISED</span>
+                <h3 class="cert-heading">Your Ballot Has Been Formally Recorded</h3>
+                <p class="cert-subtext">Thank you for participating in the democratic process. Your vote remains completely confidential under Section 49A.</p>
+                <div class="cert-time font-mono" id="dash-voted-timestamp">—</div>
+                <div class="cert-time font-mono receipt-hash-line hidden" id="dash-receipt-line">
+                  Receipt: <span id="dash-receipt-hash" class="receipt-hash-text">—</span>
+                  <a href="#verify" id="dash-verify-link" class="clean-link">Verify on bulletin board &rarr;</a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         VIEW 5: ELECTRONIC VOTING BOOTH (BALLOT)
+         ====================================================================== -->
+    <section id="view-vote" class="view" aria-label="Voting Booth">
+      <div class="narrative-container booth-viewport">
+        
+        <!-- Minimal Verification Strip -->
+        <div class="booth-status-strip">
+          <div class="booth-citizen-badge">
+            <span class="active-green-dot"></span>
+            <span>Elector: <strong id="booth-voter-name">—</strong> &bull; ID: <strong id="booth-voter-id" class="font-mono">—</strong> &bull; State: <span id="booth-voter-state">—</span></span>
+          </div>
+          <a href="#dashboard" class="clean-link">&larr; Back to Dashboard</a>
+        </div>
+
+        <!-- Contemporary Ballot Paper -->
+        <div id="ballot-card-container" class="contemporary-ballot">
+          
+          <div class="ballot-intro-header">
+            <div>
+              <span class="kicker-label">OFFICIAL PARLIAMENTARY BALLOT</span>
+              <h1 class="ballot-title">Lok Sabha General Election</h1>
+              <p class="ballot-sub">Select one registered candidate or NOTA. Then tap &ldquo;Cast Vote&rdquo;.</p>
+            </div>
+          </div>
+
+          <form id="ballot-form" novalidate>
+            <fieldset class="clean-fieldset">
+              <legend class="sr-only">Recognized Political Parties and NOTA</legend>
+              
+              <!-- Candidate cards loaded from GET /api/candidates -->
+              <div class="candidates-fluid-list" id="candidate-options-list">
+                <!-- Dynamically populated via app.js -->
+              </div>
+            </fieldset>
+
+            <!-- Inline Error -->
+            <div id="ballot-error" class="notice-clean notice-error hidden" role="alert"></div>
+
+            <div class="ballot-submit-bar">
+              <button type="submit" class="btn-cast-ballot">
+                <span>Cast Vote</span>
+                <span class="btn-arrow-icon">&rarr;</span>
+              </button>
+            </div>
+          </form>
+
+        </div>
+
+        <!-- TWO-STEP CONFIRMATION MODAL -->
+        <div id="vote-confirm-container" class="confirmation-dialog-card hidden">
+          <span class="kicker-label">FINAL CONFIRMATION</span>
+          <h2 class="dialog-title">Confirm Your Selection</h2>
+          <p class="dialog-sub">Please review your candidate choice carefully before permanent electronic transmission.</p>
+
+          <div class="dialog-selection-box">
+            <div class="selection-symbol-frame" id="confirm-party-symbol"></div>
+            <div class="selection-meta">
+              <span class="selection-label">SELECTED OPTION</span>
+              <div class="selection-code" id="confirm-party-code">BJP</div>
+              <div class="selection-name" id="confirm-party-name">Bharatiya Janata Party</div>
+            </div>
+          </div>
+
+          <div class="dialog-legal-note">
+            <strong>Legal Warning:</strong> Under Section 49A of the Conduct of Elections Rules, your ballot is irreversibly encrypted upon confirmation. You cannot modify or re-cast this vote.
+          </div>
+
+          <div class="dialog-actions-row">
+            <button type="button" id="btn-final-cast-vote" class="btn-cast-ballot">
+              <span>Confirm &amp; Commit Ballot</span>
+              <span class="btn-arrow-icon">&rarr;</span>
+            </button>
+            <button type="button" id="btn-back-to-ballot" class="btn-secondary-flat">
+              <span>Change Selection</span>
+            </button>
           </div>
         </div>
-        <div id="bottom-view-leaderboard" class="space-y-3"><p class="text-xs text-slate-400 italic">Loading live standings...</p></div>
-        <div id="bottom-view-recent" class="hidden space-y-2">
-          <div class="text-[11px] text-slate-400 font-mono flex items-center justify-between mb-1">
-            <span>Cryptographic Verification Stream</span>
-            <span class="text-emerald-600 font-semibold flex items-center gap-1"><svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg> ZK-Proof Active</span>
+
+        <!-- POST-VOTE DIGITAL INK CONFIRMATION SCREEN -->
+        <div id="vote-success-container" class="ink-confirmation-slate hidden">
+          
+          <div class="ink-graphic-side">
+            <!-- Indelible Voting Ink SVG -->
+            <svg class="ink-vector" width="130" height="160" viewBox="0 0 120 150" fill="none" aria-label="Marked index finger with indelible violet ink">
+              <path d="M40 145 V52 C40 34 49 22 60 22 C71 22 80 34 80 52 V145" fill="#E8DDD1" stroke="#BAAEA2" stroke-width="2.5" stroke-linecap="round"/>
+              <path d="M48 50 C48 37 52 29 60 29 C68 29 72 37 72 50 C72 56 68 58 60 58 C52 58 48 56 48 50 Z" fill="#F7F1EB" stroke="#C7BCB0" stroke-width="1.5"/>
+              <rect x="57" y="25" width="6" height="42" rx="3" fill="#3B1C54"/>
+              <ellipse cx="60" cy="58" rx="6" ry="3" fill="#3B1C54"/>
+              <path d="M47 62 C53 65 67 65 73 62" stroke="#BAAEA2" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
           </div>
-          <div id="bottom-recent-list"><p class="text-xs text-slate-400 italic">No votes yet.</p></div>
+
+          <div class="ink-copy-side">
+            <span class="verified-tag">BALLOT FORMALLY ENCRYPTED</span>
+            <h2 class="ink-headline">Your Vote Has Been Counted.</h2>
+            <p class="ink-body">
+              Your secret choice is sealed in the sovereign electronic vault. Your digital left index finger has been marked with the traditional indelible violet voting ink.
+            </p>
+
+            <div class="ink-receipt-strip">
+              <div class="receipt-item">
+                <span class="receipt-k">ELECTOR ID</span>
+                <span class="receipt-v font-mono" id="receipt-voter-id">—</span>
+              </div>
+              <div class="receipt-item">
+                <span class="receipt-k">TIMESTAMP</span>
+                <span class="receipt-v" id="receipt-timestamp">—</span>
+              </div>
+              <div class="receipt-item">
+                <span class="receipt-k">STATUS</span>
+                <span class="receipt-v text-accent">Marked as Voted</span>
+              </div>
+              <div class="receipt-item receipt-item-wide">
+                <span class="receipt-k">BALLOT RECEIPT (SHA-256)</span>
+                <span class="receipt-v font-mono receipt-hash-text" id="receipt-hash">—</span>
+                <span class="receipt-sub">Block #<span id="receipt-block-height">—</span> &bull; Keep this to verify your ballot was included. It does not reveal your choice.</span>
+              </div>
+            </div>
+
+            <div class="receipt-tools">
+              <button type="button" id="btn-copy-receipt" class="btn-secondary-flat small">Copy Receipt</button>
+              <button type="button" id="btn-verify-my-receipt" class="btn-secondary-flat small">Verify Now</button>
+            </div>
+
+            <div class="ink-actions-group">
+              <a href="#dashboard" class="btn-primary-large">Return to Dashboard</a>
+              <a href="#home" class="btn-secondary-flat">Portal Overview</a>
+            </div>
+          </div>
+
         </div>
-        <div id="bottom-view-guide" class="hidden grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
-          <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 space-y-1.5">
-            <svg class="w-4 h-4 text-indigo-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-            <h4 class="font-bold text-slate-800">Anonymity & Security</h4>
-            <p class="text-slate-500 text-[11px] leading-relaxed">Zero-Knowledge proofs ensure your vote choice remains confidential while allowing verifiable tally inclusion.</p>
+
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         VIEW: PUBLIC RECEIPT VERIFICATION (BULLETIN BOARD)
+         ====================================================================== -->
+    <section id="view-verify" class="view" aria-label="Verify Ballot Receipt">
+      <div class="auth-fluid-stage">
+        <div class="auth-minimal-box verify-card">
+          <div class="auth-header">
+          <span class="kicker-label">PUBLIC BULLETIN BOARD</span>
+          <h1 class="auth-title">Verify Your Ballot Receipt</h1>
+          <p class="auth-sub">
+            Paste the receipt shown after you voted. The bulletin board confirms your encrypted ballot is in the
+            append-only ledger and returns its Merkle inclusion proof. Your candidate choice is never revealed.
+          </p>
           </div>
-          <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 space-y-1.5">
-            <svg class="w-4 h-4 text-violet-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="16" height="16" x="4" y="4" rx="2"/><rect width="6" height="6" x="9" y="9" rx="1"/><path d="M15 2v2M15 20v2M2 15h2M2 9h2M20 15h2M20 9h2M9 2v2M9 20v2"/></svg>
-            <h4 class="font-bold text-slate-800">Educational Polling</h4>
-            <p class="text-slate-500 text-[11px] leading-relaxed">Designed to inform voters about candidate manifestos, policy agendas, and digital civic participation.</p>
-          </div>
-          <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 space-y-1.5">
-            <svg class="w-4 h-4 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
-            <h4 class="font-bold text-slate-800">Auditable Receipts</h4>
-            <p class="text-slate-500 text-[11px] leading-relaxed">Every cast ballot generates an immutable cryptographic transaction hash for public verification.</p>
+
+          <form id="verify-form" class="auth-form-clean" novalidate>
+            <div class="form-clean-group">
+              <label for="verify-receipt-input" class="clean-label">Receipt hash</label>
+              <input type="text" id="verify-receipt-input" class="clean-input font-mono" placeholder="64 hexadecimal characters" autocomplete="off" spellcheck="false">
+            </div>
+            <div id="verify-error" class="notice-clean notice-error hidden" role="alert"></div>
+            <div class="form-clean-actions">
+              <button type="submit" class="btn-enroll-primary">
+                <span>Verify Receipt</span>
+                <span class="btn-arrow-icon">&rarr;</span>
+              </button>
+            </div>
+          </form>
+
+          <div id="verify-result" class="verify-result hidden" role="status" aria-live="polite">
+            <div class="verify-result-head">
+              <span id="verify-status-badge" class="badge-table eligible">—</span>
+              <strong id="verify-status-title">—</strong>
+            </div>
+            <p id="verify-status-desc" class="verify-desc">—</p>
+            <dl class="verify-facts">
+              <div><dt>Ledger block</dt><dd class="font-mono" id="verify-block">—</dd></div>
+              <div><dt>Checkpoint tree size</dt><dd class="font-mono" id="verify-tree">—</dd></div>
+              <div><dt>Ballot hash (leaf)</dt><dd class="font-mono receipt-hash-text" id="verify-leaf">—</dd></div>
+              <div><dt>Merkle proof nodes</dt><dd class="font-mono" id="verify-proof-count">—</dd></div>
+            </dl>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- =================== TAB: CANDIDATES =================== -->
-    <section id="tab-candidates" class="hidden p-8 max-w-7xl mx-auto w-full space-y-6">
-      <div>
-        <h2 class="text-2xl font-extrabold text-slate-900">Candidate Directory</h2>
-        <p class="text-slate-500 text-xs mt-0.5">Explore full policy proposals and candidate backgrounds. Data loaded live from the election database.</p>
-      </div>
-      <div id="candidates-directory-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6"><p class="text-slate-400 text-sm">Loading...</p></div>
-    </section>
+    <!-- ======================================================================
+         VIEW 6: ADMIN PORTAL & OFFICER DASHBOARD (DARK MIDNIGHT FINTECH)
+         ====================================================================== -->
+    <section id="view-admin" class="view admin-dark-stage" aria-label="Election Officer Portal">
+      <div class="narrative-container admin-stage-inner">
+        
+        <div class="admin-header-strip">
+          <div>
+            <span class="admin-vault-pill">&#9670; RESTRICTED OFFICER VAULT</span>
+            <h1 class="admin-title">Custody &amp; Results Telemetry</h1>
+          </div>
+          <div id="admin-status-pill" class="officer-live-status hidden">
+            <span class="pulse-dot-green"></span>
+            <span>Returning Officer Authenticated</span>
+          </div>
+        </div>
 
-    <!-- =================== TAB: LEADERBOARD =================== -->
-    <section id="tab-leaderboard" class="hidden p-8 max-w-5xl mx-auto w-full space-y-6">
-      <div class="flex items-center justify-between">
-        <div>
-          <h2 class="text-2xl font-extrabold text-slate-900">Election Standings</h2>
-          <p class="text-slate-500 text-xs">Live receipt count per party from the Merkle ledger.</p>
-        </div>
-        <svg class="w-8 h-8 text-amber-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
-      </div>
-      <div class="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
-        <table class="w-full text-left text-xs">
-          <thead class="bg-slate-50 text-slate-500 uppercase font-mono border-b border-slate-200">
-            <tr><th class="p-4">Rank</th><th class="p-4">Party</th><th class="p-4">Symbol</th><th class="p-4 text-right">Status</th></tr>
-          </thead>
-          <tbody id="leaderboard-table-body" class="divide-y divide-slate-100"><tr><td colspan="4" class="p-6 text-center text-slate-400">Loading live data...</td></tr></tbody>
-        </table>
-      </div>
-    </section>
+        <!-- OFFICER SIGN IN (Shown when not authenticated) -->
+        <div id="admin-login-container" class="admin-signin-card">
+          <div class="admin-signin-header">
+            <div class="admin-shield-emblem">&#128274;</div>
+            <h2 class="admin-signin-title">Election Officer Sign In</h2>
+            <p class="admin-signin-sub">Authenticate using your administrative custody credentials.</p>
+          </div>
 
-    <!-- =================== TAB: VERIFY =================== -->
-    <section id="tab-verify" class="hidden p-8 max-w-3xl mx-auto w-full space-y-6">
-      <div>
-        <h2 class="text-2xl font-extrabold text-slate-900">Verify Your Ballot</h2>
-        <p class="text-slate-500 text-xs mt-0.5">Enter your cryptographic receipt hash to verify inclusion in the Merkle ledger.</p>
-      </div>
-      <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-xs space-y-4">
-        <div class="flex gap-3">
-          <input type="text" id="verify-input-main" placeholder="Paste receipt hash here..." class="flex-1 pl-4 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"/>
-          <button onclick="runVerify()" id="btn-verify-main" class="btn-press px-5 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition">Verify Proof</button>
-        </div>
-        <div id="verify-output" class="hidden"></div>
-      </div>
-      <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-xs space-y-3">
-        <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2"><svg class="w-4 h-4 text-indigo-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Public Receipt Board</h3>
-        <p class="text-xs text-slate-400">All submitted receipt hashes from the bulletin board:</p>
-        <div id="bb-receipts-container" class="max-h-48 overflow-y-auto space-y-1"><p class="text-xs text-slate-400 italic">Loading...</p></div>
-      </div>
-    </section>
+          <form id="admin-login-form" novalidate>
+            <div class="form-clean-group admin-field">
+              <label for="admin-username" class="clean-label-dark">Officer Username</label>
+              <input type="text" id="admin-username" class="clean-input-dark" placeholder="e.g. admin" required>
+              <span class="clean-hint-dark">Classroom Demo Account: <strong>admin</strong></span>
+            </div>
 
-    <!-- =================== TAB: ABOUT =================== -->
-    <section id="tab-about" class="hidden p-8 max-w-4xl mx-auto w-full space-y-6">
-      <h2 class="text-2xl font-extrabold text-slate-900">About VeriVote-J Platform</h2>
-      <p class="text-slate-600 leading-relaxed text-sm">
-        VeriVote-J is a fully connected educational voting platform backed by a live Spring Boot application and PostgreSQL database. It features blind-signature RSA token issuance, Zero-Knowledge proof cryptographic receipts, Merkle-tree audit ledger, and real-time polling — allowing students and civic groups to understand transparent digital elections.
-      </p>
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-xs">
-          <svg class="w-5 h-5 text-emerald-600 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
-          <h4 class="font-bold text-slate-900 text-sm">Platform Features</h4>
-          <ul class="text-xs text-slate-500 space-y-1 mt-2 list-disc list-inside">
-            <li>Live PostgreSQL database for real ballot storage</li>
-            <li>RSA Blind-Signature anonymous token issuance</li>
-            <li>Merkle ledger with Ed25519-signed checkpoints</li>
-            <li>Web Audio feedback synthesizer</li>
-            <li>ZK Cryptographic receipt generation</li>
-          </ul>
+            <div class="form-clean-group admin-field">
+              <label for="admin-password" class="clean-label-dark">Security Passcode</label>
+              <input type="password" id="admin-password" class="clean-input-dark font-mono" placeholder="e.g. admin123" required>
+              <span class="clean-hint-dark">Classroom Demo Passcode: <strong>admin123</strong></span>
+            </div>
+
+            <!-- Inline Admin Error -->
+            <div id="admin-login-error" class="notice-clean notice-error hidden" role="alert"></div>
+
+            <div class="form-clean-actions">
+              <button type="submit" class="btn-admin-submit">
+                <span>Unlock Officer Vault</span>
+                <span class="btn-arrow-icon">&rarr;</span>
+              </button>
+            </div>
+          </form>
         </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-xs">
-          <svg class="w-5 h-5 text-amber-500 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/></svg>
-          <h4 class="font-bold text-slate-900 text-sm">Backend Endpoints</h4>
-          <ul class="text-xs text-slate-500 space-y-1 mt-2 list-disc list-inside font-mono">
-            <li>GET /api/web/election</li>
-            <li>POST /api/web/demo-auth</li>
-            <li>POST /api/web/request-token</li>
-            <li>POST /api/web/cast-vote</li>
-            <li>GET /api/web/verify/{hash}</li>
-            <li>GET /bb/receipts &amp; /bb/checkpoints</li>
-          </ul>
+
+        <!-- OFFICER DASHBOARD (Shown when logged in) -->
+        <div id="admin-dashboard-container" class="admin-vault-dashboard hidden">
+          
+          <div class="vault-session-bar">
+            <div class="vault-officer-info">
+              <span class="vault-gold-badge">CHIEF RETURNING OFFICER</span>
+              <span class="vault-station-text">National Electronic Central Station #01 &bull; Active Session</span>
+            </div>
+            <button type="button" id="btn-admin-logout" class="btn-vault-logout">Sign Out Officer</button>
+          </div>
+
+          <!-- Election Controls -->
+          <div class="vault-controls-bar">
+            <div class="vault-election-state">
+              <span class="v-label">ELECTION STATUS</span>
+              <span id="admin-election-status" class="election-status-chip">—</span>
+            </div>
+            <div class="vault-control-actions">
+              <button type="button" id="btn-toggle-election" class="btn-utility-gold">Close Polling</button>
+              <button type="button" id="btn-export-votes" class="btn-vault-logout">Export Ledger CSV</button>
+              <button type="button" id="btn-admin-refresh" class="btn-vault-logout">Refresh</button>
+            </div>
+          </div>
+          <div id="admin-action-message" class="notice-clean notice-success hidden" role="status"></div>
+          <div id="admin-action-error" class="notice-clean notice-error hidden" role="alert"></div>
+
+          <!-- Executive Telemetry Numbers -->
+          <div class="vault-numbers-strip">
+            <div class="vault-number-cell">
+              <span class="v-label">REGISTERED ELECTORS</span>
+              <div class="v-number font-mono" id="admin-registered-count">0</div>
+              <span class="v-sub">Total citizens on roll</span>
+            </div>
+
+            <div class="vault-number-cell">
+              <span class="v-label">BALLOTS CAST</span>
+              <div class="v-number font-mono" id="admin-votes-count">0</div>
+              <span class="v-sub">Committed to electronic vault</span>
+            </div>
+
+            <div class="vault-number-cell accent">
+              <span class="v-label">VOTER TURNOUT</span>
+              <div class="v-number font-mono" id="admin-turnout-pct">0.0%</div>
+              <span class="v-sub">Current participation rate</span>
+            </div>
+          </div>
+
+          <!-- Candidate Vote Share Telemetry -->
+          <div class="vault-tally-slate">
+            <div class="vault-slate-header">
+              <h2 class="slate-heading">Candidate Vote Share Breakdown</h2>
+              <span class="slate-sub">Decrypted live from encrypted ballots &bull; Alphabetical &bull; NOTA last</span>
+            </div>
+
+            <div id="admin-results-bars-container" class="vault-bars-stream">
+              <!-- Dynamically populated via app.js -->
+            </div>
+
+            <!-- Demo Utility: Load Sample Votes -->
+            <div class="vault-sample-utility">
+              <div class="utility-copy">
+                <h4>Classroom Presentation Utility</h4>
+                <p>Enroll 14 sample electors and cast their ballots through the real encrypted ledger pipeline to demonstrate the tally and electoral roll.</p>
+              </div>
+              <div class="vault-control-actions">
+                <button type="button" id="btn-load-sample-votes" class="btn-utility-gold">Load 14 Sample Votes</button>
+                <button type="button" id="btn-admin-reset" class="btn-vault-logout danger">Reset Election Data</button>
+              </div>
+            </div>
+            <div id="admin-undecryptable-note" class="notice-clean notice-error hidden" role="status"></div>
+            <div id="admin-sample-message" class="notice-clean notice-success hidden" role="status"></div>
+          </div>
+
+          <!-- Electoral Roll Audit Ledger -->
+          <div class="vault-ledger-slate">
+            <div class="vault-slate-header">
+              <h2 class="slate-heading">Electoral Register Audit Ledger</h2>
+              <span class="slate-sub">Secret ballot preserved: candidate selection is hidden</span>
+            </div>
+
+            <div class="table-fluid-wrap">
+              <table class="vault-table">
+                <thead>
+                  <tr>
+                    <th>Voter ID</th>
+                    <th>Elector Name</th>
+                    <th>Age</th>
+                    <th>Constituency</th>
+                    <th>Enrollment Time</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="admin-voters-tbody">
+                  <!-- Dynamically populated via app.js -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
         </div>
+
       </div>
     </section>
 
   </main>
-</div>
 
-<!-- =================== VOTE RECEIPT MODAL =================== -->
-<div id="receipt-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
-  <div class="relative w-full max-w-md bg-white border border-slate-200 rounded-2xl p-6 shadow-2xl space-y-5">
-    <button onclick="closeReceiptModal()" class="absolute top-4 right-4 p-1.5 text-slate-400 hover:text-slate-700 rounded-full bg-slate-100">
-      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-    </button>
-    <div class="text-center space-y-1.5">
-      <div class="inline-flex items-center justify-center w-14 h-14 rounded-full bg-emerald-100 text-emerald-600 mb-1">
-        <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
-      </div>
-      <h3 class="text-xl font-bold text-slate-900">VOTE RECORDED</h3>
-      <p class="text-xs font-mono font-bold text-emerald-600 tracking-wider uppercase">BALLOT ANONYMOUSLY SEALED!</p>
-    </div>
-    <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 text-center space-y-0.5">
-      <span class="text-[10px] text-slate-400 uppercase font-semibold block">Ballot Sealed For</span>
-      <h4 id="modal-party-name" class="text-base font-bold text-slate-900">—</h4>
-      <span id="modal-candidate-name" class="text-xs text-slate-500">—</span>
-    </div>
-    <!-- Live backend receipt -->
-    <div class="bg-slate-900 p-4 rounded-xl text-center space-y-2 text-white">
-      <div class="flex items-center justify-center gap-1.5 text-[11px] text-emerald-400 font-bold">
-        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
-        CRYPTOGRAPHIC RECEIPT FROM LEDGER
-      </div>
-      <div id="modal-receipt-hash" class="text-[11px] font-mono text-amber-300 leading-relaxed bg-slate-800 p-2.5 rounded border border-slate-700 select-all break-all">—</div>
-      <div class="flex justify-between text-[10px] text-slate-400 font-mono pt-1">
-        <span id="modal-block-height">Block: #—</span>
-        <span id="modal-timestamp">—</span>
-      </div>
-    </div>
-    <div class="flex gap-2">
-      <button onclick="verifyFromModal()" class="flex-1 py-2.5 rounded-lg font-bold text-xs bg-emerald-600 hover:bg-emerald-700 text-white transition">Verify in Ledger</button>
-      <button onclick="closeReceiptModal()" class="flex-1 py-2.5 rounded-lg font-bold text-xs bg-indigo-600 hover:bg-indigo-700 text-white transition">Close Receipt</button>
-    </div>
-  </div>
-</div>
+  <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
 
-<!-- =================== VOTING IN PROGRESS OVERLAY =================== -->
-<div id="voting-overlay" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm">
-  <div class="bg-white p-8 rounded-2xl border border-slate-200 shadow-2xl space-y-4 text-center max-w-xs w-full">
-    <svg class="w-10 h-10 animate-spin text-indigo-500 mx-auto" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
-    <h3 class="text-base font-bold text-slate-900">Casting Ballot...</h3>
-    <p id="voting-step" class="text-xs text-slate-500">Authenticating voter identity...</p>
-  </div>
-</div>
-
-<script>
-// =========================================================
-//  STATE
-// =========================================================
-let soundEnabled = true;
-let electionData   = null;   // { id, title, status, candidates }
-let statsData      = null;   // { castVotes, registeredVoters, ... }
-let searchQuery    = '';
-let partyFilter    = 'All';
-let lastReceiptHash = '';
-let lastBlockHeight = '';
-
-// Party metadata for visual styling, keyed by backend symbol field
-const PARTY_META = {
-  bjp:   { label:'BJP',    emoji:'🪷', name:'Narendra Modi',       title:'Prime Minister',          tags:['National Security','Development'],   agenda:'Viksit Bharat 2047: Technology-driven national development',   topBar:'bg-orange-500', textColor:'text-orange-600', badgeBg:'bg-orange-50 text-orange-700 border-orange-200', btn:'bg-orange-600 hover:bg-orange-700', avatar:'https://upload.wikimedia.org/wikipedia/commons/6/6d/Official_portrait_of_prime_minister_of_India%2C_Narendra_Modi.jpg' },
-  inc:   { label:'INC',    emoji:'✋', name:'Rahul Gandhi',         title:'Leader of Opposition',    tags:['Social Equity','Youth'],            agenda:'Mohabbat ki Dukaan: Inclusive growth for all Indians',          topBar:'bg-sky-500',    textColor:'text-sky-600',    badgeBg:'bg-sky-50 text-sky-700 border-sky-200',       btn:'bg-sky-600 hover:bg-sky-700',     avatar:'https://upload.wikimedia.org/wikipedia/commons/e/e5/Rahul_Gandhi.jpg' },
-  tdp:   { label:'TDP',    emoji:'🚲', name:'N. Chandrababu Naidu', title:'Kingmaker & CM of AP',   tags:['Cyber Capital','Infrastructure'], agenda:'Hi-Tech state: Amaravati reborn as global technology hub',      topBar:'bg-yellow-400', textColor:'text-yellow-600', badgeBg:'bg-yellow-50 text-yellow-700 border-yellow-200',btn:'bg-yellow-500 hover:bg-yellow-600',avatar:'https://upload.wikimedia.org/wikipedia/commons/a/a8/The_portrait_of_CM_Shri_Nara_Chandrababu_Naidu.jpg' },
-  aap:   { label:'AAP',    emoji:'🧹', name:'Arvind Kejriwal',      title:'AAP National Convener',  tags:['Free Utilities','Education'],       agenda:'Free bijli, world-class schools & honest governance',          topBar:'bg-teal-500',   textColor:'text-teal-600',   badgeBg:'bg-teal-50 text-teal-700 border-teal-200',    btn:'bg-teal-600 hover:bg-teal-700',   avatar:'https://upload.wikimedia.org/wikipedia/commons/1/18/Arvind_Kejriwal_September_02%2C_2017_crop.jpg' },
-  ysrcp: { label:'YSRCP',  emoji:'🪭', name:'YS Jagan Mohan Reddy', title:'YSRCP President',        tags:['Direct Benefit','Welfare'],        agenda:'Navaratnalu: Nine welfare schemes for Andhra Pradesh citizens', topBar:'bg-blue-600',   textColor:'text-blue-600',   badgeBg:'bg-blue-50 text-blue-700 border-blue-200',    btn:'bg-blue-600 hover:bg-blue-700',   avatar:'https://upload.wikimedia.org/wikipedia/commons/a/a8/The_Chief_Minister_of_Andhra_Pradesh%2C_Shri_Y.S._Jagan_Mohan_Reddy.jpg' },
-  jdu:   { label:'JD(U)',  emoji:'🏹', name:'Nitish Kumar',         title:'Bihar Chief Minister',   tags:['Sushasan','Bihar Revival'],        agenda:'Sushasan babu: Good governance & Bihar special package demand', topBar:'bg-green-600',  textColor:'text-green-600',  badgeBg:'bg-green-50 text-green-700 border-green-200', btn:'bg-green-600 hover:bg-green-700', avatar:'https://upload.wikimedia.org/wikipedia/commons/5/5b/Nitish_Kumar_1.JPG' },
-  tmc:   { label:'TMC',    emoji:'🌸', name:'Mamata Banerjee',      title:'CM of West Bengal',      tags:['Bengal Pride','Social Welfare'],   agenda:'Maa Mati Manush: Dignity, welfare & rights for all Bengalis',  topBar:'bg-green-500',  textColor:'text-green-700',  badgeBg:'bg-green-50 text-green-700 border-green-200', btn:'bg-green-600 hover:bg-green-700', avatar:'https://upload.wikimedia.org/wikipedia/commons/b/b5/Official_portrait_of_Mamata_Banerjee_%28cropped%29.jpg' },
-};
-const DEFAULT_META = { label:'PARTY', emoji:'🗳️', name:'Party Nominee', title:'Candidate', tags:['Policy','Governance'], agenda:'Working for the people of India', topBar:'bg-indigo-600', textColor:'text-indigo-600', badgeBg:'bg-indigo-50 text-indigo-700 border-indigo-200', btn:'bg-indigo-600 hover:bg-indigo-700', avatar:'https://placehold.co/200x200?text=Candidate' };
-
-function getMeta(candidate) {
-  const sym = (candidate.symbol || '').toLowerCase().trim();
-  return PARTY_META[sym] || DEFAULT_META;
-}
-
-// =========================================================
-//  AUDIO
-// =========================================================
-function playChime() {
-  if (!soundEnabled) return;
-  try {
-    const Ctx = window.AudioContext || window.webkitAudioContext;
-    if (!Ctx) return;
-    const ctx = new Ctx();
-    const o1 = ctx.createOscillator(), g1 = ctx.createGain();
-    o1.type = 'sine';
-    o1.frequency.setValueAtTime(587.33, ctx.currentTime);
-    o1.frequency.exponentialRampToValueAtTime(1174.66, ctx.currentTime + 0.15);
-    g1.gain.setValueAtTime(0.2, ctx.currentTime);
-    g1.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
-    const o2 = ctx.createOscillator(), g2 = ctx.createGain();
-    o2.type = 'triangle';
-    o2.frequency.setValueAtTime(220, ctx.currentTime);
-    o2.frequency.exponentialRampToValueAtTime(110, ctx.currentTime + 0.25);
-    g2.gain.setValueAtTime(0.25, ctx.currentTime);
-    g2.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
-    o1.connect(g1); g1.connect(ctx.destination);
-    o2.connect(g2); g2.connect(ctx.destination);
-    o1.start(); o2.start();
-    o1.stop(ctx.currentTime + 0.4); o2.stop(ctx.currentTime + 0.4);
-  } catch(e) {}
-}
-
-function toggleSound() {
-  soundEnabled = !soundEnabled;
-  document.getElementById('icon-snd-on').classList.toggle('hidden', !soundEnabled);
-  document.getElementById('icon-snd-off').classList.toggle('hidden', soundEnabled);
-  const b = document.getElementById('badge-snd');
-  b.textContent = soundEnabled ? 'ON' : 'OFF';
-  b.className = `text-[10px] font-bold px-1.5 py-0.5 rounded ${soundEnabled ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 text-slate-500'}`;
-}
-
-// =========================================================
-//  LOAD ELECTION FROM BACKEND
-// =========================================================
-async function loadElection() {
-  document.getElementById('loading-state').classList.remove('hidden');
-  document.getElementById('error-state').classList.add('hidden');
-  document.getElementById('candidate-grid').classList.add('hidden');
-
-  try {
-    const [elRes, statsRes] = await Promise.all([
-      fetch('/api/web/election'),
-      fetch('/api/admin/stats')
-    ]);
-
-    if (!elRes.ok) throw new Error(`Election API returned ${elRes.status}`);
-    electionData = await elRes.json();
-    statsData = statsRes.ok ? await statsRes.json() : null;
-
-    // Update status badge
-    const isOpen = electionData.status === 'OPEN';
-    const badge = document.getElementById('election-status-badge');
-    badge.textContent = isOpen ? 'ELECTION: OPEN' : 'ELECTION: CLOSED';
-    badge.parentElement.className = `flex items-center gap-1.5 ${isOpen ? 'bg-emerald-50 border-emerald-200' : 'bg-red-50 border-red-200'} border rounded-full px-2.5 py-0.5`;
-    badge.className = `text-[11px] font-mono font-bold ${isOpen ? 'text-emerald-700' : 'text-red-700'} tracking-wider`;
-
-    // Update vote count from stats
-    updateVoteCounter(statsData?.castVotes ?? 0);
-
-    // Populate party filter dropdown
-    const select = document.getElementById('party-filter');
-    // Clear existing options (except "All")
-    while(select.options.length > 1) select.remove(1);
-    (electionData.candidates || []).forEach(c => {
-      const opt = document.createElement('option');
-      opt.value = c.party;
-      opt.textContent = c.party;
-      select.appendChild(opt);
-    });
-
-    document.getElementById('loading-state').classList.add('hidden');
-    document.getElementById('candidate-grid').classList.remove('hidden');
-
-    renderCards();
-    renderCandidatesDirectory();
-    renderLeaderboard();
-    loadBBReceipts();
-    loadBottomLeaderboard();
-
-  } catch(err) {
-    document.getElementById('loading-state').classList.add('hidden');
-    document.getElementById('error-state').classList.remove('hidden');
-    document.getElementById('error-msg').textContent = err.message;
-    console.error('Election load error:', err);
-  }
-}
-
-function updateVoteCounter(count) {
-  document.getElementById('header-total-votes').textContent = Number(count).toLocaleString();
-}
-
-// =========================================================
-//  RENDER CANDIDATE CARDS
-// =========================================================
-function renderCards() {
-  if (!electionData?.candidates) return;
-  const container = document.getElementById('candidate-grid');
-  const candidates = electionData.candidates.filter(c => {
-    const m = searchQuery.toLowerCase();
-    const matchSearch = !m || c.party.toLowerCase().includes(m) || (c.name && c.name.toLowerCase().includes(m));
-    const matchFilter = partyFilter === 'All' || c.party === partyFilter;
-    return matchSearch && matchFilter;
-  });
-
-  if(candidates.length === 0) {
-    container.innerHTML = `<div class="col-span-full bg-white p-12 rounded-xl border border-slate-200 text-center space-y-2"><p class="text-sm font-bold text-slate-700">No candidates match your filter.</p></div>`;
-    return;
-  }
-
-  container.innerHTML = candidates.map(cand => {
-    const meta = getMeta(cand);
-    const displayName = (cand.name && cand.name !== 'Party Nominee (Configurable by Admin)') ? cand.name : meta.name;
-    return `
-    <div class="bg-white rounded-xl border border-slate-200 hover:border-slate-300 shadow-xs hover:shadow-md transition-all duration-200 overflow-hidden flex flex-col group avatar-hover">
-      <div class="h-1.5 w-full ${meta.topBar}"></div>
-      <div class="p-5 flex-1 flex flex-col justify-between space-y-4">
-        <div class="flex items-center justify-between">
-          <span class="text-[11px] font-bold px-2.5 py-0.5 rounded-full border ${meta.badgeBg}">${cand.party}</span>
-          <span class="text-xl p-1 bg-slate-50 rounded-md border border-slate-100">${meta.emoji}</span>
+  <!-- Clean Minimalist Footer -->
+  <footer class="site-footer-fluid">
+    <div class="footer-container">
+      <div class="footer-grid">
+        <div class="footer-col-main">
+          <span class="footer-brand-title">Matdaan.</span>
+          <p class="footer-mission-text">
+            Sovereign electronic balloting system for the Republic of India. Engineered with standard Java Enterprise Architecture and modern web standards.
+          </p>
         </div>
-        <div class="flex flex-col items-center text-center space-y-2">
-          <div class="relative">
-            <div class="w-20 h-20 rounded-full border-2 border-slate-100 shadow-xs overflow-hidden">
-              <img src="${meta.avatar}" alt="${displayName}" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" onerror="this.src='https://placehold.co/200x200?text=${encodeURIComponent(meta.label)}'"/>
-            </div>
-            <div class="absolute bottom-0 right-0 w-5 h-5 rounded-full bg-white border border-slate-200 flex items-center justify-center shadow-xs">
-              <svg class="w-3.5 h-3.5 ${meta.textColor}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-            </div>
-          </div>
-          <div>
-            <h3 class="text-base font-bold text-slate-900 group-hover:text-indigo-700 transition-colors">${displayName}</h3>
-            <div class="flex flex-wrap justify-center gap-1 mt-1">
-              ${meta.tags.map(t => `<span class="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded">${t}</span>`).join('')}
-            </div>
-          </div>
+
+        <div class="footer-col-nav">
+          <span class="footer-heading">NAVIGATION</span>
+          <a href="#home" class="footer-link">Overview</a>
+          <a href="#how-it-works" class="footer-link">Process</a>
+          <a href="#security-trust" class="footer-link">Architecture</a>
+          <a href="#register" class="footer-link">Enroll as Elector</a>
+          <a href="#login" class="footer-link">Voter Sign In</a>
+          <a href="#verify" class="footer-link">Verify Receipt</a>
+          <a href="#admin" class="footer-link">Officer Portal</a>
         </div>
-        <p class="text-xs text-slate-500 italic text-center leading-relaxed bg-slate-50 p-2.5 rounded-lg border border-slate-100">"${meta.agenda}"</p>
-        <div class="pt-1 border-t border-slate-100 text-[10px] font-mono text-slate-400 flex justify-between">
-          <span>ID: #${cand.id}</span><span>${cand.constituency || 'National Constituency'}</span>
+
+        <div class="footer-col-legal">
+          <span class="footer-heading">GOVERNANCE</span>
+          <p class="footer-legal-copy">
+            Representation of the People Act, 1950 &bull; Conduct of Elections Rules, 1961 (Section 49A) &bull; Article 326 of the Constitution of India.
+          </p>
+          <button type="button" id="btn-reset-demo" class="btn-reset-plain">Reset Demonstration Data</button>
         </div>
       </div>
-      <div class="p-4 bg-slate-50/50 border-t border-slate-100">
-        <button onclick="handleVote(${cand.id})" class="btn-press w-full py-3 px-4 rounded-xl font-bold text-xs flex items-center justify-center gap-2 text-white shadow-xs transition ${meta.btn}">
-          <span>VOTE NOW</span>
-          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
-        </button>
+
+      <div class="footer-sub-bar">
+        <span>Educational simulation &bull; Java Project &bull; Not officially connected to the Election Commission of India.</span>
+        <span>&copy; 2026 Matdaan Project &bull; All Rights Reserved</span>
       </div>
-    </div>`;
-  }).join('');
-}
+    </div>
+  </footer>
 
-function onSearch(v) { searchQuery = v; renderCards(); }
-function onFilter(v) { partyFilter = v; renderCards(); }
-
-// =========================================================
-//  FULL VOTING FLOW — backend wired
-// =========================================================
-async function handleVote(candidateId) {
-  const overlay = document.getElementById('voting-overlay');
-  const stepEl  = document.getElementById('voting-step');
-  overlay.classList.remove('hidden');
-
-  try {
-    // Step 1: Demo Auth
-    stepEl.textContent = 'Authenticating voter identity...';
-    const authRes = await fetch('/api/web/demo-auth', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ demoVoterId: 'DEMO-IND-9042' })
-    });
-    const authData = await authRes.json();
-    if (!authRes.ok) throw new Error(authData.error || 'Authentication failed');
-    const sessionToken = authData.sessionToken;
-
-    // Update voter badge
-    document.getElementById('voter-id-label').textContent = 'Voter ID #9042';
-    document.getElementById('voter-id-initials').textContent = 'VK';
-
-    // Step 2: Request Blind Token
-    stepEl.textContent = 'Issuing RSA blind-signed ballot token...';
-    const tokenRes = await fetch('/api/web/request-token', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${sessionToken}` }
-    });
-    const tokenData = await tokenRes.json();
-    if (!tokenRes.ok) throw new Error(tokenData.error || 'Token issuance failed');
-
-    // Update test compat
-    document.getElementById('fallback-cand-radio').value = candidateId;
-
-    // Step 3: Cast Vote
-    stepEl.textContent = 'Encrypting ballot & appending to Merkle ledger...';
-    const castRes = await fetch('/api/web/cast-vote', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        candidateId: parseInt(candidateId),
-        tokenPlain: tokenData.tokenPlain,
-        signature: tokenData.signature
-      })
-    });
-    const castData = await castRes.json();
-    if (!castRes.ok) throw new Error(castData.error || 'Vote submission failed');
-
-    overlay.classList.add('hidden');
-
-    // Store for compat
-    lastReceiptHash = castData.receiptHash;
-    lastBlockHeight = castData.blockHeight;
-    document.getElementById('receipt-hash').textContent = castData.receiptHash;
-    document.getElementById('receipt-height').textContent = `#${castData.blockHeight}`;
-
-    // Play audio + confetti
-    playChime();
-    if (typeof confetti === 'function') {
-      confetti({ particleCount: 130, spread: 80, origin: { y: 0.6 }, colors: ['#4f46e5','#f59e0b','#10b981','#06b6d4','#f43f5e'] });
-    }
-
-    // Show modal
-    const cand = electionData.candidates.find(c => c.id === parseInt(candidateId));
-    const meta = cand ? getMeta(cand) : DEFAULT_META;
-    const displayName = (cand?.name && cand.name !== 'Party Nominee (Configurable by Admin)') ? cand.name : meta.name;
-    document.getElementById('modal-party-name').textContent = cand?.party || '—';
-    document.getElementById('modal-candidate-name').textContent = displayName;
-    document.getElementById('modal-receipt-hash').textContent = castData.receiptHash;
-    document.getElementById('modal-block-height').textContent = `Block: #${castData.blockHeight}`;
-    document.getElementById('modal-timestamp').textContent = new Date().toLocaleTimeString();
-    document.getElementById('receipt-modal').classList.remove('hidden');
-
-    // Refresh vote count from backend
-    fetch('/api/admin/stats').then(r => r.json()).then(s => updateVoteCounter(s.castVotes || 0)).catch(()=>{});
-
-    // Refresh bottom leaderboard & receipts
-    loadBottomLeaderboard();
-    loadBBReceipts();
-
-  } catch(err) {
-    overlay.classList.add('hidden');
-    alert(`⚠️ Voting Failed: ${err.message}`);
-    console.error('Vote error:', err);
-  }
-}
-
-function closeReceiptModal() {
-  document.getElementById('receipt-modal').classList.add('hidden');
-}
-
-function verifyFromModal() {
-  closeReceiptModal();
-  document.getElementById('verify-input-main').value = lastReceiptHash;
-  switchTab('verify');
-  runVerify();
-}
-
-// =========================================================
-//  VERIFY TAB
-// =========================================================
-async function runVerify() {
-  const hash = document.getElementById('verify-input-main').value.trim() || document.getElementById('verify-input').value.trim();
-  if (!hash) return;
-  const out = document.getElementById('verify-output');
-  out.classList.remove('hidden');
-  out.innerHTML = '<p class="text-xs text-slate-400 animate-pulse">Verifying Merkle inclusion proof...</p>';
-
-  try {
-    const res = await fetch(`/api/web/verify/${hash}`);
-    const data = await res.json();
-
-    if (data.status === 'VERIFIED') {
-      out.innerHTML = `
-        <div class="p-4 rounded-lg bg-emerald-50 border border-emerald-200 space-y-2">
-          <div class="flex items-center gap-2 text-emerald-800 font-bold text-sm"><svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>Cryptographically Verified in Ledger</div>
-          <div class="font-mono text-xs text-emerald-700 space-y-1">
-            <div>Block Height: <strong>#${data.blockHeight}</strong></div>
-            <div>Merkle Tree Size: <strong>${data.treeSize} blocks</strong></div>
-            <div class="break-all">Merkle Root: <strong>${data.merkleRoot}</strong></div>
-          </div>
-        </div>`;
-    } else if (data.status === 'PENDING_INCLUSION') {
-      out.innerHTML = `<div class="p-4 rounded-lg bg-amber-50 border border-amber-200 text-amber-800 text-xs">⏳ Recorded at block #${data.blockHeight} — checkpoint pending.</div>`;
-    } else {
-      out.innerHTML = `<div class="p-4 rounded-lg bg-red-50 border border-red-200 text-red-700 text-xs">❌ Receipt not found in the ledger.</div>`;
-    }
-  } catch(e) {
-    out.innerHTML = `<div class="p-4 rounded-lg bg-red-50 border border-red-200 text-red-700 text-xs">Network error: ${e.message}</div>`;
-  }
-}
-
-async function loadBBReceipts() {
-  const container = document.getElementById('bb-receipts-container');
-  if (!container) return;
-  try {
-    const res = await fetch('/bb/receipts');
-    const hashes = await res.json();
-    if (hashes.length === 0) {
-      container.innerHTML = '<p class="text-xs text-slate-400 italic">No votes have been cast yet.</p>';
-      return;
-    }
-    container.innerHTML = hashes.map(h => `
-      <div class="flex items-center justify-between py-1.5 border-b border-slate-100 text-xs">
-        <span class="font-mono text-slate-500 truncate mr-2">${h}</span>
-        <button onclick="document.getElementById('verify-input-main').value='${h}'; runVerify();" class="text-indigo-600 hover:text-indigo-800 font-bold shrink-0 underline">Verify</button>
-      </div>
-    `).join('');
-  } catch(e) {
-    container.innerHTML = `<p class="text-xs text-red-500">Could not load receipts: ${e.message}</p>`;
-  }
-}
-
-// =========================================================
-//  BOTTOM ANALYTICS — wired to backend
-// =========================================================
-async function loadBottomLeaderboard() {
-  const container = document.getElementById('bottom-view-leaderboard');
-  if (!container || !electionData?.candidates) return;
-  try {
-    // Load receipts from BB to count per candidate (best effort)
-    const [rcptRes, statsRes] = await Promise.all([
-      fetch('/bb/receipts').catch(() => null),
-      fetch('/api/admin/stats').catch(() => null)
-    ]);
-    const totalVotes = statsRes?.ok ? (await statsRes.json()).castVotes || 0 : 0;
-    updateVoteCounter(totalVotes);
-
-    // Render candidates in DB order with styled bars
-    const colors = ['bg-orange-500','bg-sky-500','bg-yellow-400','bg-teal-500','bg-blue-600','bg-green-600'];
-    container.innerHTML = electionData.candidates.map((cand, i) => {
-      const meta = getMeta(cand);
-      return `
-        <div class="flex items-center gap-4 bg-slate-50 p-3 rounded-lg border border-slate-100">
-          <span class="text-xl">${meta.emoji}</span>
-          <div class="flex-1 min-w-0">
-            <div class="flex justify-between text-xs mb-1">
-              <span class="font-bold text-slate-800 truncate">${cand.party}</span>
-              <span class="font-mono text-slate-500 shrink-0 ml-2 text-[10px]">Active Ballot</span>
-            </div>
-            <div class="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden">
-              <div class="h-full rounded-full ${meta.topBar}" style="width:${Math.max(10, 90 - i*12)}%"></div>
-            </div>
-          </div>
-        </div>`;
-    }).join('');
-  } catch(e) {
-    container.innerHTML = `<p class="text-xs text-red-500">Could not load live data: ${e.message}</p>`;
-  }
-
-  // Also refresh audit feed
-  try {
-    const rcptRes = await fetch('/bb/receipts');
-    const hashes = await rcptRes.json();
-    const auditContainer = document.getElementById('bottom-recent-list');
-    if (auditContainer) {
-      if (hashes.length === 0) {
-        auditContainer.innerHTML = '<p class="text-xs text-slate-400 italic">No votes yet.</p>';
-      } else {
-        auditContainer.innerHTML = hashes.slice(0, 5).map((h, i) => `
-          <div class="flex items-center justify-between bg-slate-50 p-2.5 rounded-lg border border-slate-200 text-xs">
-            <div class="flex items-center gap-2.5">
-              <svg class="w-4 h-4 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-              <span class="font-bold text-slate-700">Verified Ballot Recorded</span>
-            </div>
-            <div class="flex items-center gap-3">
-              <span class="font-mono text-slate-500 text-[11px] bg-slate-200/60 px-2 py-0.5 rounded">${h.slice(0,10)}...${h.slice(-6)}</span>
-              <button onclick="document.getElementById('verify-input-main').value='${h}'; switchTab('verify'); runVerify();" class="text-indigo-600 text-[10px] font-bold underline">Verify</button>
-            </div>
-          </div>
-        `).join('');
-      }
-    }
-  } catch(e) {}
-}
-
-// =========================================================
-//  CANDIDATES DIRECTORY TAB
-// =========================================================
-function renderCandidatesDirectory() {
-  const container = document.getElementById('candidates-directory-grid');
-  if (!container || !electionData?.candidates) return;
-  container.innerHTML = electionData.candidates.map(cand => {
-    const meta = getMeta(cand);
-    const displayName = (cand.name && cand.name !== 'Party Nominee (Configurable by Admin)') ? cand.name : meta.name;
-    return `
-      <div class="bg-white border border-slate-200 p-6 rounded-xl shadow-xs flex gap-5">
-        <img src="${meta.avatar}" alt="${displayName}" class="w-20 h-20 rounded-xl object-cover border border-slate-200 shrink-0" onerror="this.src='https://placehold.co/200x200?text=${encodeURIComponent(meta.label)}'"/>
-        <div class="space-y-2 flex-1 min-w-0">
-          <div class="flex items-center justify-between">
-            <h3 class="text-base font-bold text-slate-900 truncate">${displayName}</h3>
-            <span class="text-xl">${meta.emoji}</span>
-          </div>
-          <span class="inline-block text-xs font-bold ${meta.textColor}">${cand.party}</span>
-          <p class="text-xs text-slate-600 bg-slate-50 p-2.5 rounded-lg border border-slate-100">${meta.agenda}</p>
-          <div class="flex flex-wrap gap-1">${meta.tags.map(t=>`<span class="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded">${t}</span>`).join('')}</div>
-          <div class="flex items-center justify-between pt-1 text-xs text-slate-500">
-            <span class="font-mono">ID: #${cand.id} | ${cand.constituency || 'National'}</span>
-            <button onclick="switchTab('dashboard'); setTimeout(()=>handleVote(${cand.id}),200)" class="px-3 py-1 bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-md font-sans font-bold hover:bg-indigo-100 text-xs transition">Vote</button>
-          </div>
-        </div>
-      </div>`;
-  }).join('');
-}
-
-// =========================================================
-//  LEADERBOARD TAB — from backend stats
-// =========================================================
-function renderLeaderboard() {
-  const tbody = document.getElementById('leaderboard-table-body');
-  if (!tbody || !electionData?.candidates) return;
-  tbody.innerHTML = electionData.candidates.map((cand, idx) => {
-    const meta = getMeta(cand);
-    const displayName = (cand.name && cand.name !== 'Party Nominee (Configurable by Admin)') ? cand.name : meta.name;
-    return `
-      <tr class="hover:bg-slate-50/80">
-        <td class="p-4 font-bold font-mono text-indigo-600">#${idx + 1}</td>
-        <td class="p-4 flex items-center gap-3">
-          <img src="${meta.avatar}" class="w-8 h-8 rounded-full object-cover border border-slate-200" onerror="this.src='https://placehold.co/100x100?text=${encodeURIComponent(meta.label)}'"/>
-          <div>
-            <div class="font-bold text-slate-800">${displayName}</div>
-            <div class="text-[10px] text-slate-400">${cand.constituency || 'National'}</div>
-          </div>
-        </td>
-        <td class="p-4"><span class="font-semibold ${meta.textColor}">${cand.party}</span></td>
-        <td class="p-4 text-right">
-          <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold ${meta.badgeBg}">${meta.label}</span>
-        </td>
-      </tr>`;
-  }).join('');
-}
-
-// =========================================================
-//  BOTTOM TAB SWITCHING
-// =========================================================
-function switchBottomTab(tab) {
-  ['leaderboard','recent','guide'].forEach(t => {
-    document.getElementById(`bottom-view-${t}`)?.classList.add('hidden');
-    const btn = document.getElementById(`bottom-tab-${t}`);
-    if (btn) btn.className = 'px-3.5 py-1.5 rounded-md text-xs font-semibold text-slate-600 hover:text-slate-900 transition-all';
-  });
-  document.getElementById(`bottom-view-${tab}`)?.classList.remove('hidden');
-  const activeBtn = document.getElementById(`bottom-tab-${tab}`);
-  if (activeBtn) activeBtn.className = 'px-3.5 py-1.5 rounded-md text-xs font-semibold bg-white text-indigo-700 shadow-xs transition-all';
-}
-
-// =========================================================
-//  SIDEBAR NAVIGATION
-// =========================================================
-function switchTab(tabId) {
-  ['dashboard','candidates','leaderboard','verify','about'].forEach(t => {
-    document.getElementById(`tab-${t}`)?.classList.add('hidden');
-    const btn = document.getElementById(`nav-${t}`);
-    if (btn) btn.className = 'nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-semibold text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-all';
-  });
-  document.getElementById(`tab-${tabId}`)?.classList.remove('hidden');
-  const activeBtn = document.getElementById(`nav-${tabId}`);
-  if (activeBtn) activeBtn.className = 'nav-btn active-nav w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-semibold transition-all bg-indigo-50 text-indigo-700 border-l-4 border-indigo-600 shadow-xs';
-
-  if (tabId === 'verify') { loadBBReceipts(); }
-  if (tabId === 'leaderboard') { renderLeaderboard(); }
-  if (tabId === 'candidates') { renderCandidatesDirectory(); }
-}
-
-// =========================================================
-//  STARTUP
-// =========================================================
-document.addEventListener('DOMContentLoaded', () => {
-  loadElection();
-  // Refresh vote counter every 30 seconds
-  setInterval(() => {
-    fetch('/api/admin/stats').then(r => r.json()).then(s => updateVoteCounter(s.castVotes || 0)).catch(()=>{});
-  }, 30000);
-});
-</script>
+  <script src="app.js"></script>
 </body>
 </html>

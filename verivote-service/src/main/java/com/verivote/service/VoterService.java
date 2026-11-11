@@ -43,8 +43,13 @@ public class VoterService {
      */
     @Transactional
     public byte[] register(String nationalId, String displayName, String password) {
+        return register(nationalId, displayName, password, null, null);
+    }
+
+    @Transactional
+    public byte[] register(String nationalId, String displayName, String password, Integer age, String state) {
         String hmac = computeNationalIdHmac(nationalId);
-        if (voterRepo.findByNationalIdHmac(hmac).isPresent()) {
+        if (voterRepo.findByNationalIdHmac(hmac).isPresent() || (nationalId != null && voterRepo.findByVoterId(nationalId).isPresent())) {
             throw new IllegalStateException("national id already registered");
         }
 
@@ -53,6 +58,9 @@ public class VoterService {
         rnd.nextBytes(totpSecret);
 
         Voter voter = new Voter(hmac, displayName, passwordHash, totpSecret);
+        voter.setVoterId(nationalId);
+        voter.setAge(age);
+        voter.setState(state);
         try {
             voterRepo.saveAndFlush(voter);
             return totpSecret;
@@ -70,6 +78,9 @@ public class VoterService {
     public Long verifyPassword(String nationalId, String password) {
         String hmac = computeNationalIdHmac(nationalId);
         Optional<Voter> voterOpt = voterRepo.findByNationalIdHmac(hmac);
+        if (voterOpt.isEmpty()) {
+            voterOpt = voterRepo.findByVoterId(nationalId);
+        }
         if (voterOpt.isEmpty()) {
             throw new IllegalArgumentException("invalid credentials");
         }

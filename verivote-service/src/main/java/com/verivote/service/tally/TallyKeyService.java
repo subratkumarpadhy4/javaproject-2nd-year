@@ -34,6 +34,35 @@ public class TallyKeyService {
         }
     }
 
+    /**
+     * Load the tally key pair from {@code keyFile} (PKCS#8 private key) if it exists,
+     * otherwise persist the current in-memory key there. Without this, every restart
+     * generates a fresh key and ballots stored in a persistent database become
+     * undecryptable. Demo-grade: the private key is stored unencrypted on disk.
+     */
+    public synchronized void loadOrPersist(java.nio.file.Path keyFile) {
+        try {
+            if (java.nio.file.Files.exists(keyFile)) {
+                byte[] pkcs8 = java.nio.file.Files.readAllBytes(keyFile);
+                KeyFactory kf = KeyFactory.getInstance("RSA");
+                java.security.interfaces.RSAPrivateCrtKey priv =
+                        (java.security.interfaces.RSAPrivateCrtKey) kf.generatePrivate(new PKCS8EncodedKeySpec(pkcs8));
+                PublicKey pub = kf.generatePublic(
+                        new java.security.spec.RSAPublicKeySpec(priv.getModulus(), priv.getPublicExponent()));
+                this.tallyKeyPair = new java.security.KeyPair(pub, priv);
+                this.shares = Shamir.split(pkcs8, 3, 2, new SecureRandom());
+                java.util.Arrays.fill(pkcs8, (byte) 0);
+            } else {
+                if (keyFile.getParent() != null) {
+                    java.nio.file.Files.createDirectories(keyFile.getParent());
+                }
+                java.nio.file.Files.write(keyFile, tallyKeyPair.getPrivate().getEncoded());
+            }
+        } catch (Exception e) {
+            throw new IllegalStateException("Unable to load or persist tally key at " + keyFile, e);
+        }
+    }
+
     public byte[] getPublicKeySpki() {
         return tallyKeyPair.getPublic().getEncoded();
     }
