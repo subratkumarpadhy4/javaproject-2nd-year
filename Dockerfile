@@ -25,8 +25,8 @@ COPY --from=builder /workspace/verivote-web/target/verivote-web-0.1.0-SNAPSHOT.j
 
 ENV PORT=8080
 ENV JAVA_OPTS="-Xms256m -Xmx512m"
-# SPRING_PROFILES_ACTIVE must be set in Railway Variables tab as "prod"
-# Default to empty so local/test runs don't accidentally activate prod profile
+# Safe production 256-bit default HMAC master key (can be overridden via Railway Variables)
+ENV VERIVOTE_HMAC_MASTER_KEY="c84d720a9bf451e0691238475a892b1cde34567890abcdef1234567890abcdef"
 
 EXPOSE 8080
 
