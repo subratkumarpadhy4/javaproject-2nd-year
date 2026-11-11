@@ -200,6 +200,29 @@ The election private key ($2048$-bit RSA PKCS#8 private key) is split at electio
 $$P(0) = \sum_{j=1}^{k} y_j \prod_{\substack{m=1 \\ m \neq j}}^{k} \frac{-x_m}{x_j - x_m} \pmod{\text{GF}(256)}$$
 - Individual key shares reveal zero information regarding the private key ($\mathcal{H}(\text{Key} \mid \text{Share}_1) = \mathcal{H}(\text{Key})$).
 
+### 4.5 Voter Details Protection, PII Isolation & Credential Cryptography
+Protecting citizen identities, voter records (PII), and authentication credentials is a core security pillar of VeriVote-J:
+
+1. **Zero Foreign-Key Namespace Isolation**:
+   - The `voter` table stores eligible citizen registration records (National ID / EPIC, full name, constituency, and eligibility flags).
+   - The schema enforces **strict structural zero-linkage**: there are no foreign keys, relational joins, or audit references connecting the `voter` table to the `vote` table, `spent_token` registry, or the append-only ledger blocks (`blocks.ndjson`).
+   - The only state changed upon credential issuance is the boolean flag `has_voted = TRUE` and `token_issued_at`. Once marked, it is mathematically impossible for any database query or administrator to correlate a voter record with a specific cast ballot.
+
+2. **Salted Credential & Password Hashing**:
+   - Registered voter passwords and operator authentication secrets are secured using salted one-way cryptographic hashing, preventing credential exposure even in the event of an unauthorized database dump.
+
+3. **HMAC-SHA256 Voter Token Authentication (`VERIVOTE_HMAC_MASTER_KEY`)**:
+   - Voter authorization tokens and session signatures are validated using an authenticated HMAC-SHA256 construction governed by the `VERIVOTE_HMAC_MASTER_KEY`.
+   - In production, the system strictly enforces a high-entropy 256-bit (64 hexadecimal character) master key. Startup will **fail fast** if the key is missing, blank, malformed, or using default development values, preventing session forgery or token tampering.
+
+4. **Cryptographic Blinding Severance**:
+   - Voter authentication only authorizes the signing of a client-blinded token hash $m^* = (m \cdot r^e) \pmod N$. The server never observes the plaintext voting token $m$ or blinding factor $r$.
+   - When the ballot is subsequently cast, it is submitted over an unauthenticated endpoint presenting only the unblinded signature and RSA-OAEP encrypted ciphertext. The voter's real-world identity is never transmitted with the vote.
+
+5. **In-Flight Encryption & Masked UI Presentation**:
+   - All network exchanges occur over TLS 1.3 / HTTPS.
+   - Voter identification numbers (such as EPIC cards) are masked on verification views and receipt summaries (e.g., `IND-****-8842`) to protect privacy against shoulder-surfing and client-side observation.
+
 ---
 
 ## 5. Append-Only Ledger & RFC 6962 Merkle Engine
@@ -590,14 +613,46 @@ mvn javafx:run -pl verivote-client
 mvn exec:java -pl verivote-client -Dexec.mainClass="com.verivote.client.admin.AdminApp"
 ```
 
-### 12.5 Docker Production Container
-```bash
-# Build multi-stage Docker container
-docker build -t verivote-backend:latest .
+### 12.5 Production Docker Security & Container Hardening Architecture
 
-# Run container with dynamic port mapping
-docker run -p 8080:8080 -e PORT=8080 verivote-backend:latest
-```
+VeriVote-J’s containerization strategy follows enterprise zero-trust principles:
+
+1. **Multi-Stage Build Isolation**:
+   - The [`Dockerfile`](Dockerfile) uses a two-stage build pipeline:
+     - **Stage 1 (Builder)**: Uses `maven:3.9.9-eclipse-temurin-21` to compile the multi-module Java 21 codebase and execute tests.
+     - **Stage 2 (Runtime)**: Extracts only the final repackaged artifact (`verivote-web.jar`) into an official, lightweight `eclipse-temurin:21-jre` runtime base image.
+   - **Zero Build Tool Leakage**: Compilers, Maven dependencies, intermediate `.class` files, git metadata, and local source repositories are completely excluded from the runtime container image, minimizing the potential attack surface.
+
+2. **Persistent Volume Isolation (`/data`)**:
+   - In accordance with the append-only ledger security model, cryptographic state is decoupled from the ephemeral container lifecycle:
+     - Append-only block ledger: `/data/ledger/blocks.ndjson`
+     - Signed digital checkpoints: `/data/ledger/checkpoints`
+   - Mounting a persistent volume at `/data` ensures that container restarts, deployments, or rollbacks cannot delete or truncate historical election proofs or audit trails.
+
+3. **Zero Hardcoded Secrets & Dynamic Environment Injection**:
+   - The Docker image contains **zero embedded credentials, database passwords, or private cryptographic keys**.
+   - All sensitive runtime variables are injected dynamically at container startup:
+     ```bash
+     docker run -d \
+       -p 8080:8080 \
+       -e PORT=8080 \
+       -e SPRING_PROFILES_ACTIVE=prod \
+       -e DATABASE_URL="postgresql://user:pass@host:5432/verivotedb" \
+       -e VERIVOTE_HMAC_MASTER_KEY="0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef" \
+       -v verivote-ledger-data:/data \
+       --name verivote-prod \
+       verivote-backend:latest
+     ```
+
+4. **Resource Constraints & Denial-of-Service (DoS) Defense**:
+   - The runtime container specifies strict JVM memory boundaries:
+     ```bash
+     JAVA_OPTS="-Xms256m -Xmx512m"
+     ```
+   - This prevents out-of-memory container thrashing, ensures deterministic heap allocation, and isolates the application from host-level memory starvation attacks.
+
+5. **Headless Execution & Attack Surface Minimization**:
+   - Uses headless JRE 21 with no graphical subsystem or unnecessary system utilities, drastically reducing the package surface area eligible for Common Vulnerabilities and Exposures (CVEs).
 
 ---
 
