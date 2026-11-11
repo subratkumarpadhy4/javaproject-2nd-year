@@ -30,4 +30,4 @@ ENV VERIVOTE_HMAC_MASTER_KEY="c84d720a9bf451e0691238475a892b1cde34567890abcdef12
 
 EXPOSE 8080
 
-ENTRYPOINT ["sh", "-c", "HMAC_KEY=${VERIVOTE_HMAC_MASTER_KEY:-c84d720a9bf451e0691238475a892b1cde34567890abcdef1234567890abcdef}; [ -z \"$HMAC_KEY\" ] && HMAC_KEY=c84d720a9bf451e0691238475a892b1cde34567890abcdef1234567890abcdef; exec java $JAVA_OPTS -Dserver.port=${PORT:-8080} -Dverivote.crypto.hmac-master-key=$HMAC_KEY -DVERIVOTE_HMAC_MASTER_KEY=$HMAC_KEY ${SPRING_PROFILES_ACTIVE:+-Dspring.profiles.active=${SPRING_PROFILES_ACTIVE}} -jar /app/verivote-web.jar"]
+ENTRYPOINT ["sh", "-c", "HMAC_KEY=\"${VERIVOTE_HMAC_MASTER_KEY}\"; if [ -z \"$HMAC_KEY\" ] || [ ${#HMAC_KEY} -lt 64 ] || [ \"$HMAC_KEY\" = \"0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef\" ]; then HMAC_KEY=\"a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e5f60718293a4b5c6d7e8f90\"; fi; export VERIVOTE_HMAC_MASTER_KEY=\"$HMAC_KEY\"; exec java $JAVA_OPTS -Dserver.port=${PORT:-8080} -Dverivote.crypto.hmac-master-key=\"$HMAC_KEY\" -DVERIVOTE_HMAC_MASTER_KEY=\"$HMAC_KEY\" ${SPRING_PROFILES_ACTIVE:+-Dspring.profiles.active=${SPRING_PROFILES_ACTIVE}} -jar /app/verivote-web.jar"]
