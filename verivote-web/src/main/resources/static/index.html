@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>VeriVote-J | Indian Election Experience (Educational Demonstration)</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,500;0,6..72,600;1,6..72,500&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -42,86 +43,152 @@
       box-shadow: 0 0 0 2px rgba(15, 23, 42, 0.15), 0 0 0 1px #0f172a;
     }
 
+    /* Gamified Hype Candidate Cards & Floating Animation */
+    @keyframes floatLeader {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-7px) rotate(0.4deg); }
+    }
+    .float-leader {
+      animation: floatLeader 3.6s ease-in-out infinite;
+    }
+    .glass-card {
+      background: rgba(15, 23, 42, 0.7);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+
     /* Candidate / Party EVM-style row selection */
     .party-row {
-      transition: all 120ms ease-in-out;
+      transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
     }
     .party-row.selected {
-      background-color: #f1f5f9;
-      border-color: #0f172a;
+      border-color: #10b981 !important;
+      box-shadow: 0 0 35px rgba(16, 185, 129, 0.45) !important;
     }
-    .party-row.selected .party-radio-dot {
-      background-color: #0284c7;
-      border-color: #0284c7;
-      box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.2);
+    .party-row.dimmed {
+      opacity: 0.35;
+      filter: grayscale(80%);
+      pointer-events: none;
     }
   </style>
 </head>
-<body class="bg-[#fafaf9] text-[#0f172a] min-h-screen flex flex-col antialiased selection:bg-slate-200 selection:text-slate-900">
+<body class="bg-slate-50 text-slate-800 min-h-screen flex antialiased select-none overflow-hidden">
 
-  <!-- Top Educational Disclaimer Strip (Neutral & Institutional) -->
-  <aside class="bg-amber-50 border-b border-amber-200 text-amber-950 px-4 py-2 text-xs">
-    <div class="max-w-5xl mx-auto flex items-center justify-between gap-3">
-      <div class="flex items-center space-x-2">
-        <svg class="w-4 h-4 text-amber-700 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
-        </svg>
-        <span class="font-medium"><strong>Independent Educational Voting Demonstration — Not an Official Election.</strong> Inspired by public election services for academic and research evaluation.</span>
-      </div>
-      <span class="text-[11px] font-mono uppercase tracking-wide text-amber-800 font-semibold hidden md:inline">DEMO ONLY</span>
-    </div>
-  </aside>
-
-  <!-- Institutional Top Header -->
-  <header class="bg-white border-b border-slate-200 sticky top-0 z-50">
-    <div class="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-      
-      <!-- Brand & Educational Identity -->
-      <div class="flex items-center space-x-3.5">
-        <div class="w-9 h-9 rounded bg-[#0f172a] text-white flex items-center justify-center font-serif text-lg font-bold shadow-sm">
-          <svg class="w-5 h-5 text-slate-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-          </svg>
+  <!-- ==================== COMPONENT 1: LEFT SIDEBAR ==================== -->
+  <aside class="w-64 bg-white border-r border-slate-200 flex flex-col justify-between p-5 z-20 shrink-0 shadow-sm hidden md:flex h-screen">
+    <div>
+      <!-- Logo Header -->
+      <div class="flex items-center gap-3 px-2 py-3 mb-6">
+        <div class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center shadow-md shadow-indigo-100 text-white">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
         </div>
         <div>
-          <div class="flex items-center space-x-2">
-            <span class="font-serif font-bold text-xl tracking-tight text-[#0f172a]">VeriVote-J</span>
-            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono font-semibold tracking-wide bg-slate-100 text-slate-700 border border-slate-200">
-              <span class="w-1.5 h-1.5 rounded-full bg-emerald-600 mr-1.5"></span>
-              NODE 01
-            </span>
-          </div>
-          <p class="text-[11px] font-medium text-slate-500 tracking-tight hidden sm:block">Indian Election Experience • Educational Demonstration</p>
+          <h1 class="text-xl font-bold tracking-tight text-slate-900 flex items-center gap-1">
+            VeriVote<span class="text-indigo-600">-J</span>
+          </h1>
+          <span class="text-[10px] text-slate-400 font-medium tracking-wider uppercase font-mono">Civic Polling</span>
         </div>
       </div>
 
-      <!-- Main Navigation Tabs -->
-      <nav class="flex items-center space-x-1 sm:space-x-1.5">
-        <button onclick="switchTab('vote')" id="nav-vote" class="btn-tactile px-3.5 py-1.5 rounded text-xs font-semibold bg-[#0f172a] text-white transition">
-          Vote Portal
+      <!-- Navigation Items -->
+      <nav class="space-y-1">
+        <button onclick="switchTab('vote')" id="nav-vote" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-150 bg-indigo-50 text-indigo-700 border-l-4 border-indigo-600 shadow-sm">
+          <svg class="w-4 h-4 text-indigo-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+          <span>Dashboard</span>
         </button>
-        <button onclick="switchTab('verify')" id="nav-verify" class="btn-tactile px-3.5 py-1.5 rounded text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition">
-          Verify Vote
+        <button onclick="switchTab('candidates')" id="nav-candidates" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition-all duration-150">
+          <svg class="w-4 h-4 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span>Candidates</span>
         </button>
-        <button onclick="switchTab('bb')" id="nav-bb" class="btn-tactile px-3.5 py-1.5 rounded text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition">
-          Bulletin Board
+        <button onclick="switchTab('leaderboard')" id="nav-leaderboard" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition-all duration-150">
+          <svg class="w-4 h-4 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.45 1-1 1H8c-.55 0-1 .45-1 1v1h10v-1c0-.55-.45-1-1-1h-1c-.55 0-1-.45-1-1v-2.34c0-.98.71-1.8 1.68-1.95A6 6 0 0 0 20 8V4H4v4c0 3.03 2.26 5.56 5.32 5.71.97.15 1.68.97 1.68 1.95Z"/></svg>
+          <span>Leaderboard</span>
         </button>
-        <button onclick="switchTab('admin')" id="nav-admin" class="btn-tactile px-3.5 py-1.5 rounded text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition flex items-center space-x-1.5 border border-slate-300">
-          <svg class="w-3.5 h-3.5 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-          </svg>
+        <button onclick="switchTab('verify')" id="nav-verify" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition-all duration-150">
+          <svg class="w-4 h-4 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
+          <span>Verify Audit</span>
+        </button>
+        <button onclick="switchTab('bb')" id="nav-bb" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition-all duration-150">
+          <svg class="w-4 h-4 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+          <span>Bulletin Board</span>
+        </button>
+        <button onclick="switchTab('admin')" id="nav-admin" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition-all duration-150">
+          <svg class="w-4 h-4 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
           <span>Admin Console</span>
         </button>
       </nav>
-
     </div>
-  </header>
 
-  <!-- Main Content Layout -->
-  <main class="flex-1 max-w-4xl w-full mx-auto p-4 sm:p-6 my-4">
+    <!-- Audio Toggle & Version Info -->
+    <div class="pt-4 border-t border-slate-200 space-y-3">
+      <button onclick="toggleSoundMute()" class="w-full flex items-center justify-between px-3 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-xs text-slate-700 transition-colors">
+        <span class="flex items-center gap-2 font-medium">
+          <span id="sidebar-sfx-icon"><svg class="w-4 h-4 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg></span>
+          Audio Chime SFX
+        </span>
+        <span id="sidebar-sfx-status" class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700">
+          ON
+        </span>
+      </button>
 
-    <!-- ==================== TAB 1: VOTE PORTAL ==================== -->
-    <section id="tab-vote" class="space-y-6">
+      <div class="px-2 text-[11px] text-slate-400 flex items-center justify-between font-mono">
+        <span>VeriVote v2.4</span>
+        <span class="flex items-center gap-1.5 text-emerald-600 font-sans font-semibold">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          Live
+        </span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ==================== MAIN CONTENT WRAPPER ==================== -->
+  <div class="flex-1 flex flex-col h-screen overflow-y-auto bg-slate-50 relative">
+
+    <!-- COMPONENT 2: STICKY TOP HEADER -->
+    <header class="sticky top-0 z-30 px-6 sm:px-8 py-3.5 bg-white/90 backdrop-blur-md border-b border-slate-200 flex items-center justify-between shadow-xs">
+      <div class="flex items-center gap-3">
+        <!-- Mobile menu hamburger -->
+        <button onclick="toggleMobileNav()" class="md:hidden p-2 rounded-lg bg-slate-100 text-slate-700">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+
+        <div class="bg-slate-100 border border-slate-200 rounded-full px-3.5 py-1 flex items-center gap-2.5">
+          <span class="text-slate-900 font-bold text-xs tracking-wide">VeriVote-J Portal</span>
+          <div class="h-3 w-[1px] bg-slate-300"></div>
+          <!-- Pulsing Emerald Election Open Badge -->
+          <div class="flex items-center gap-1.5 bg-emerald-50 border border-emerald-200 rounded-full px-2 py-0.5 shadow-xs">
+            <span class="relative flex h-2 w-2">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+            </span>
+            <span class="text-[10px] font-mono font-bold text-emerald-700 tracking-wider">ELECTION: OPEN</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <!-- Real-time Votes Cast Counter -->
+        <div class="bg-slate-100 border border-slate-200 px-3.5 py-1 rounded-full flex items-center gap-2 text-xs font-medium text-slate-600">
+          <svg class="w-3.5 h-3.5 text-indigo-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          <span class="hidden sm:inline">TOTAL VOTES CAST:</span>
+          <span id="top-total-votes" class="font-mono text-indigo-600 font-bold text-xs">11,185</span>
+        </div>
+
+        <!-- Profile Avatar Badge -->
+        <div class="flex items-center gap-2 pl-1">
+          <div class="w-7 h-7 rounded-full bg-indigo-100 border border-indigo-300 flex items-center justify-center text-[11px] font-bold text-indigo-700">
+            VK
+          </div>
+          <span id="top-voter-id" class="text-xs font-semibold text-slate-700 hidden sm:inline">Voter ID #9042</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content Layout -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-8 space-y-6">
+
+      <!-- ==================== TAB 1: VOTE PORTAL ==================== -->
+      <section id="tab-vote" class="space-y-6">
 
       <!-- STEP 0: WELCOME & EDUCATIONAL OVERVIEW -->
       <div id="welcome-card" class="bg-white border border-slate-200 p-6 sm:p-8 space-y-6">
@@ -252,26 +319,90 @@
         </button>
       </div>
 
-      <!-- STEP 3: OFFICIAL BALLOT PAPER (EVM-STYLE CITIZEN INTERFACE) -->
-      <div id="ballot-card" class="hidden bg-white border border-slate-200 p-6 sm:p-8 space-y-6">
+      <!-- STEP 3: OFFICIAL BALLOT PAPER (GAMIFIED HYPE CITIZEN INTERFACE) -->
+      <div id="ballot-card" class="hidden bg-slate-950 text-white border border-slate-800 rounded-3xl p-6 sm:p-8 space-y-6 shadow-2xl relative overflow-hidden">
         
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200 pb-3">
-          <div>
-            <span class="text-[10px] uppercase font-mono font-bold tracking-widest text-slate-500">Official Demonstration Ballot Paper</span>
-            <h2 id="ballot-election-title" class="font-serif text-[#0f172a] mt-0.5">Indian General Election Demonstration</h2>
-            <p id="ballot-constituency" class="text-xs text-slate-500 mt-0.5">National Parliamentary Constituency 01 • Select one political party / candidate</p>
-          </div>
-          <span id="ballot-status-badge" class="self-start sm:self-center px-2.5 py-1 rounded text-[11px] font-mono font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
-            ELECTION: OPEN
-          </span>
+        <!-- Ambient Background Glows -->
+        <div class="absolute -top-24 -left-24 w-72 h-72 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute -bottom-24 -right-24 w-72 h-72 bg-orange-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+        <!-- Floating Viral Catchphrase Toast -->
+        <div id="viral-toast" class="hidden fixed top-24 left-1/2 -translate-x-1/2 z-50 px-6 py-3 rounded-full bg-slate-900/95 border-2 border-emerald-400 text-white shadow-[0_0_35px_rgba(16,185,129,0.4)] items-center gap-3 backdrop-blur-xl transition-all duration-300">
+          <span class="text-xl animate-spin">✨</span>
+          <span id="viral-toast-text" class="font-black text-sm text-emerald-300 font-mono tracking-wide"></span>
         </div>
 
-        <div id="ballot-error" class="hidden p-3.5 rounded bg-red-50 border border-red-200 text-red-800 text-xs font-medium"></div>
+        <!-- Header: Title & Pulsing Neon Status -->
+        <!-- Header: Title & Search/Filter Controls -->
+        <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-4 border-b border-slate-800 pb-5">
+          <div>
+            <div class="flex items-center space-x-2">
+              <span class="text-[10px] uppercase font-mono font-bold tracking-widest text-orange-400 bg-orange-500/10 border border-orange-500/30 px-2.5 py-0.5 rounded-full">
+                Civic Tech Educational Polling
+              </span>
+            </div>
+            <h2 id="ballot-election-title" class="text-2xl sm:text-3xl font-black text-white mt-1 tracking-tight">
+              Choose Your <span class="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-white to-emerald-400">Leader</span>
+            </h2>
+            <p id="ballot-constituency" class="text-xs text-slate-400 mt-0.5">
+              Educational Voting Simulation | Review policy platforms and cast a cryptographically verified ballot.
+            </p>
+          </div>
+          
+          <!-- Search & Filter Controls -->
+          <div class="flex flex-wrap items-center gap-3">
+            <!-- Search Box -->
+            <div class="relative">
+              <svg class="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input
+                type="text"
+                id="search-input"
+                oninput="onSearchCandidates(this.value)"
+                placeholder="Search candidates..."
+                class="pl-8 pr-3 py-1.5 bg-slate-900 border border-slate-700 rounded-lg text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500 w-40 sm:w-52"
+              />
+            </div>
 
-        <!-- Dynamic List of Parties/Candidates -->
-        <div id="party-options-list" class="space-y-2">
-          <!-- Dynamically populated from /api/election -->
-          <div class="p-8 text-center text-slate-400 text-xs italic">
+            <!-- Party Filter Dropdown -->
+            <div class="flex items-center gap-1.5 bg-slate-900 border border-slate-700 rounded-lg px-2 py-1">
+              <select
+                id="party-filter"
+                onchange="onFilterParty(this.value)"
+                class="bg-transparent text-xs text-slate-300 font-medium focus:outline-none cursor-pointer"
+              >
+                <option value="All" class="bg-slate-900">All Parties</option>
+                <option value="bjp" class="bg-slate-900">BJP</option>
+                <option value="inc" class="bg-slate-900">INC</option>
+                <option value="tdp" class="bg-slate-900">TDP</option>
+                <option value="aap" class="bg-slate-900">AAP</option>
+                <option value="ysrcp" class="bg-slate-900">YSRCP</option>
+                <option value="jdu" class="bg-slate-900">JD(U)</option>
+              </select>
+            </div>
+
+            <!-- Pulsing Status Pill -->
+            <div id="ballot-status-badge" class="flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-950/80 border border-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.3)]">
+              <span class="relative flex h-2 w-2">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+              </span>
+              <span class="text-[10px] font-black tracking-widest text-emerald-300 uppercase font-mono">
+                ELECTION: OPEN
+              </span>
+            </div>
+
+            <!-- Sound Mute/Unmute Toggle -->
+            <button onclick="toggleSoundMute()" id="btn-sound-toggle" title="Toggle audio SFX" class="flex items-center justify-center w-8 h-8 rounded-lg bg-slate-900 hover:bg-slate-800 text-emerald-400 border border-slate-700 transition active:scale-95 shadow">
+              <svg class="w-4 h-4 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+            </button>
+          </div>
+        </div>
+
+        <div id="ballot-error" class="hidden p-3.5 rounded-xl bg-red-950/80 border border-red-500/50 text-red-200 text-xs font-medium"></div>
+
+        <!-- Dynamic Grid of Candidate Cards (Hype Gen-Z Responsive Grid - 3 Columns, 6 Cards) -->
+        <div id="party-options-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div class="col-span-full p-12 text-center text-slate-400 text-xs italic">
             Loading configured political parties...
           </div>
         </div>
@@ -281,88 +412,209 @@
           <input type="radio" name="candidate" value="1" id="fallback-cand-radio" checked>
         </div>
 
-        <div class="border-t border-slate-200 pt-4 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p class="text-xs text-slate-500">
-            Click any party to select, then click review to confirm before casting.
+        <div class="border-t border-slate-800/80 pt-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-slate-400 text-xs">
+          <p>
+            Click <strong class="text-white">⚡ VOTE FOR CANDIDATE</strong> to review, play audio SFX, and seal your ballot.
           </p>
-          <button onclick="openBallotConfirmation()" id="btn-review-ballot" disabled class="btn-tactile w-full sm:w-auto py-2.5 px-6 rounded bg-[#0f172a] hover:bg-slate-800 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-semibold text-xs uppercase tracking-wider transition">
-            Review & Confirm Selection →
+          <button onclick="openBallotConfirmation()" id="btn-review-ballot" disabled class="btn-tactile w-full sm:w-auto py-2.5 px-6 rounded-xl bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-800 disabled:text-slate-600 disabled:cursor-not-allowed text-white font-bold text-xs uppercase tracking-wider transition shadow-lg shadow-emerald-600/30">
+            Review & Cast Ballot →
           </button>
         </div>
 
       </div>
 
       <!-- STEP 3.5: CONFIRMATION MODAL / SCREEN (PREVENTS ACCIDENTAL SELECTION) -->
-      <div id="confirm-modal" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="bg-white border border-slate-300 max-w-md w-full p-6 shadow-xl space-y-5">
-          <div class="border-b border-slate-200 pb-3">
-            <span class="text-[10px] uppercase font-mono font-bold tracking-widest text-blue-700">Confirmation Step</span>
-            <h3 class="font-serif text-slate-900 mt-1">Review Your Ballot Selection</h3>
-            <p class="text-xs text-slate-500 mt-0.5">Please verify your chosen party before encrypting and casting into the ledger.</p>
+      <div id="confirm-modal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-700 max-w-md w-full p-6 rounded-2xl shadow-2xl space-y-5 text-white relative">
+          <div class="border-b border-slate-800 pb-3">
+            <span class="text-[10px] uppercase font-mono font-bold tracking-widest text-cyan-400">Confirmation Step</span>
+            <h3 class="text-xl font-black text-white mt-1">Review Your Ballot Selection</h3>
+            <p class="text-xs text-slate-400 mt-0.5">Please verify your chosen leader before encrypting and appending into the ledger.</p>
           </div>
 
-          <div class="p-4 bg-slate-50 rounded space-y-2">
-            <div class="flex items-center space-x-3">
-              <div id="confirm-symbol-badge" class="w-10 h-10 rounded bg-slate-100 flex items-center justify-center font-bold font-mono text-xs text-slate-800">
+          <div class="p-4 bg-slate-950 rounded-xl border border-slate-800 space-y-3">
+            <div class="flex items-center space-x-3.5">
+              <div id="confirm-symbol-badge" class="w-12 h-12 rounded-xl bg-slate-800 flex items-center justify-center font-bold text-2xl border border-slate-700">
                 SYM
               </div>
               <div>
-                <h4 id="confirm-party-name" class="font-serif font-bold text-slate-900 text-sm">Party Name</h4>
-                <p id="confirm-candidate-name" class="text-xs text-slate-600">Candidate / Nominee</p>
+                <h4 id="confirm-party-name" class="font-bold text-white text-base">Party Name</h4>
+                <p id="confirm-candidate-name" class="text-xs text-emerald-400 font-medium">Leader Nominee</p>
               </div>
             </div>
-            <div class="border-t border-slate-200 pt-2 text-[11px] text-slate-500">
-              <span class="font-medium text-slate-700">Constituency:</span> <span id="confirm-constituency">Demo Constituency</span>
+            <div class="border-t border-slate-800 pt-2 text-[11px] text-slate-400 font-mono">
+              <span class="text-slate-500">Constituency:</span> <span id="confirm-constituency" class="text-slate-300">National Demo Constituency</span>
             </div>
           </div>
 
-          <div class="text-[11px] text-slate-600 bg-amber-50 p-2.5 rounded leading-relaxed">
-            <strong>Security Notice:</strong> Your ballot will be encrypted with RSA-OAEP and sealed with your blind-signed token. Once cast, this transaction is permanent and cannot be altered.
+          <div class="text-[11px] text-slate-300 bg-slate-950/80 p-3 rounded-xl border border-slate-800 leading-relaxed font-mono">
+            <span class="text-emerald-400 font-bold">🔒 Privacy Guarantee:</span> Your vote is encrypted with 2048-bit RSA-OAEP and signed via RSA Blind Token. It is mathematically severed from your voter ID.
           </div>
 
-          <div class="flex justify-end space-x-2 pt-1">
-            <button onclick="closeBallotConfirmation()" class="btn-tactile px-4 py-2 rounded border border-slate-300 text-slate-700 hover:bg-slate-100 text-xs font-semibold">
-              Change Selection
+          <div class="flex justify-end space-x-2.5 pt-1">
+            <button onclick="closeBallotConfirmation()" class="btn-tactile px-4 py-2.5 rounded-xl border border-slate-700 text-slate-300 hover:bg-slate-800 text-xs font-semibold">
+              Cancel / Change
             </button>
-            <button onclick="castBallot()" id="btn-cast-ballot" class="btn-tactile px-5 py-2 rounded bg-emerald-800 hover:bg-emerald-900 text-white text-xs font-semibold uppercase tracking-wider">
-              Confirm & Cast Ballot
+            <button onclick="castBallot()" id="btn-cast-ballot" class="btn-tactile px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white text-xs font-black uppercase tracking-wider shadow-lg shadow-emerald-500/30">
+              Confirm & Cast Ballot ⚡
             </button>
           </div>
         </div>
       </div>
 
-      <!-- STEP 4: RECEIPT DISPLAY -->
-      <div id="receipt-card" class="hidden bg-white border border-slate-200 p-6 sm:p-8 space-y-6">
+      <!-- STEP 4: RECEIPT DISPLAY (CELEBRATORY CRYPTOGRAPHIC CONFIRMATION) -->
+      <div id="receipt-card" class="hidden bg-slate-950 text-white border-2 border-emerald-500/60 rounded-3xl p-6 sm:p-8 space-y-6 shadow-[0_0_60px_rgba(16,185,129,0.25)] text-center relative overflow-hidden">
         
-        <div class="text-center space-y-1.5">
-          <div class="w-10 h-10 mx-auto rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold">
-            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-            </svg>
-          </div>
-          <h2 class="font-serif text-slate-900">Official Ballot Cast & Sealed</h2>
-          <p class="text-xs text-slate-500">Your encrypted vote is permanently anchored in the append-only Merkle ledger</p>
+        <div class="w-16 h-16 mx-auto rounded-full bg-emerald-500/20 text-emerald-400 border-2 border-emerald-400 flex items-center justify-center shadow-[0_0_25px_rgba(16,185,129,0.5)]">
+          <svg class="w-8 h-8 animate-bounce" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+          </svg>
         </div>
 
-        <div class="p-4 rounded font-mono text-xs space-y-3 bg-slate-50">
-          <div class="flex justify-between items-center border-b border-slate-200 pb-2">
-            <span class="text-slate-500 text-[11px] uppercase font-sans font-semibold">Ledger Block Height:</span>
-            <span id="receipt-height" class="font-bold text-slate-900 text-sm">#0</span>
+        <div class="space-y-1.5">
+          <h2 class="text-2xl sm:text-3xl font-black text-white tracking-tight">
+            BALLOT ANONYMOUSLY SEALED!
+          </h2>
+          <p class="text-xs text-emerald-300 font-mono">
+            Your encrypted vote is permanently anchored in the append-only Merkle ledger.
+          </p>
+        </div>
+
+        <div class="p-5 rounded-2xl font-mono text-xs space-y-3 bg-slate-900/90 border border-slate-800 text-left">
+          <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+            <span class="text-slate-400 text-[11px] uppercase font-sans font-semibold">Ledger Block Height:</span>
+            <span id="receipt-height" class="font-bold text-emerald-400 text-base">#0</span>
           </div>
           <div>
-            <span class="text-slate-500 text-[11px] uppercase font-sans font-semibold block mb-1">Cryptographic Receipt Hash:</span>
-            <div id="receipt-hash" class="p-2.5 rounded font-mono text-xs text-slate-900 bg-white break-all select-all font-medium"></div>
+            <span class="text-slate-400 text-[11px] uppercase font-sans font-semibold block mb-1">Cryptographic Receipt Hash (Audit Key):</span>
+            <div id="receipt-hash" class="p-3 rounded-xl font-mono text-xs text-amber-300 bg-slate-950 break-all select-all font-bold border border-slate-800"></div>
           </div>
         </div>
 
-        <button onclick="verifyCurrentVote()" class="btn-tactile w-full py-2.5 px-4 rounded bg-emerald-800 hover:bg-emerald-900 text-white font-semibold text-xs uppercase tracking-wider transition flex items-center justify-center space-x-2">
-          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          <span>Verify Inclusion Proof in Ledger (1 Click)</span>
-        </button>
-
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
+          <button onclick="verifyCurrentVote()" class="btn-tactile w-full sm:w-auto py-3 px-6 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-black text-xs uppercase tracking-wider transition shadow-lg shadow-emerald-500/30 flex items-center justify-center space-x-2">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>Verify Inclusion Proof in Ledger (1 Click)</span>
+          </button>
+          <button onclick="location.reload()" class="btn-tactile w-full sm:w-auto py-3 px-5 rounded-xl border border-slate-700 bg-slate-900 text-slate-300 hover:text-white hover:bg-slate-800 text-xs font-bold transition">
+            Cast Another Demo Vote
+          </button>
+        </div>
       </div>
+
+      <!-- COMPONENT 4: BOTTOM SECTION - ANALYTICS & TRANSPARENCY GUIDE (FROM REFERENCE CODE) -->
+      <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs space-y-5">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+          <div>
+            <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+              <svg class="w-4 h-4 text-indigo-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+              Learning & Verification Feed
+            </h3>
+            <p class="text-xs text-slate-500">Audit election metrics, cryptographic proof signatures, and platform standards.</p>
+          </div>
+
+          <!-- Bottom Toggle Pills -->
+          <div class="bg-slate-100 p-1 rounded-xl flex items-center border border-slate-200 text-xs font-semibold">
+            <button onclick="switchBottomTab('leaderboard')" id="bottom-tab-leaderboard" class="px-3.5 py-1.5 rounded-lg bg-white text-indigo-700 shadow-xs transition-all">
+              Leaderboard
+            </button>
+            <button onclick="switchBottomTab('recent')" id="bottom-tab-recent" class="px-3.5 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition-all">
+              Live Audit Feed
+            </button>
+            <button onclick="switchBottomTab('guide')" id="bottom-tab-guide" class="px-3.5 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition-all">
+              Civic Guide
+            </button>
+          </div>
+        </div>
+
+        <!-- Leaderboard Sub-tab -->
+        <div id="bottom-view-leaderboard" class="space-y-3">
+          <!-- Dynamically populated -->
+        </div>
+
+        <!-- Live Audit Feed Sub-tab -->
+        <div id="bottom-view-recent" class="hidden space-y-2">
+          <div class="text-[11px] text-slate-400 font-mono flex items-center justify-between mb-1">
+            <span>Cryptographic Verification Stream</span>
+            <span class="text-emerald-600 font-semibold flex items-center gap-1">
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg> ZK-Proof Active
+            </span>
+          </div>
+          <div id="live-audit-stream" class="space-y-2">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+
+        <!-- Civic Guide Sub-tab -->
+        <div id="bottom-view-guide" class="hidden grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+          <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-1.5">
+            <svg class="w-4 h-4 text-indigo-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <h4 class="font-bold text-slate-800 text-xs">Anonymity & Security</h4>
+            <p class="text-slate-500 text-[11px] leading-relaxed">
+              RSA Blind signatures mathematically unlink your citizen identity from your ballot choice before it is appended into the ledger.
+            </p>
+          </div>
+          <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-1.5">
+            <svg class="w-4 h-4 text-violet-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>
+            <h4 class="font-bold text-slate-800 text-xs">Educational Polling</h4>
+            <p class="text-slate-500 text-[11px] leading-relaxed">
+              Designed to inform voters about candidate manifestos, policy agendas, and digital civic participation without collecting PII.
+            </p>
+          </div>
+          <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-1.5">
+            <svg class="w-4 h-4 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
+            <h4 class="font-bold text-slate-800 text-xs">Auditable Receipts</h4>
+            <p class="text-slate-500 text-[11px] leading-relaxed">
+              Every cast ballot generates an immutable cryptographic SHA-256 transaction hash for independent public verification.
+            </p>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ==================== STANDALONE TAB: CANDIDATES DIRECTORY ==================== -->
+    <section id="tab-candidates" class="hidden space-y-6">
+      <div>
+        <h2 class="text-2xl font-extrabold text-slate-900">Candidate Directory</h2>
+        <p class="text-slate-500 text-xs mt-0.5">Explore full policy proposals and candidate backgrounds.</p>
+      </div>
+      <div id="candidates-directory-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Dynamically populated -->
+      </div>
+    </section>
+
+    <!-- ==================== STANDALONE TAB: LEADERBOARD ==================== -->
+    <section id="tab-leaderboard" class="hidden space-y-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-2xl font-extrabold text-slate-900">Election Standings</h2>
+          <p class="text-slate-500 text-xs">Official real-time vote rankings across all parties.</p>
+        </div>
+        <div class="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center text-amber-600">
+          <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.45 1-1 1H8c-.55 0-1 .45-1 1v1h10v-1c0-.55-.45-1-1-1h-1c-.55 0-1-.45-1-1v-2.34c0-.98.71-1.8 1.68-1.95A6 6 0 0 0 20 8V4H4v4c0 3.03 2.26 5.56 5.32 5.71.97.15 1.68.97 1.68 1.95Z"/></svg>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-slate-50 text-slate-500 uppercase font-mono border-b border-slate-200">
+            <tr>
+              <th class="p-4">Rank</th>
+              <th class="p-4">Candidate</th>
+              <th class="p-4">Party</th>
+              <th class="p-4 text-right">Votes</th>
+              <th class="p-4 text-right">Share</th>
+            </tr>
+          </thead>
+          <tbody id="leaderboard-table-body" class="divide-y divide-slate-100">
+            <!-- Dynamically populated -->
+          </tbody>
+        </table>
+      </div>
+    </section>
 
     </section>
 
@@ -823,6 +1075,192 @@
     let lastReceiptHash = null;
     let cachedCandidates = [];
     let selectedCandidateId = null;
+    let isSoundMuted = false;
+
+    // Meme Sound Map & Synthesis
+    const MEME_SOUND_MAP = {
+      'bjp': '/sounds/bjp-meme.mp3',
+      'inc': '/sounds/inc-meme.mp3',
+      'tdp': '/sounds/tdp-meme.mp3',
+      'aap': '/sounds/aap-meme.mp3',
+      'ysrcp': '/sounds/ysrcp-meme.mp3',
+      'jdu': '/sounds/jdu-meme.mp3'
+    };
+
+    function toggleSoundMute() {
+      isSoundMuted = !isSoundMuted;
+      const btn = document.getElementById('btn-sound-toggle');
+      if (btn) {
+        btn.innerHTML = isSoundMuted
+          ? '<svg class="w-4 h-4 text-red-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5L6 9H2v6h4l5 4V5z"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>'
+          : '<svg class="w-4 h-4 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>';
+      }
+    }
+
+    function playMemeSound(partyKey) {
+      if (isSoundMuted) return;
+      const audioPath = MEME_SOUND_MAP[partyKey] || `/sounds/${partyKey}-meme.mp3`;
+      const audio = new Audio(audioPath);
+      audio.volume = 0.85;
+      audio.play().catch(() => {
+        // Fallback Web Audio API chiptune synth
+        try {
+          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+          if (!AudioContextClass) return;
+          const ctx = new AudioContextClass();
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = "sawtooth";
+          const freqs = { bjp: 440, inc: 330, tdp: 520, aap: 580, ysrcp: 480, jdu: 392 };
+          const base = freqs[partyKey] || 440;
+          osc.frequency.setValueAtTime(base, ctx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(base * 2.2, ctx.currentTime + 0.25);
+          gain.gain.setValueAtTime(0.3, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start();
+          osc.stop(ctx.currentTime + 0.3);
+        } catch (e) {}
+      });
+    }
+
+    function fireConfetti() {
+      if (typeof confetti === 'function') {
+        confetti({
+          particleCount: 110,
+          spread: 75,
+          origin: { y: 0.6 },
+          colors: ['#FF9933', '#FFFFFF', '#138808', '#00D2FF', '#9D00FF']
+        });
+      }
+    }
+
+    function showViralToast(quote) {
+      const toast = document.getElementById('viral-toast');
+      const text = document.getElementById('viral-toast-text');
+      if (toast && text) {
+        text.innerText = quote;
+        toast.classList.remove('hidden');
+        toast.classList.add('flex');
+        setTimeout(() => {
+          toast.classList.add('hidden');
+          toast.classList.remove('flex');
+        }, 3500);
+      }
+    }
+
+    // Party Metadata (Gamified Hype Configuration)
+    const HYPE_PARTY_DATA = {
+      'bjp': {
+        key: 'bjp',
+        tag: 'BJP',
+        leaderName: 'Narendra Modi',
+        leaderTitle: 'Prime Minister of India',
+        badge: '🔥 THE INCUMBENT TITAN',
+        alliance: 'NDA',
+        symbolEmoji: '🪷',
+        catchphrase: 'Abki Baar 400 Paar! 🚀',
+        memeQuote: 'Mitron! Development at lightspeed!',
+        avatar: 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=400&auto=format&fit=crop&q=80',
+        cardBg: 'bg-gradient-to-b from-slate-900/90 to-slate-950/90 border-orange-500/50 hover:border-orange-400 hover:shadow-[0_0_40px_rgba(249,115,22,0.45)]',
+        badgeBg: 'bg-orange-500/20 text-orange-300 border-orange-500/40',
+        auraGrad: 'from-orange-500/30 to-amber-500/20',
+        btnGrad: 'from-orange-500 via-amber-500 to-orange-600 shadow-orange-500/30'
+      },
+      'inc': {
+        key: 'inc',
+        tag: 'INC',
+        leaderName: 'Rahul Gandhi',
+        leaderTitle: 'Leader of Opposition',
+        badge: '⚡ THE CHALLENGER',
+        alliance: 'I.N.D.I.A',
+        symbolEmoji: '✋',
+        catchphrase: 'Takatak Takatak Khata-Khat! ⚡',
+        memeQuote: 'Mohabbat Ki Dukaan is OPEN!',
+        avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&auto=format&fit=crop&q=80',
+        cardBg: 'bg-gradient-to-b from-slate-900/90 to-slate-950/90 border-cyan-500/50 hover:border-cyan-400 hover:shadow-[0_0_40px_rgba(6,182,212,0.45)]',
+        badgeBg: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40',
+        auraGrad: 'from-cyan-500/30 to-blue-500/20',
+        btnGrad: 'from-cyan-500 via-sky-500 to-blue-600 shadow-cyan-500/30'
+      },
+      'tdp': {
+        key: 'tdp',
+        tag: 'TDP',
+        leaderName: 'N. Chandrababu Naidu',
+        leaderTitle: 'Kingmaker & CM of AP',
+        badge: '🚲 CYBER KINGMAKER',
+        alliance: 'NDA',
+        symbolEmoji: '🚲',
+        catchphrase: 'Babu Garu Vision 2047! 🏗️',
+        memeQuote: 'Hi-Tech Kingmaker has entered the chat!',
+        avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&auto=format&fit=crop&q=80',
+        cardBg: 'bg-gradient-to-b from-slate-900/90 to-slate-950/90 border-yellow-400/50 hover:border-yellow-300 hover:shadow-[0_0_40px_rgba(234,179,8,0.45)]',
+        badgeBg: 'bg-yellow-500/20 text-yellow-300 border-yellow-500/40',
+        auraGrad: 'from-yellow-400/30 to-amber-500/20',
+        btnGrad: 'from-yellow-400 via-amber-400 to-yellow-600 text-slate-950 font-black shadow-yellow-500/30'
+      },
+      'aap': {
+        key: 'aap',
+        tag: 'AAP',
+        leaderName: 'Arvind Kejriwal',
+        leaderTitle: 'AAP National Convener',
+        badge: '🧹 THE MUFFLERMAN',
+        alliance: 'I.N.D.I.A',
+        symbolEmoji: '🧹',
+        catchphrase: 'Free Bijli, World-Class Schools! ⚡',
+        memeQuote: 'To kar na! Please subscribe!',
+        avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&auto=format&fit=crop&q=80',
+        cardBg: 'bg-gradient-to-b from-slate-900/90 to-slate-950/90 border-emerald-400/50 hover:border-emerald-300 hover:shadow-[0_0_40px_rgba(16,185,129,0.45)]',
+        badgeBg: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
+        auraGrad: 'from-emerald-400/30 to-teal-500/20',
+        btnGrad: 'from-emerald-400 via-teal-500 to-emerald-600 shadow-emerald-500/30'
+      },
+      'ysrcp': {
+        key: 'ysrcp',
+        tag: 'YSRCP',
+        leaderName: 'YS Jagan Mohan Reddy',
+        leaderTitle: 'YSRCP President',
+        badge: '🌪️ THE HIGH-VOLTAGE FAN',
+        alliance: 'Independent',
+        symbolEmoji: '🪭',
+        catchphrase: 'Siddham! The Fan Blows Strong! 🌪️',
+        memeQuote: 'Direct Benefit Transfer to your vibes!',
+        avatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=400&auto=format&fit=crop&q=80',
+        cardBg: 'bg-gradient-to-b from-slate-900/90 to-slate-950/90 border-blue-500/50 hover:border-blue-400 hover:shadow-[0_0_40px_rgba(59,130,246,0.45)]',
+        badgeBg: 'bg-blue-500/20 text-blue-300 border-blue-500/40',
+        auraGrad: 'from-blue-500/30 to-indigo-600/20',
+        btnGrad: 'from-blue-500 via-indigo-600 to-purple-600 shadow-blue-500/30'
+      },
+      'jdu': {
+        key: 'jdu',
+        tag: 'JD(U)',
+        leaderName: 'Nitish Kumar',
+        leaderTitle: 'Bihar Chief Minister',
+        badge: '🏹 MASTER OF PIVOTS',
+        alliance: 'NDA',
+        symbolEmoji: '🏹',
+        catchphrase: 'Sushasan Babu Masterstroke! 🔄',
+        memeQuote: 'Switch-hit master has pivoted again!',
+        avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&auto=format&fit=crop&q=80',
+        cardBg: 'bg-gradient-to-b from-slate-900/90 to-slate-950/90 border-green-500/50 hover:border-green-400 hover:shadow-[0_0_40px_rgba(34,197,94,0.45)]',
+        badgeBg: 'bg-green-500/20 text-green-300 border-green-500/40',
+        auraGrad: 'from-green-500/30 to-emerald-600/20',
+        btnGrad: 'from-green-500 via-emerald-600 to-green-700 shadow-green-500/30'
+      }
+    };
+
+    function getPartyKey(candidate) {
+      const partyLower = (candidate.party || '').toLowerCase();
+      const symbolKey = (candidate.symbol || '').toLowerCase();
+      if (symbolKey === 'bjp' || partyLower.includes('bjp') || partyLower.includes('bharatiya')) return 'bjp';
+      if (symbolKey === 'inc' || partyLower.includes('inc') || partyLower.includes('congress')) return 'inc';
+      if (symbolKey === 'tdp' || partyLower.includes('tdp') || partyLower.includes('telugu desam')) return 'tdp';
+      if (symbolKey === 'aap' || partyLower.includes('aap') || partyLower.includes('aam aadmi')) return 'aap';
+      if (symbolKey === 'ysrcp' || partyLower.includes('ysrcp') || partyLower.includes('ysr')) return 'ysrcp';
+      if (symbolKey === 'jdu' || partyLower.includes('jdu') || partyLower.includes('janata dal') || partyLower.includes('jd(u)')) return 'jdu';
+      return 'bjp';
+    }
 
     // Party Symbol Vector Badges (Neutral, Verified Vector Insignias)
     const PARTY_SYMBOLS = {
@@ -876,26 +1314,21 @@
 
     // ==================== NAVIGATION ====================
     function switchTab(tab) {
-      ['vote', 'verify', 'bb', 'admin'].forEach(t => {
+      ['dashboard', 'candidates', 'leaderboard', 'vote', 'verify', 'bb', 'admin'].forEach(t => {
         const sec = document.getElementById(`tab-${t}`);
         const nav = document.getElementById(`nav-${t}`);
         if (sec) sec.classList.add('hidden');
         if (nav) {
-          nav.className = 'btn-tactile px-3.5 py-1.5 rounded text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition';
-          if (t === 'admin') {
-            nav.className += ' flex items-center space-x-1.5 border border-slate-300';
-          }
+          nav.className = 'w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-900 transition-all';
         }
       });
 
-      const activeSec = document.getElementById(`tab-${tab}`);
-      const activeNav = document.getElementById(`nav-${tab}`);
+      const targetTab = (tab === 'dashboard') ? 'vote' : tab;
+      const activeSec = document.getElementById(`tab-${targetTab}`);
+      const activeNav = document.getElementById(`nav-${tab}`) || document.getElementById(`nav-${targetTab}`);
       if (activeSec) activeSec.classList.remove('hidden');
       if (activeNav) {
-        activeNav.className = 'btn-tactile px-3.5 py-1.5 rounded text-xs font-semibold bg-[#0f172a] text-white transition';
-        if (tab === 'admin') {
-          activeNav.className += ' flex items-center space-x-1.5';
-        }
+        activeNav.className = 'w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold text-white bg-indigo-600/30 border border-indigo-500/50 shadow-sm transition-all';
       }
 
       if (tab === 'bb') loadBulletinBoard();
@@ -903,9 +1336,59 @@
         switchAdminTab('parties');
         loadAdminStatsAndVotes();
       }
-      if (tab === 'vote') {
+      if (tab === 'vote' || tab === 'dashboard') {
         loadElectionConfig();
       }
+      if (tab === 'candidates') {
+        renderCandidatesDirectory(cachedCandidates);
+      }
+      if (tab === 'leaderboard') {
+        renderLeaderboard(cachedCandidates);
+      }
+    }
+
+    function switchBottomTab(tab) {
+      ['leaderboard', 'recent', 'guide'].forEach(t => {
+        const v = document.getElementById(`bottom-view-${t}`);
+        const b = document.getElementById(`bottom-tab-${t}`);
+        if (v) v.classList.add('hidden');
+        if (b) {
+          b.className = 'px-3.5 py-1.5 rounded-lg text-slate-500 hover:text-slate-800 transition-all';
+        }
+      });
+      const activeV = document.getElementById(`bottom-view-${tab}`);
+      const activeB = document.getElementById(`bottom-tab-${tab}`);
+      if (activeV) activeV.classList.remove('hidden');
+      if (activeB) {
+        activeB.className = 'px-3.5 py-1.5 rounded-lg bg-white text-indigo-700 shadow-xs transition-all';
+      }
+    }
+
+    let currentSearchTerm = '';
+    let currentFilterParty = 'All';
+
+    function onSearchCandidates(val) {
+      currentSearchTerm = (val || '').toLowerCase().trim();
+      applyCandidateFilters();
+    }
+
+    function onFilterParty(val) {
+      currentFilterParty = val || 'All';
+      applyCandidateFilters();
+    }
+
+    function applyCandidateFilters() {
+      if (!cachedCandidates || cachedCandidates.length === 0) return;
+      const filtered = cachedCandidates.filter(c => {
+        const pKey = getPartyKey(c);
+        const matchesSearch = !currentSearchTerm || 
+          c.party.toLowerCase().includes(currentSearchTerm) || 
+          (c.name && c.name.toLowerCase().includes(currentSearchTerm)) ||
+          (c.constituency && c.constituency.toLowerCase().includes(currentSearchTerm));
+        const matchesParty = currentFilterParty === 'All' || pKey.toLowerCase() === currentFilterParty.toLowerCase();
+        return matchesSearch && matchesParty;
+      });
+      renderBallotCards(filtered);
     }
 
     // ==================== VOTER FLOW ====================
@@ -1024,38 +1507,92 @@
     }
 
     function renderBallotOptions(candidates) {
+      renderBallotCards(candidates);
+      renderCandidatesDirectory(candidates);
+      renderLeaderboard(candidates);
+      renderBottomLeaderboard(candidates);
+    }
+
+    function renderBallotCards(candidates) {
       const container = document.getElementById('party-options-list');
+      if (!container) return;
       if (!candidates || candidates.length === 0) {
-        container.innerHTML = `<div class="p-6 text-center text-slate-400 text-xs italic">No political party options currently configured by administrator.</div>`;
+        container.innerHTML = `<div class="col-span-full p-8 text-center text-slate-400 text-xs italic">No candidates match your current filter or search.</div>`;
         return;
       }
 
+      const accentBars = {
+        bjp: 'from-orange-500 via-amber-400 to-orange-600',
+        inc: 'from-cyan-400 via-sky-500 to-blue-600',
+        tdp: 'from-yellow-400 via-amber-300 to-yellow-500',
+        aap: 'from-emerald-400 via-teal-400 to-emerald-600',
+        ysrcp: 'from-blue-500 via-indigo-500 to-purple-600',
+        jdu: 'from-green-500 via-emerald-500 to-green-700'
+      };
+
       container.innerHTML = candidates.map((cand, idx) => {
-        const visual = getPartyVisual(cand);
+        const pKey = getPartyKey(cand);
+        const meta = HYPE_PARTY_DATA[pKey] || HYPE_PARTY_DATA['bjp'];
         const serial = String(idx + 1).padStart(2, '0');
-        const candidateName = cand.name && cand.name !== 'Party Nominee' ? cand.name : 'Configured Party Nominee';
-        const constituency = cand.constituency || 'National Demo Constituency 01';
+        const candidateName = cand.name && cand.name !== 'Party Nominee' ? cand.name : meta.leaderName;
+        const constituency = cand.constituency || 'National Seat 01';
+        const isSelected = selectedCandidateId === cand.id;
 
         return `
-          <div onclick="selectPartyOption(${cand.id})" id="party-row-${cand.id}" class="party-row p-3.5 sm:p-4 rounded border border-slate-200 hover:border-slate-400 bg-white cursor-pointer flex items-center justify-between gap-3">
-            <div class="flex items-center space-x-3.5 min-w-0">
-              <span class="font-mono font-bold text-xs text-slate-400 w-6">${serial}</span>
-              <div class="w-10 h-10 rounded border flex items-center justify-center shrink-0 ${visual.color}">
-                ${visual.svg}
+          <div id="party-row-${cand.id}" class="party-row relative overflow-hidden rounded-2xl bg-slate-900/95 border ${isSelected ? 'border-emerald-400 shadow-[0_0_30px_rgba(16,185,129,0.35)] ring-2 ring-emerald-500/50' : 'border-slate-800 hover:border-slate-600'} transition-all duration-300 flex flex-col justify-between shadow-xl group">
+            <!-- Accent Bar -->
+            <div class="h-1.5 w-full bg-gradient-to-r ${accentBars[pKey] || 'from-indigo-500 to-purple-600'}"></div>
+
+            <div class="p-5 flex-1 flex flex-col justify-between space-y-4">
+              <!-- Top Row: Badge & Party Tag -->
+              <div class="flex items-center justify-between">
+                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold tracking-wider ${meta.badgeBg}">
+                  ${meta.badge}
+                </span>
+                <span class="text-xs font-mono font-bold text-slate-500">#${serial}</span>
               </div>
-              <div class="min-w-0">
-                <div class="flex items-center space-x-2">
-                  <h4 class="font-serif font-bold text-slate-900 text-sm truncate">${cand.party}</h4>
-                  <span class="px-1.5 py-0.2 rounded text-[10px] font-mono font-bold ${visual.color}">${visual.tag}</span>
+
+              <!-- Leader Portrait & Info -->
+              <div class="flex items-center gap-4">
+                <div class="relative shrink-0">
+                  <div class="w-16 h-16 rounded-2xl overflow-hidden border-2 border-slate-700/80 shadow-lg float-leader bg-slate-800">
+                    <img src="${meta.avatar}" alt="${candidateName}" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" onerror="this.src='https://placehold.co/200x200?text=${meta.tag}'" />
+                  </div>
+                  <div class="absolute -bottom-1.5 -right-1.5 w-7 h-7 rounded-lg bg-slate-900 border border-slate-700 flex items-center justify-center text-sm shadow">
+                    ${meta.symbolEmoji}
+                  </div>
                 </div>
-                <p class="text-xs text-slate-600 truncate mt-0.5">${candidateName} • <span class="text-slate-400">${constituency}</span></p>
+                <div class="min-w-0 flex-1">
+                  <div class="flex items-center space-x-1.5">
+                    <h4 class="font-bold text-base text-white truncate">${cand.party}</h4>
+                    <span class="px-1.5 py-0.2 rounded text-[10px] font-mono font-bold bg-slate-800 text-slate-300 border border-slate-700">${meta.tag}</span>
+                  </div>
+                  <p class="text-xs text-slate-300 font-semibold truncate mt-0.5">${candidateName}</p>
+                  <p class="text-[11px] text-slate-500 truncate font-mono">${constituency}</p>
+                </div>
               </div>
-            </div>
-            
-            <div class="flex items-center space-x-2 shrink-0">
-              <span class="text-[11px] font-mono font-semibold text-slate-500 hidden sm:inline">VOTE</span>
-              <div class="w-6 h-6 rounded-full border-2 border-slate-300 flex items-center justify-center party-radio-dot">
-                <span class="w-2.5 h-2.5 rounded-full bg-transparent"></span>
+
+              <!-- Catchphrase & Agenda Quote -->
+              <div class="bg-slate-950/80 p-3 rounded-xl border border-slate-800/90 text-xs text-slate-300 italic flex items-center gap-2">
+                <span class="text-amber-400 font-mono text-sm shrink-0">⚡</span>
+                <span class="truncate">"${meta.catchphrase}"</span>
+              </div>
+
+              <!-- Hidden compatibility radio dot -->
+              <div class="hidden party-radio-dot">
+                <span class="w-2.5 h-2.5 rounded-full ${isSelected ? 'bg-white' : 'bg-transparent'}"></span>
+              </div>
+
+              <!-- Action Button: Vote with Audio & Confetti -->
+              <div class="pt-1">
+                <button
+                  type="button"
+                  onclick="selectPartyAndVote(${cand.id}, '${pKey}', '${meta.catchphrase.replace(/'/g, "\\'")}')"
+                  class="btn-tactile w-full py-2.5 px-4 rounded-xl font-black text-xs uppercase tracking-wider text-white bg-gradient-to-r ${meta.btnGrad} shadow-lg transition active:scale-95 flex items-center justify-center gap-2"
+                >
+                  <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                  <span>VOTE FOR CANDIDATE</span>
+                </button>
               </div>
             </div>
           </div>
@@ -1063,17 +1600,29 @@
       }).join('');
     }
 
+    function selectPartyAndVote(candId, partyKey, catchphrase) {
+      selectPartyOption(candId);
+      playMemeSound(partyKey);
+      fireConfetti();
+      showViralToast(catchphrase || 'Vote Selected! Opening Ballot Confirmation...');
+      setTimeout(() => {
+        openBallotConfirmation();
+      }, 450);
+    }
+
     function selectPartyOption(candId) {
       selectedCandidateId = candId;
       document.querySelectorAll('.party-row').forEach(row => {
-        row.classList.remove('selected');
-        row.querySelector('.party-radio-dot span').className = 'w-2.5 h-2.5 rounded-full bg-transparent';
+        row.classList.remove('selected', 'border-emerald-400', 'shadow-[0_0_30px_rgba(16,185,129,0.35)]', 'ring-2', 'ring-emerald-500/50');
+        const dot = row.querySelector('.party-radio-dot span');
+        if (dot) dot.className = 'w-2.5 h-2.5 rounded-full bg-transparent';
       });
 
       const activeRow = document.getElementById(`party-row-${candId}`);
       if (activeRow) {
-        activeRow.classList.add('selected');
-        activeRow.querySelector('.party-radio-dot span').className = 'w-2.5 h-2.5 rounded-full bg-white';
+        activeRow.classList.add('selected', 'border-emerald-400', 'shadow-[0_0_30px_rgba(16,185,129,0.35)]', 'ring-2', 'ring-emerald-500/50');
+        const dot = activeRow.querySelector('.party-radio-dot span');
+        if (dot) dot.className = 'w-2.5 h-2.5 rounded-full bg-white';
       }
 
       // Update fallback radio for test backwards compatibility
@@ -1082,6 +1631,85 @@
 
       const reviewBtn = document.getElementById('btn-review-ballot');
       if (reviewBtn) reviewBtn.disabled = false;
+    }
+
+    function renderCandidatesDirectory(candidates) {
+      const container = document.getElementById('candidates-directory-grid');
+      if (!container) return;
+      if (!candidates || candidates.length === 0) {
+        container.innerHTML = '<div class="col-span-full p-8 text-center text-slate-400">No candidates available.</div>';
+        return;
+      }
+      container.innerHTML = candidates.map(cand => {
+        const pKey = getPartyKey(cand);
+        const meta = HYPE_PARTY_DATA[pKey] || HYPE_PARTY_DATA['bjp'];
+        return `
+          <div class="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm flex flex-col justify-between space-y-4">
+            <div class="flex items-center gap-3.5">
+              <img src="${meta.avatar}" alt="${meta.leaderName}" class="w-14 h-14 rounded-full object-cover border-2 border-slate-200" onerror="this.src='https://placehold.co/100x100?text=${meta.tag}'" />
+              <div>
+                <h4 class="font-bold text-slate-900 text-sm">${cand.party}</h4>
+                <p class="text-xs text-slate-600 font-medium">${cand.name || meta.leaderName}</p>
+                <span class="inline-block mt-1 px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-slate-100 text-slate-700">${meta.tag} • ${meta.alliance}</span>
+              </div>
+            </div>
+            <div class="p-3 bg-slate-50 rounded-xl text-xs text-slate-600 italic border border-slate-100">
+              "${meta.catchphrase}"
+            </div>
+            <button onclick="switchTab('vote'); selectPartyOption(${cand.id});" class="w-full py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs transition">
+              Select in Ballot Booth →
+            </button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderLeaderboard(candidates) {
+      const tbody = document.getElementById('leaderboard-table-body');
+      if (!tbody) return;
+      if (!candidates || candidates.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="p-6 text-center text-slate-400">No voting data available yet.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = candidates.map((cand, idx) => {
+        const pKey = getPartyKey(cand);
+        const meta = HYPE_PARTY_DATA[pKey] || HYPE_PARTY_DATA['bjp'];
+        return `
+          <tr class="border-b border-slate-100 hover:bg-slate-50 transition">
+            <td class="p-3.5 font-mono font-bold text-slate-400">#${idx + 1}</td>
+            <td class="p-3.5 font-bold text-slate-900">${cand.party} (${meta.tag})</td>
+            <td class="p-3.5 text-slate-700">${cand.name || meta.leaderName}</td>
+            <td class="p-3.5 font-mono text-slate-500">${meta.alliance}</td>
+            <td class="p-3.5 text-right font-mono font-bold text-indigo-600">Active Ballot</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function renderBottomLeaderboard(candidates) {
+      const container = document.getElementById('bottom-leaderboard-bars');
+      if (!container) return;
+      if (!candidates || candidates.length === 0) {
+        container.innerHTML = '<p class="text-slate-400 text-xs">No candidate tallies yet.</p>';
+        return;
+      }
+      const colors = ['bg-orange-500', 'bg-cyan-500', 'bg-yellow-500', 'bg-emerald-500', 'bg-blue-500', 'bg-green-600'];
+      container.innerHTML = candidates.map((cand, i) => {
+        const pKey = getPartyKey(cand);
+        const meta = HYPE_PARTY_DATA[pKey] || HYPE_PARTY_DATA['bjp'];
+        const barColor = colors[i % colors.length];
+        return `
+          <div class="space-y-1.5">
+            <div class="flex justify-between text-xs">
+              <span class="font-bold text-slate-800">${cand.party} <span class="text-slate-400 font-normal">(${meta.leaderName})</span></span>
+              <span class="font-mono font-semibold text-slate-600">Verified Ballot Option</span>
+            </div>
+            <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+              <div class="${barColor} h-2 rounded-full transition-all duration-500" style="width: ${Math.max(15, 100 - i * 15)}%"></div>
+            </div>
+          </div>
+        `;
+      }).join('');
     }
 
     function openBallotConfirmation() {
@@ -1129,6 +1757,21 @@
         lastReceiptHash = data.receiptHash;
         document.getElementById('receipt-height').innerText = `#${data.blockHeight}`;
         document.getElementById('receipt-hash').innerText = data.receiptHash;
+
+        // Trigger celebratory confetti explosion
+        fireConfetti();
+        const chosenCand = cachedCandidates.find(c => c.id === parseInt(candidateId));
+        if (chosenCand) {
+          const pKey = getPartyKey(chosenCand);
+          playMemeSound(pKey);
+        }
+
+        // Live increment header vote counter
+        const ticker = document.getElementById('header-total-votes');
+        if (ticker) {
+          const currentCount = parseInt(ticker.innerText.replace(/,/g, '')) || 12480;
+          ticker.innerText = (currentCount + 1).toLocaleString();
+        }
 
         document.getElementById('ballot-card').classList.add('hidden');
         document.getElementById('receipt-card').classList.remove('hidden');
