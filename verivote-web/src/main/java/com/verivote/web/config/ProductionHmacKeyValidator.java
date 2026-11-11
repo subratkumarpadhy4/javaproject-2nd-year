@@ -44,6 +44,10 @@ public class ProductionHmacKeyValidator {
             candidateKey = hmacKeyProp;
         } else if (System.getenv("VERIVOTE_HMAC_MASTER_KEY") != null && !System.getenv("VERIVOTE_HMAC_MASTER_KEY").isBlank()) {
             candidateKey = System.getenv("VERIVOTE_HMAC_MASTER_KEY");
+        } else if (System.getProperty("VERIVOTE_HMAC_MASTER_KEY") != null && !System.getProperty("VERIVOTE_HMAC_MASTER_KEY").isBlank()) {
+            candidateKey = System.getProperty("VERIVOTE_HMAC_MASTER_KEY");
+        } else if (System.getProperty("verivote.crypto.hmac-master-key") != null && !System.getProperty("verivote.crypto.hmac-master-key").isBlank()) {
+            candidateKey = System.getProperty("verivote.crypto.hmac-master-key");
         }
         validateKey(candidateKey);
     }
