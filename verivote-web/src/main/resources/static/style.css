@@ -2636,3 +2636,408 @@ html,
 body {
   overflow-x: clip;
 }
+
+/* ==========================================================================
+   RESULTS VIEW (public, light theme)
+   ========================================================================== */
+
+.results-viewport {
+  padding-top: 120px;
+  padding-bottom: 96px;
+}
+
+.results-pending {
+  margin-top: 32px;
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  padding: 24px;
+  border-radius: var(--radius-smooth);
+  background-color: var(--color-bg-muted);
+}
+
+.results-pending-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-ink-primary);
+  margin-bottom: 4px;
+}
+
+.results-pending-desc {
+  font-size: 0.92rem;
+  color: var(--color-ink-secondary);
+}
+
+.results-published {
+  margin-top: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.results-winner-card {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+  padding: 28px;
+  border-radius: var(--radius-smooth);
+  background-color: var(--color-bg-surface);
+  box-shadow: var(--shadow-floating);
+  border-left: 6px solid var(--winner-color, var(--color-saffron-primary));
+}
+
+.results-winner-symbol {
+  width: 88px;
+  height: 88px;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background-color: var(--color-bg-muted);
+  overflow: hidden;
+}
+
+.results-winner-symbol svg,
+.results-winner-symbol .candidate-symbol-generic {
+  width: 60px;
+  height: 60px;
+}
+
+.results-winner-symbol img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 15%;
+}
+
+.results-winner-copy {
+  flex: 1;
+  min-width: 200px;
+}
+
+.results-winner-tag {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: var(--color-saffron-deep);
+}
+
+.results-winner-name {
+  font-size: clamp(1.4rem, 4vw, 2rem);
+  font-weight: 800;
+  color: var(--color-ink-primary);
+  margin: 4px 0;
+}
+
+.results-winner-meta {
+  font-size: 0.92rem;
+  color: var(--color-ink-secondary);
+}
+
+.results-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.results-bars .result-party-symbol {
+  background-color: var(--color-bg-muted);
+}
+
+.results-bars .result-party-code,
+.results-bars .result-tally {
+  color: var(--color-ink-primary);
+}
+
+.results-bars .result-party-name {
+  color: var(--color-ink-secondary);
+}
+
+.results-bars .result-bar-track {
+  background-color: var(--color-bg-subtle);
+}
+
+.results-bars .result-row.is-winner .result-party-code::after {
+  content: "  ✓ WINNER";
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  color: var(--color-emerald-deep);
+}
+
+.results-footnote {
+  font-size: 0.82rem;
+  color: var(--color-ink-muted);
+}
+
+.btn-publish-results {
+  background-color: var(--color-saffron-primary);
+  color: var(--color-ink-primary);
+  border: none;
+  padding: 10px 22px;
+  font-size: 0.88rem;
+  font-weight: 800;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-publish-results:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-glow);
+}
+
+.election-status-chip.tallied {
+  background-color: var(--color-gold-soft);
+  color: var(--color-gold-foil);
+}
+
+/* ==========================================================================
+   RESULT CELEBRATION OVERLAY
+   ========================================================================== */
+
+.celebration {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 24px 16px;
+  overflow: hidden;
+  background: radial-gradient(ellipse at 50% 60%, #2A1606 0%, #0A1128 70%);
+  color: #FFFFFF;
+  animation: celebration-fade 0.4s ease both;
+}
+
+.celebration.hidden {
+  display: none;
+}
+
+@keyframes celebration-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.celebration-rays {
+  position: absolute;
+  left: 50%;
+  top: 45%;
+  width: 160vmax;
+  height: 160vmax;
+  transform: translate(-50%, -50%);
+  background: repeating-conic-gradient(from 0deg, rgba(245, 158, 11, 0.16) 0deg 6deg, transparent 6deg 18deg);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.celebration.is-revealed .celebration-rays {
+  animation: rays-in 0.8s ease forwards, rays-spin 40s linear infinite;
+}
+
+@keyframes rays-in {
+  to { opacity: 1; }
+}
+
+@keyframes rays-spin {
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+.celebration-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(10, 17, 40, 0.5);
+  color: #FFFFFF;
+  font-size: 1.6rem;
+  line-height: 1;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.celebration-stage {
+  position: relative;
+  width: min(440px, 92vw);
+  aspect-ratio: 400 / 360;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+/* Lotus: petals unfold from the bud one ring at a time */
+.celebration-lotus {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: auto;
+  z-index: 2;
+  overflow: visible;
+}
+
+.lotus-water {
+  fill: rgba(56, 189, 248, 0.18);
+  transform-origin: center;
+  animation: lotus-water 1.2s ease both;
+}
+
+@keyframes lotus-water {
+  from { transform: scaleX(0); opacity: 0; }
+  to { transform: scaleX(1); opacity: 1; }
+}
+
+.lotus-leaves {
+  transform-origin: 0 0;
+  animation: lotus-leaves 0.7s 0.15s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes lotus-leaves {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+.petal {
+  /* pivot at the petal's base (bottom-centre of its own box) so petals fan out from the bud */
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  transform: rotate(0deg) scale(0.15);
+  opacity: 0;
+  animation: petal-open 0.9s var(--d, 0.3s) cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.35));
+}
+
+@keyframes petal-open {
+  to {
+    transform: rotate(var(--a, 0deg)) scale(1);
+    opacity: 1;
+  }
+}
+
+/* Portrait rises out of the lotus centre */
+.celebration-portrait {
+  position: absolute;
+  left: 50%;
+  bottom: 22%;
+  width: 56%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  overflow: hidden;
+  z-index: 1;
+  border: 4px solid #F59E0B;
+  box-shadow: 0 0 0 8px rgba(245, 158, 11, 0.2), 0 0 60px rgba(245, 158, 11, 0.55);
+  transform: translate(-50%, 70%) scale(0.2);
+  opacity: 0;
+}
+
+.celebration-portrait img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 18%;
+  display: block;
+}
+
+.celebration.is-revealed .celebration-portrait {
+  animation: portrait-rise 1.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes portrait-rise {
+  0% { transform: translate(-50%, 70%) scale(0.2); opacity: 0; }
+  30% { opacity: 1; }
+  100% { transform: translate(-50%, -18%) scale(1); opacity: 1; }
+}
+
+/* Non-lotus winners: their symbol pops in */
+.celebration-symbol {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 46%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #FFFFFF;
+  box-shadow: 0 0 60px rgba(245, 158, 11, 0.5);
+  transform: translate(-50%, -50%) scale(0);
+}
+
+.celebration-symbol svg,
+.celebration-symbol .candidate-symbol-generic {
+  width: 62%;
+  height: 62%;
+  font-size: 1.4rem;
+}
+
+.celebration.is-revealed .celebration-symbol {
+  animation: symbol-pop 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes symbol-pop {
+  to { transform: translate(-50%, -50%) scale(1); }
+}
+
+.celebration-caption {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  max-width: 640px;
+  opacity: 0;
+  transform: translateY(16px);
+}
+
+.celebration.is-revealed .celebration-caption {
+  animation: caption-in 0.7s 0.5s ease forwards;
+}
+
+@keyframes caption-in {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.celebration-kicker {
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  color: #FBBF24;
+}
+
+.celebration-title {
+  font-family: var(--font-editorial);
+  font-style: italic;
+  font-size: clamp(1.8rem, 6vw, 3rem);
+  margin: 6px 0;
+}
+
+.celebration-sub {
+  font-size: 1rem;
+  color: #E2E8F0;
+}
+
+.celebration-sound {
+  margin-top: 16px;
+  padding: 10px 20px;
+  border-radius: var(--radius-pill);
+  border: 1px solid #FBBF24;
+  background: transparent;
+  color: #FBBF24;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .celebration,
+  .celebration *,
+  .celebration.is-revealed * {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

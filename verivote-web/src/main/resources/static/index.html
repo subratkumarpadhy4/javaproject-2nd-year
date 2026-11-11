@@ -41,6 +41,7 @@
         <a href="#how-it-works" id="nav-how-it-works" class="nav-item">Process</a>
         <a href="#security-trust" id="nav-security" class="nav-item">Architecture</a>
         <a href="#verify" id="nav-verify" class="nav-item">Verify Receipt</a>
+        <a href="#results" id="nav-results" class="nav-item">Results</a>
       </nav>
 
       <!-- Minimal Nav Actions -->
@@ -71,6 +72,7 @@
       <a href="#register" class="drawer-link">Enroll to Vote</a>
       <a href="#login" class="drawer-link">Voter Sign In</a>
       <a href="#verify" class="drawer-link">Verify Receipt</a>
+      <a href="#results" class="drawer-link">Election Results</a>
       <a href="#admin" class="drawer-link drawer-link-officer">Officer Portal</a>
     </div>
   </div>
@@ -820,6 +822,39 @@
     </section>
 
     <!-- ======================================================================
+         VIEW: PUBLISHED ELECTION RESULTS
+         ====================================================================== -->
+    <section id="view-results" class="view" aria-label="Election Results">
+      <div class="narrative-container results-viewport">
+        <span class="kicker-label">OFFICIAL DECLARATION</span>
+        <h1 class="narrative-headline">Election Results</h1>
+
+        <div id="results-pending" class="results-pending">
+          <span class="lock-glyph" aria-hidden="true">&#128274;</span>
+          <div>
+            <h2 class="results-pending-title">Results have not been published yet</h2>
+            <p id="results-pending-desc" class="results-pending-desc">Candidate tallies stay sealed until the Returning Officer publishes the result.</p>
+          </div>
+        </div>
+
+        <div id="results-published" class="results-published hidden">
+          <div id="results-winner-card" class="results-winner-card">
+            <div id="results-winner-symbol" class="results-winner-symbol" aria-hidden="true"></div>
+            <div class="results-winner-copy">
+              <span class="results-winner-tag" id="results-winner-tag">WINNER</span>
+              <h2 class="results-winner-name" id="results-winner-name">—</h2>
+              <p class="results-winner-meta" id="results-winner-meta">—</p>
+            </div>
+            <button type="button" id="btn-replay-celebration" class="btn-secondary-flat small">Replay Celebration</button>
+          </div>
+
+          <div class="results-bars" id="results-bars-container"></div>
+          <p class="results-footnote" id="results-footnote">—</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
          VIEW 6: ADMIN PORTAL & OFFICER DASHBOARD (DARK MIDNIGHT FINTECH)
          ====================================================================== -->
     <section id="view-admin" class="view admin-dark-stage" aria-label="Election Officer Portal">
@@ -887,6 +922,7 @@
               <span id="admin-election-status" class="election-status-chip">—</span>
             </div>
             <div class="vault-control-actions">
+              <button type="button" id="btn-publish-results" class="btn-publish-results">Publish Result</button>
               <button type="button" id="btn-toggle-election" class="btn-utility-gold">Close Polling</button>
               <button type="button" id="btn-export-votes" class="btn-vault-logout">Export Ledger CSV</button>
               <button type="button" id="btn-admin-refresh" class="btn-vault-logout">Refresh</button>
@@ -977,6 +1013,56 @@
 
   <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
 
+  <!-- RESULT CELEBRATION OVERLAY -->
+  <div id="celebration" class="celebration hidden" role="dialog" aria-modal="true" aria-labelledby="celebration-title">
+    <div class="celebration-rays" aria-hidden="true"></div>
+    <button type="button" id="btn-close-celebration" class="celebration-close" aria-label="Close celebration">&times;</button>
+
+    <div class="celebration-stage">
+      <div id="celebration-portrait" class="celebration-portrait hidden">
+        <img src="images/modi.jpg" alt="Narendra Modi" width="640" height="580">
+      </div>
+      <div id="celebration-symbol" class="celebration-symbol hidden" aria-hidden="true"></div>
+
+      <svg id="celebration-lotus" class="celebration-lotus hidden" viewBox="0 0 400 260" aria-hidden="true">
+        <defs>
+          <linearGradient id="petal-back" x1="0" y1="1" x2="0" y2="0">
+            <stop offset="0" stop-color="#C2410C"/>
+            <stop offset="1" stop-color="#FDBA74"/>
+          </linearGradient>
+          <linearGradient id="petal-front" x1="0" y1="1" x2="0" y2="0">
+            <stop offset="0" stop-color="#EA580C"/>
+            <stop offset="1" stop-color="#FFEDD5"/>
+          </linearGradient>
+          <path id="petal" d="M0 0 C -34 -46 -30 -118 0 -168 C 30 -118 34 -46 0 0 Z"/>
+        </defs>
+        <g transform="translate(200 220)">
+          <ellipse class="lotus-water" cx="0" cy="18" rx="190" ry="16"/>
+          <g class="lotus-leaves">
+            <path d="M-20 10 C -90 6 -170 20 -186 6 C -150 -12 -70 -10 -20 0 Z" fill="#15803D"/>
+            <path d="M20 10 C 90 6 170 20 186 6 C 150 -12 70 -10 20 0 Z" fill="#15803D"/>
+          </g>
+          <use href="#petal" class="petal petal-back" style="--a:-62deg; --d:.30s" fill="url(#petal-back)"/>
+          <use href="#petal" class="petal petal-back" style="--a:62deg; --d:.30s" fill="url(#petal-back)"/>
+          <use href="#petal" class="petal petal-back" style="--a:-38deg; --d:.45s" fill="url(#petal-back)"/>
+          <use href="#petal" class="petal petal-back" style="--a:38deg; --d:.45s" fill="url(#petal-back)"/>
+          <use href="#petal" class="petal petal-front" style="--a:-18deg; --d:.60s" fill="url(#petal-front)"/>
+          <use href="#petal" class="petal petal-front" style="--a:18deg; --d:.60s" fill="url(#petal-front)"/>
+          <use href="#petal" class="petal petal-front" style="--a:0deg; --d:.75s" fill="url(#petal-front)"/>
+        </g>
+      </svg>
+    </div>
+
+    <div class="celebration-caption">
+      <span class="celebration-kicker" id="celebration-kicker">RESULT DECLARED</span>
+      <h2 class="celebration-title" id="celebration-title">—</h2>
+      <p class="celebration-sub" id="celebration-sub">—</p>
+      <button type="button" id="btn-celebration-sound" class="celebration-sound hidden">&#128266; Tap for sound</button>
+    </div>
+  </div>
+
+  <audio id="celebration-audio" src="sounds/modiji.m4a" preload="auto"></audio>
+
   <!-- Clean Minimalist Footer -->
   <footer class="site-footer-fluid">
     <div class="footer-container">
@@ -996,6 +1082,7 @@
           <a href="#register" class="footer-link">Enroll as Elector</a>
           <a href="#login" class="footer-link">Voter Sign In</a>
           <a href="#verify" class="footer-link">Verify Receipt</a>
+          <a href="#results" class="footer-link">Election Results</a>
           <a href="#admin" class="footer-link">Officer Portal</a>
         </div>
 

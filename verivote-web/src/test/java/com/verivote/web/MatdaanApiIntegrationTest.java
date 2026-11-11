@@ -133,5 +133,35 @@ class MatdaanApiIntegrationTest {
                 .filter(r -> "BJP".equals(r.get("shortName"))).findFirst().orElseThrow();
         assertTrue(((Number) bjpRow.get("votes")).longValue() >= 1, "decrypted tally must count the BJP ballot");
         assertEquals(0, ((Number) tallyData.get("undecryptable")).intValue());
+
+        // 13. Results sealed until published; publishing requires an officer
+        assertEquals(false, restTemplate.getForEntity("/api/results", Map.class).getBody().get("published"));
+        assertEquals(HttpStatus.FORBIDDEN, restTemplate.postForEntity("/api/admin/publish", null, Map.class).getStatusCode());
+
+        ResponseEntity<Map> publishResp = restTemplate.exchange("/api/admin/publish", HttpMethod.POST,
+                new HttpEntity<>(adminHeaders), Map.class);
+        assertEquals(HttpStatus.OK, publishResp.getStatusCode());
+        Map results = restTemplate.getForEntity("/api/results", Map.class).getBody();
+        assertEquals(true, results.get("published"));
+        assertEquals("TALLIED", results.get("electionStatus"));
+        assertTrue(((Number) results.get("totalVotes")).longValue() >= 1);
+        if (results.get("winner") != null) {
+            assertNotEquals("NOTA", ((Map) results.get("winner")).get("shortName"));
+        }
+
+        // 14. No ballots accepted after publication
+        ResponseEntity<Map> lateVoter = restTemplate.postForEntity("/api/register",
+                Map.of("name", "Late Voter", "age", 30, "state", "Goa", "pin", "5555"), Map.class);
+        String lateId = (String) lateVoter.getBody().get("voterId");
+        String lateToken = (String) restTemplate.postForEntity("/api/login",
+                Map.of("voterId", lateId, "pin", "5555"), Map.class).getBody().get("sessionToken");
+        HttpHeaders lateHeaders = new HttpHeaders();
+        lateHeaders.setBearerAuth(lateToken);
+        assertEquals(HttpStatus.FORBIDDEN, restTemplate.exchange("/api/vote", HttpMethod.POST,
+                new HttpEntity<>(Map.of("partyCode", "BJP"), lateHeaders), Map.class).getStatusCode());
+
+        // Restore OPEN so other tests sharing this context are unaffected
+        restTemplate.exchange("/api/admin/election-status", HttpMethod.POST,
+                new HttpEntity<>(Map.of("status", "OPEN"), adminHeaders), Map.class);
     }
 }

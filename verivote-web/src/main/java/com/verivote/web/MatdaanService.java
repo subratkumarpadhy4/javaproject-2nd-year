@@ -302,7 +302,10 @@ public class MatdaanService {
     public void resetElectionRecords() {
         voteRepo.deleteAllInBatch();
         spentTokenRepo.deleteAllInBatch();
-        issuanceCounterRepo.deleteAllInBatch();
+        // Zero the counters rather than deleting them: TokenService recreates a missing
+        // counter with an assigned id, which Hibernate rejects as a stale update.
+        issuanceCounterRepo.findAll().forEach(c -> c.setIssued(0L));
+        issuanceCounterRepo.flush();
         voterRepo.deleteAllInBatch();
         electionRepo.findById(ELECTION_ID).ifPresent(e -> {
             e.setStatus(Election.Status.OPEN);
@@ -311,6 +314,31 @@ public class MatdaanService {
         cachedTally = null;
         cachedVoteCount = -1;
         cachedMaxVoteId = null;
+    }
+
+    /**
+     * Publishes the result: polling closes and the election moves to TALLIED.
+     * Results are recomputed from the (now frozen) ballots on each read, so they
+     * survive restarts without a separate results table.
+     */
+    public Election publishResults() {
+        Election election = electionRepo.findById(ELECTION_ID)
+                .orElseGet(() -> new Election("Indian General Election (Educational Demonstration)"));
+        election.setStatus(Election.Status.TALLIED);
+        election.setClosesAt(java.time.Instant.now());
+        return electionRepo.saveAndFlush(election);
+    }
+
+    public boolean isPublished() {
+        return electionRepo.findById(ELECTION_ID)
+                .map(e -> e.getStatus() == Election.Status.TALLIED)
+                .orElse(false);
+    }
+
+    public Optional<java.time.Instant> publishedAt() {
+        return electionRepo.findById(ELECTION_ID)
+                .filter(e -> e.getStatus() == Election.Status.TALLIED)
+                .map(Election::getClosesAt);
     }
 
     public Election setElectionStatus(Election.Status status) {

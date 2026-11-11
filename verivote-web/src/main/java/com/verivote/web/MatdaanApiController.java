@@ -78,6 +78,18 @@ public class MatdaanApiController {
         ));
     }
 
+    /** Published election result. Candidate tallies stay sealed until an officer publishes. */
+    @GetMapping("/results")
+    public ResponseEntity<Map<String, Object>> getResults() {
+        if (!matdaanService.isPublished()) {
+            return ResponseEntity.ok(Map.of(
+                    "published", false,
+                    "electionStatus", matdaanService.electionStatus()
+            ));
+        }
+        return ResponseEntity.ok(resultsBody());
+    }
+
     // ------------------------------------------------------------------
     // Officer authentication
     // ------------------------------------------------------------------
@@ -169,6 +181,15 @@ public class MatdaanApiController {
         return ResponseEntity.ok(Map.of("success", true, "electionStatus", e.getStatus().name()));
     }
 
+    @PostMapping("/admin/publish")
+    public ResponseEntity<?> publishResults(@RequestHeader(value = "Authorization", required = false) String auth) {
+        if (!isAdmin(auth)) {
+            return forbidden();
+        }
+        matdaanService.publishResults();
+        return ResponseEntity.ok(resultsBody());
+    }
+
     @PostMapping("/admin/sample")
     public ResponseEntity<?> loadSampleVotes(@RequestHeader(value = "Authorization", required = false) String auth) {
         if (!isAdmin(auth)) {
@@ -238,6 +259,48 @@ public class MatdaanApiController {
     }
 
     // ------------------------------------------------------------------
+
+    /**
+     * Result payload. The winner is the party with the most votes; NOTA is shown
+     * but cannot win (as in Indian elections). A tie at the top yields no winner.
+     */
+    private Map<String, Object> resultsBody() {
+        MatdaanService.LiveTally live = matdaanService.liveTally();
+        List<Map<String, Object>> rows = new ArrayList<>();
+        long total = 0;
+        for (Candidate c : matdaanService.candidates().stream().sorted(ballotOrder()).toList()) {
+            Map<String, Object> row = matdaanService.candidateView(c);
+            long v = live.counts().getOrDefault(c.getId(), 0L);
+            row.put("votes", v);
+            total += v;
+            rows.add(row);
+        }
+
+        List<Map<String, Object>> contenders = rows.stream()
+                .filter(r -> !"NOTA".equalsIgnoreCase(String.valueOf(r.get("shortName"))))
+                .sorted(Comparator.comparingLong((Map<String, Object> r) -> (Long) r.get("votes")).reversed())
+                .toList();
+        Map<String, Object> winner = null;
+        boolean tie = false;
+        if (!contenders.isEmpty() && (Long) contenders.get(0).get("votes") > 0) {
+            long top = (Long) contenders.get(0).get("votes");
+            tie = contenders.size() > 1 && (Long) contenders.get(1).get("votes") == top;
+            if (!tie) {
+                winner = contenders.get(0);
+            }
+        }
+
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("published", true);
+        body.put("electionStatus", matdaanService.electionStatus());
+        body.put("publishedAt", matdaanService.publishedAt().map(Object::toString).orElse(null));
+        body.put("totalVotes", total);
+        body.put("results", rows);
+        body.put("winner", winner);
+        body.put("tie", tie);
+        body.put("undecryptable", live.undecryptable());
+        return body;
+    }
 
     private boolean isAdmin(String authHeader) {
         return sessionStore.isAdminSession(SessionStore.bearer(authHeader));

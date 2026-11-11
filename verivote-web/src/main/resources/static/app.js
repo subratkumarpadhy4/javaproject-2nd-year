@@ -290,7 +290,7 @@ function animateNumber(element, startVal, endVal, duration = 800) {
 // ROUTING
 // ==========================================================================
 
-const VALID_VIEWS = ['home', 'register', 'login', 'dashboard', 'vote', 'verify', 'admin'];
+const VALID_VIEWS = ['home', 'register', 'login', 'dashboard', 'vote', 'verify', 'results', 'admin'];
 const HOME_ANCHORS = ['how-it-works', 'security-trust', 'election-stats'];
 
 async function switchView(targetView) {
@@ -332,6 +332,7 @@ async function switchView(targetView) {
   else if (viewName === 'vote') renderVotingBooth();
   else if (viewName === 'admin') renderAdminPortal();
   else if (viewName === 'verify') prefillVerify();
+  else if (viewName === 'results') renderResultsView({ autoCelebrate: true });
 }
 
 function handleHashChange() {
@@ -943,7 +944,11 @@ function initAdminPortal() {
   if (toggleBtn) {
     toggleBtn.addEventListener('click', () => withBusy(toggleBtn, async () => {
       const next = adminElectionStatus === 'OPEN' ? 'CLOSED' : 'OPEN';
-      const verb = next === 'CLOSED' ? 'close polling? Voters will no longer be able to cast ballots.' : 'reopen polling for voters?';
+      const verb = next === 'CLOSED'
+        ? 'close polling? Voters will no longer be able to cast ballots.'
+        : adminElectionStatus === 'TALLIED'
+          ? 'reopen polling? This withdraws the published result until you publish again.'
+          : 'reopen polling for voters?';
       if (!window.confirm(`Are you sure you want to ${verb}`)) return;
       try {
         const data = await api('/api/admin/election-status', {
@@ -972,6 +977,26 @@ function initAdminPortal() {
         a.remove();
         setTimeout(() => URL.revokeObjectURL(url), 1000);
         flashInline('admin-action-message', 'Ledger CSV downloaded (receipt and block hashes only — no voter identities).');
+      } catch (err) {
+        adminFail(err);
+      }
+    }));
+  }
+
+  const publishBtn = document.getElementById('btn-publish-results');
+  if (publishBtn) {
+    publishBtn.addEventListener('click', () => withBusy(publishBtn, async () => {
+      try {
+        let results;
+        if (adminElectionStatus === 'TALLIED') {
+          results = await api('/api/results');
+        } else {
+          if (!window.confirm('Publish the result now? Polling will close and the decrypted tally becomes public.')) return;
+          results = await api('/api/admin/publish', { method: 'POST', token: getAdminToken() });
+          flashInline('admin-action-message', 'Result published. It is now visible to everyone on the Results page.');
+        }
+        await loadAdminData();
+        playCelebration(results);
       } catch (err) {
         adminFail(err);
       }
@@ -1019,8 +1044,11 @@ function renderAdminData(data) {
   adminElectionStatus = data.electionStatus;
   const chip = document.getElementById('admin-election-status');
   chip.textContent = data.electionStatus || '—';
-  chip.className = `election-status-chip ${data.electionStatus === 'OPEN' ? 'open' : 'closed'}`;
+  const statusClass = { OPEN: 'open', TALLIED: 'tallied' }[data.electionStatus] || 'closed';
+  chip.className = `election-status-chip ${statusClass}`;
+  if (data.electionStatus === 'TALLIED') chip.textContent = 'RESULT PUBLISHED';
   setText('btn-toggle-election', data.electionStatus === 'OPEN' ? 'Close Polling' : 'Reopen Polling');
+  setText('btn-publish-results', data.electionStatus === 'TALLIED' ? 'Replay Result' : 'Publish Result');
 
   const undecryptable = Number(data.undecryptable) || 0;
   if (undecryptable > 0) {
@@ -1050,7 +1078,7 @@ function renderAdminData(data) {
         <span class="result-tally">${partyVotes} ${partyVotes === 1 ? 'vote' : 'votes'} (${pct}%)</span>
       </div>
       <div class="result-bar-track">
-        <div class="result-bar-fill" style="width: ${pct}%; background-color: ${partyBorder(row)};"
+        <div class="result-bar-fill" style="width: ${pct}%; background: ${partyBorder(row)};"
              role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"
              aria-label="${escapeHtml(row.shortName)} vote share"></div>
       </div>`;
@@ -1075,6 +1103,193 @@ function renderAdminData(data) {
       <td>${escapeHtml(reg)}</td>
       <td><span class="badge-table ${v.hasVoted ? 'voted' : 'eligible'}">${v.hasVoted ? 'Voted' : 'Eligible'}</span></td>`;
     tbody.appendChild(tr);
+  });
+}
+
+// ==========================================================================
+// VIEW: PUBLISHED RESULTS
+// ==========================================================================
+
+const isLotusParty = (row) => row && normCode(row.code) === 'bjp';
+
+function resultHeadline(results) {
+  const w = results.winner;
+  const total = Number(results.totalVotes) || 0;
+  if (w) {
+    const pct = total > 0 ? ((Number(w.votes) / total) * 100).toFixed(1) : '0.0';
+    return {
+      kicker: 'RESULT DECLARED • WINNER',
+      title: `${w.party} (${w.shortName}) wins`,
+      sub: `${Number(w.votes).toLocaleString('en-IN')} of ${total.toLocaleString('en-IN')} votes • ${pct}% vote share`
+    };
+  }
+  if (results.tie) {
+    return { kicker: 'RESULT DECLARED', title: 'The contest is tied', sub: 'Two or more parties received the same highest number of votes.' };
+  }
+  return { kicker: 'RESULT DECLARED', title: 'No winner declared', sub: 'No valid votes were cast for any party.' };
+}
+
+let resultsCelebratedFor = null;
+
+async function renderResultsView({ autoCelebrate = false } = {}) {
+  let results;
+  try {
+    results = await api('/api/results');
+  } catch (err) {
+    setText('results-pending-desc', err.message);
+    return;
+  }
+
+  const pending = document.getElementById('results-pending');
+  const published = document.getElementById('results-published');
+  if (!results.published) {
+    pending.classList.remove('hidden');
+    published.classList.add('hidden');
+    setText('results-pending-desc', results.electionStatus === 'OPEN'
+      ? 'Polling is open. Candidate tallies stay sealed until the Returning Officer publishes the result.'
+      : 'Polling has closed. The Returning Officer has not published the result yet.');
+    return;
+  }
+
+  pending.classList.add('hidden');
+  published.classList.remove('hidden');
+
+  const head = resultHeadline(results);
+  const w = results.winner;
+  setText('results-winner-tag', w ? 'WINNER' : 'RESULT');
+  setText('results-winner-name', head.title);
+  setText('results-winner-meta', head.sub);
+  const card = document.getElementById('results-winner-card');
+  card.style.setProperty('--winner-color', w ? partyBorder(w) : 'var(--color-ink-muted)');
+  const symbol = document.getElementById('results-winner-symbol');
+  symbol.innerHTML = w
+    ? (isLotusParty(w) ? '<img src="images/modi.jpg" alt="">' : partySymbolHtml(w))
+    : '';
+  document.getElementById('btn-replay-celebration').classList.toggle('hidden', !w);
+
+  const total = Number(results.totalVotes) || 0;
+  const bars = document.getElementById('results-bars-container');
+  bars.innerHTML = '';
+  [...results.results]
+    .sort((a, b) => Number(b.votes) - Number(a.votes))
+    .forEach(row => {
+      const votes = Number(row.votes) || 0;
+      const pct = total > 0 ? ((votes / total) * 100).toFixed(1) : '0.0';
+      const el = document.createElement('div');
+      el.className = `result-row${w && row.id === w.id ? ' is-winner' : ''}`;
+      el.innerHTML = `
+        <div class="result-row-header">
+          <div class="result-party-info">
+            <div class="result-party-symbol">${partySymbolHtml(row)}</div>
+            <div>
+              <span class="result-party-code">${escapeHtml(row.shortName)}</span>
+              <span class="result-party-name">${escapeHtml(row.party)}</span>
+            </div>
+          </div>
+          <span class="result-tally">${votes.toLocaleString('en-IN')} (${pct}%)</span>
+        </div>
+        <div class="result-bar-track">
+          <div class="result-bar-fill" style="width: ${pct}%; background: ${partyBorder(row)};"
+               role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"
+               aria-label="${escapeHtml(row.shortName)} vote share"></div>
+        </div>`;
+      bars.appendChild(el);
+    });
+
+  const when = results.publishedAt ? formatDisplayDateTime(new Date(results.publishedAt)) : null;
+  setText('results-footnote', `${total.toLocaleString('en-IN')} valid votes counted from encrypted ballots` +
+    (when ? ` • Published ${when}` : '') + ' • NOTA is shown but cannot win.');
+
+  // Celebrate once per publication when a visitor opens the Results page.
+  if (autoCelebrate && w && resultsCelebratedFor !== results.publishedAt) {
+    resultsCelebratedFor = results.publishedAt;
+    playCelebration(results);
+  }
+  lastPublishedResults = results;
+}
+
+let lastPublishedResults = null;
+
+// ==========================================================================
+// RESULT CELEBRATION: lotus blooms -> portrait rises -> audio plays
+// ==========================================================================
+
+const celebrationTimers = [];
+
+function closeCelebration() {
+  const overlay = document.getElementById('celebration');
+  const audio = document.getElementById('celebration-audio');
+  celebrationTimers.splice(0).forEach(clearTimeout);
+  overlay.classList.add('hidden');
+  overlay.classList.remove('is-revealed');
+  if (audio) {
+    audio.pause();
+    audio.currentTime = 0;
+  }
+  document.removeEventListener('keydown', celebrationKeydown);
+}
+
+function celebrationKeydown(e) {
+  if (e.key === 'Escape') closeCelebration();
+}
+
+function playCelebrationAudio() {
+  const audio = document.getElementById('celebration-audio');
+  const soundBtn = document.getElementById('btn-celebration-sound');
+  if (!audio) return;
+  audio.currentTime = 0;
+  const attempt = audio.play();
+  if (attempt && typeof attempt.catch === 'function') {
+    attempt.then(() => soundBtn.classList.add('hidden'))
+      .catch(() => soundBtn.classList.remove('hidden')); // autoplay blocked: offer a tap
+  }
+}
+
+function playCelebration(results) {
+  const overlay = document.getElementById('celebration');
+  const lotus = document.getElementById('celebration-lotus');
+  const portrait = document.getElementById('celebration-portrait');
+  const symbol = document.getElementById('celebration-symbol');
+  const soundBtn = document.getElementById('btn-celebration-sound');
+  if (!overlay) return;
+
+  closeCelebration();
+  const head = resultHeadline(results);
+  setText('celebration-kicker', head.kicker);
+  setText('celebration-title', head.title);
+  setText('celebration-sub', head.sub);
+  soundBtn.classList.add('hidden');
+
+  const lotusWinner = isLotusParty(results.winner);
+  lotus.classList.toggle('hidden', !lotusWinner);
+  portrait.classList.toggle('hidden', !lotusWinner);
+  symbol.classList.toggle('hidden', lotusWinner || !results.winner);
+  symbol.innerHTML = !lotusWinner && results.winner ? partySymbolHtml(results.winner) : '';
+
+  // Restart the SVG petal animations by re-inserting the lotus node.
+  if (lotusWinner) lotus.replaceWith(lotus.cloneNode(true));
+
+  overlay.classList.remove('hidden');
+  document.addEventListener('keydown', celebrationKeydown);
+  document.getElementById('btn-close-celebration').focus();
+
+  const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // Lotus petals finish unfolding ~1.7s in; then the portrait rises and the audio starts.
+  const revealDelay = lotusWinner && !reduced ? 1700 : 200;
+  celebrationTimers.push(setTimeout(() => {
+    overlay.classList.add('is-revealed');
+    if (lotusWinner) playCelebrationAudio();
+  }, revealDelay));
+}
+
+function initCelebration() {
+  document.getElementById('btn-close-celebration').addEventListener('click', closeCelebration);
+  document.getElementById('celebration').addEventListener('click', (e) => {
+    if (e.target.id === 'celebration') closeCelebration();
+  });
+  document.getElementById('btn-celebration-sound').addEventListener('click', playCelebrationAudio);
+  document.getElementById('btn-replay-celebration').addEventListener('click', () => {
+    if (lastPublishedResults) playCelebration(lastPublishedResults);
   });
 }
 
@@ -1151,6 +1366,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   initAdminPortal();
   initResetDemo();
   initMobileMenu();
+  initCelebration();
 
   // Restore a voter session silently (no toast) before routing.
   if (getVoterToken()) {
